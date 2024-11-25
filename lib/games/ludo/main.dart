@@ -5,13 +5,14 @@ import 'package:marquis_v2/games/ludo/config.dart';
 import 'package:marquis_v2/games/ludo/ludo_game.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/screens/game_over_screen.dart';
+import 'package:marquis_v2/games/ludo/screens/waiting_room/ludo_waiting_room_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/welcome_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/waiting_room_screen.dart';
 import 'package:marquis_v2/games/ludo/widgets/message_overlay.dart';
 import 'package:marquis_v2/router/route_path.dart';
 
 void main() {
-  runApp(const LudoGameApp());
+  runApp(const LudoWaitingRoomScreen());
 }
 
 class LudoGameAppPath extends AppRoutePath {
