@@ -356,27 +356,21 @@ class LudoSession extends _$LudoSession {
     final amountFelt = Felt(amount);
 
     try {
-      final response = await provider.call(
+      (await provider.call(
         request: FunctionCall(
           contractAddress: ludoContractAddressFelt,
           entryPointSelector: getSelectorByName('create_session'),
           calldata: [token, amountFelt],
         ),
         blockId: const BlockId.blockTag("latest"),
-      );
-
-      response.when(
+      ))
+          .when(
         error: (error) {
           throw Exception("Error creating a session: $error");
         },
         result: (result) async {
-          // final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-          // print(decodedResponse);
-          // _id = decodedResponse['id'];
-          // await getLudoSession();
-          // await ref.read(userProvider.notifier).getUser();
           _id = Uint256.fromFeltList(result).toBigInt().toString();
-          print(_id);
+          print("_id ${_id!}");
           await getLudoSession();
           await ref.read(userProvider.notifier).getUser();
         },
@@ -398,28 +392,21 @@ class LudoSession extends _$LudoSession {
     final sessionIdFelt = Felt(BigInt.parse(sessionId));
 
     try {
-      final response = await provider.call(
+      (await provider.call(
         request: FunctionCall(
           contractAddress: ludoContractAddressFelt,
           entryPointSelector: getSelectorByName('join_session'),
           calldata: [sessionIdFelt],
         ),
         blockId: const BlockId.blockTag("latest"),
-      );
-
-      response.when(
+      ))
+          .when(
         error: (error) {
           throw Exception("Error joining a session: $error");
         },
         result: (result) async {
-          // final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-          // print(decodedResponse);
-          // _id = sessionId;
-          // await getLudoSession();
-          // await ref.read(userProvider.notifier).getUser();
           _id = Uint256.fromFeltList(result).toBigInt().toString();
           print(_id);
-
           await getLudoSession();
           await ref.read(userProvider.notifier).getUser();
         },
