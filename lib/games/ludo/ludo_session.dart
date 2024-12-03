@@ -449,7 +449,7 @@ class LudoSession extends _$LudoSession {
     // const ludoContractAddress =
     //     "0x04c744a406ae87f8c9bfec99f3eca1253634c4fa95c770ea2c9139a98be64223";
     // final ludoContractAddressFelt = Felt.fromHexString(ludoContractAddress);
-    // final sessionId = Felt.fromString(amount);
+    // final sessionIdFelt = Felt.fromString(sessionId);
     //
     // try {
     //   // random account's public and private keys
@@ -468,7 +468,7 @@ class LudoSession extends _$LudoSession {
     //     FunctionCall(
     //       contractAddress: ludoContractAddressFelt,
     //       entryPointSelector: getSelectorByName('join_session'),
-    //       calldata: [sessionId],
+    //       calldata: [sessionIdFelt],
     //     )
     //   ]))
     //       .when(
