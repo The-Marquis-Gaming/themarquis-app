@@ -385,9 +385,9 @@ class LudoSession extends _$LudoSession {
     // try {
     //   // random account's public and private keys
     //   final accountAddress = Felt.fromHexString(
-    //       '0x00d96708E203b63AD55099E303302A154962571C890F5bCFFC27d9Db73C97A5F');
+    //       accountPublicAddress);
     //   final privateKey = Felt.fromHexString(
-    //       "0x05f7c58fbd89240bce3fd21a7b9badb9500ee81733ad3b1f09f8a0136b55cdba");
+    //       accountPrivateAddress);
     //   final signer = Signer(privateKey: privateKey);
     //   final account = Account(
     //       provider: provider,
@@ -454,9 +454,9 @@ class LudoSession extends _$LudoSession {
     // try {
     //   // random account's public and private keys
     //   final accountAddress = Felt.fromHexString(
-    //       '0x069f006B940b8a70478D99E38E616c2c062B1983CA4E887e7B48d2b8f5b64EE9');
+    //       accountPublicAddress);
     //   final privateKey = Felt.fromHexString(
-    //       "0x07a10e41eca009ff738748247770bf0142aa443cb803e5feb37c4e1b6480564e");
+    //       accountPrivateAddress);
     //   final signer = Signer(privateKey: privateKey);
     //   final account = Account(
     //       provider: provider,
