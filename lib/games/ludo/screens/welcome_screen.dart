@@ -1112,8 +1112,8 @@ class _CreateRoomDialogState extends ConsumerState<CreateRoomDialog> {
                                     await ref
                                         .read(ludoSessionProvider.notifier)
                                         .createSession(
-                                          _sliderValue,
-                                          // _selectedColor!,
+                                          _sliderValue.toString(),
+                                          _selectedColor!,
                                           _selectedTokenAddress,
                                         );
                                   } catch (e) {
@@ -1550,7 +1550,7 @@ class _JoinRoomChooseColorDialogState
                               .read(ludoSessionProvider.notifier)
                               .joinSession(
                                 widget.roomId,
-                                // _selectedColor,
+                                _selectedColor,
                               );
                           if (!context.mounted) return;
                           Navigator.of(context).pop(true);
