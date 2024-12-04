@@ -72,7 +72,8 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: const AssetImage('assets/images/ludo.png'),
-                          colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.darken),
+                          colorFilter: ColorFilter.mode(
+                              Colors.black.withOpacity(0.5), BlendMode.darken),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -86,16 +87,29 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
-                              shadows: [Shadow(blurRadius: 10.6, color: Color(0xFF00ECFF), offset: Offset(0, 0))],
+                              shadows: [
+                                Shadow(
+                                    blurRadius: 10.6,
+                                    color: Color(0xFF00ECFF),
+                                    offset: Offset(0, 0))
+                              ],
                             ),
                           ),
-                          Text('MENU', style: TextStyle(fontSize: 15, color: Colors.white, letterSpacing: 8)),
+                          Text('MENU',
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  letterSpacing: 8)),
                         ],
                       ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left: 69, right: 35, top: scaledHeight(25), bottom: scaledHeight(25)),
+                    padding: EdgeInsets.only(
+                        left: 69,
+                        right: 35,
+                        top: scaledHeight(25),
+                        bottom: scaledHeight(25)),
                     child: Column(
                       children: [
                         if (user.sessionId != null) ...[
@@ -107,17 +121,29 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                                   label: 'Resume Game',
                                   onTap: () async {
                                     try {
-                                      ref.read(appStateProvider.notifier).selectGameSessionId("ludo", user.sessionId);
-                                      var session = ref.read(ludoSessionProvider);
+                                      ref
+                                          .read(appStateProvider.notifier)
+                                          .selectGameSessionId(
+                                              "ludo", user.sessionId);
+                                      var session =
+                                          ref.read(ludoSessionProvider);
                                       if (session == null) {
-                                        await ref.read(ludoSessionProvider.notifier).getLudoSession();
+                                        await ref
+                                            .read(ludoSessionProvider.notifier)
+                                            .getLudoSession();
                                         session = ref.read(ludoSessionProvider);
                                       }
                                       if (session == null) return;
-                                      if (session.sessionUserStatus.where((e) => e.status == "ACTIVE").length == 4) {
-                                        widget.game.playState = PlayState.playing;
+                                      if (session.sessionUserStatus
+                                              .where(
+                                                  (e) => e.status == "ACTIVE")
+                                              .length ==
+                                          4) {
+                                        widget.game.playState =
+                                            PlayState.playing;
                                       } else {
-                                        widget.game.playState = PlayState.waiting;
+                                        widget.game.playState =
+                                            PlayState.waiting;
                                       }
                                     } catch (e) {
                                       if (!context.mounted) return;
@@ -143,28 +169,33 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                                         builder: (BuildContext context) {
                                           return AlertDialog(
                                             title: const Text('Exit Game'),
-                                            content: const Text('Are you sure you want to exit the current game?'),
+                                            content: const Text(
+                                                'Are you sure you want to exit the current game?'),
                                             actions: <Widget>[
                                               TextButton(
                                                 child: const Text('Cancel'),
                                                 onPressed: () {
-                                                  Navigator.of(context).pop(false);
+                                                  Navigator.of(context)
+                                                      .pop(false);
                                                 },
                                               ),
                                               TextButton(
                                                 child: const Text('Exit'),
                                                 onPressed: () {
-                                                  Navigator.of(context).pop(true);
+                                                  Navigator.of(context)
+                                                      .pop(true);
                                                 },
                                               ),
                                             ],
                                           );
                                         },
                                       );
-              
+
                                       // If user doesn't confirm, return early
                                       if (!confirmExit) return;
-                                      await ref.read(ludoSessionProvider.notifier).exitSession();
+                                      await ref
+                                          .read(ludoSessionProvider.notifier)
+                                          .exitSession();
                                       setState(() {});
                                     } catch (e) {
                                       if (!context.mounted) return;
@@ -179,7 +210,11 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                           SizedBox(
                             height: scaledHeight(64),
                             child: FittedBox(
-                              child: _MenuButton(icon: Icons.add, label: 'Create Game', onTap: () => _createRoomDialog(ctx: context, game: widget.game)),
+                              child: _MenuButton(
+                                  icon: Icons.add,
+                                  label: 'Create Game',
+                                  onTap: () => _createRoomDialog(
+                                      ctx: context, game: widget.game)),
                             ),
                           ),
                           SizedBox(height: scaledHeight(20)),
@@ -188,7 +223,11 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                           SizedBox(
                             height: scaledHeight(64),
                             child: FittedBox(
-                              child: _MenuButton(icon: Icons.group, label: 'Find Game', onTap: () => _findRoomDialog(ctx: context, game: widget.game)),
+                              child: _MenuButton(
+                                  icon: Icons.group,
+                                  label: 'Find Game',
+                                  onTap: () => _findRoomDialog(
+                                      ctx: context, game: widget.game)),
                             ),
                           ),
                           SizedBox(height: scaledHeight(20)),
@@ -197,14 +236,22 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                           SizedBox(
                             height: scaledHeight(64),
                             child: FittedBox(
-                              child: _MenuButton(icon: Icons.casino, label: 'Join Game', onTap: () => _joinGameDialog(ctx: context, game: widget.game)),
+                              child: _MenuButton(
+                                  icon: Icons.casino,
+                                  label: 'Join Game',
+                                  onTap: () => _joinGameDialog(
+                                      ctx: context, game: widget.game)),
                             ),
                           ),
                           SizedBox(height: scaledHeight(20)),
                         ],
                         SizedBox(
                           height: scaledHeight(64),
-                          child: FittedBox(child: _MenuButton(icon: Icons.home, label: 'Back to Home', onTap: Navigator.of(context).pop)),
+                          child: FittedBox(
+                              child: _MenuButton(
+                                  icon: Icons.home,
+                                  label: 'Back to Home',
+                                  onTap: Navigator.of(context).pop)),
                         ),
                       ],
                     ),
@@ -220,8 +267,17 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
             child: Container(
               constraints: const BoxConstraints(maxWidth: 244),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF4F2934), Color(0xFF843C4C), Color(0xFF0F0E13)]),
-                boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 24, offset: Offset(0, 16))],
+                gradient: const LinearGradient(colors: [
+                  Color(0xFF4F2934),
+                  Color(0xFF843C4C),
+                  Color(0xFF0F0E13)
+                ]),
+                boxShadow: const [
+                  BoxShadow(
+                      color: Color(0x40000000),
+                      blurRadius: 24,
+                      offset: Offset(0, 16))
+                ],
                 border: Border.all(color: const Color(0xFF40474D)),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -233,11 +289,16 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                   Flexible(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(_errorMessage, maxLines: 4, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 14)),
+                      child: Text(_errorMessage,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 14)),
                     ),
-                   
                   ),
-                  GestureDetector(onTap: _dismissError, child: const Icon(Icons.close, size: 24, color: Colors.white)),
+                  GestureDetector(
+                      onTap: _dismissError,
+                      child: const Icon(Icons.close,
+                          size: 24, color: Colors.white)),
                 ],
               ),
             ),
@@ -246,7 +307,8 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
     );
   }
 
-  Future<void> _joinGameDialog({required BuildContext ctx, required LudoGame game}) {
+  Future<void> _joinGameDialog(
+      {required BuildContext ctx, required LudoGame game}) {
     return showDialog(
       context: ctx,
       builder: (BuildContext context) {
@@ -255,7 +317,8 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
     );
   }
 
-  Future<void> _findRoomDialog({required BuildContext ctx, required LudoGame game}) {
+  Future<void> _findRoomDialog(
+      {required BuildContext ctx, required LudoGame game}) {
     return showDialog(
       context: ctx,
       builder: (BuildContext context) {
@@ -265,7 +328,9 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
   }
 
   void _createRoomDialog({required BuildContext ctx, required LudoGame game}) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CreateGameScreen(), settings: RouteSettings(arguments: game)));
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => const CreateGameScreen(),
+        settings: RouteSettings(arguments: game)));
   }
 }
 
@@ -273,7 +338,10 @@ class _MenuButton extends StatelessWidget {
   final String _label;
   final VoidCallback _onTap;
   final IconData _icon;
-  const _MenuButton({required String label, required IconData icon, required VoidCallback onTap, super.key})
+  const _MenuButton(
+      {required String label,
+      required IconData icon,
+      required VoidCallback onTap})
       : _label = label,
         _onTap = onTap,
         _icon = icon;
@@ -291,7 +359,9 @@ class _MenuButton extends StatelessWidget {
             height: 53,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              gradient: const LinearGradient(colors: [Color(0xFF0E272F), Color(0xFF0F1118)], stops: [0.6, 1]),
+              gradient: const LinearGradient(
+                  colors: [Color(0xFF0E272F), Color(0xFF0F1118)],
+                  stops: [0.6, 1]),
             ),
             padding: const EdgeInsets.only(left: 55),
             alignment: Alignment.centerLeft,
@@ -299,7 +369,8 @@ class _MenuButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                Text(_label,
+                    style: const TextStyle(color: Colors.white, fontSize: 12)),
                 Container(color: const Color(0xFF00ECFF), height: 2, width: 28),
               ],
             ),
@@ -324,7 +395,8 @@ class _MenuButton extends StatelessWidget {
 }
 
 class _FindRoomDialog extends ConsumerStatefulWidget {
-  const _FindRoomDialog({super.key, required this.game, this.roomId, required this.errorHandler});
+  const _FindRoomDialog(
+      {required this.game, this.roomId, required this.errorHandler});
 
   final LudoGame game;
   final String? roomId;
@@ -360,7 +432,10 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
       final res = await showDialog(
           context: context,
           builder: (c) {
-            return _FindGameChooseColorDialog(roomId: _roomIdController.text, selectedSession: ludoSession, game: widget.game);
+            return _FindGameChooseColorDialog(
+                roomId: _roomIdController.text,
+                selectedSession: ludoSession,
+                game: widget.game);
           });
       if (res == true) {
         if (!mounted) return;
@@ -385,7 +460,8 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: Theme.of(context).copyWith(textTheme: GoogleFonts.montserratTextTheme()),
+      data: Theme.of(context)
+          .copyWith(textTheme: GoogleFonts.montserratTextTheme()),
       child: Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
@@ -401,24 +477,37 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
               children: [
                 const Text(
                   'Find Game',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 16),
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Room ID",
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500),
                   ),
                 ),
                 SizedBox(
                   height: 41,
                   child: TextField(
-                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w400),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400),
                     decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 14),
                       hintText: "Please enter room ID",
-                      hintStyle: const TextStyle(color: Color(0xFF8B8B8B), fontSize: 14, fontWeight: FontWeight.w400),
+                      hintStyle: const TextStyle(
+                          color: Color(0xFF8B8B8B),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400),
                       fillColor: const Color(0xFF363D43),
                       filled: true,
                       border: OutlineInputBorder(
@@ -444,7 +533,8 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
                       child: OutlinedButton(
                         onPressed: Navigator.of(context).pop,
                         style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                             foregroundColor: const Color(0xFF00ECFF),
                             side: const BorderSide(color: Color(0xFF00ECFF))),
                         child: const Text("Cancel"),
@@ -455,11 +545,14 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
                       child: ElevatedButton(
                         onPressed: searchRoom,
                         style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
                           foregroundColor: Colors.black,
                           backgroundColor: const Color(0xFF00ECFF),
                         ),
-                        child: _isLoading ? const CircularProgressIndicator() : const Text("Confirm"),
+                        child: _isLoading
+                            ? const CircularProgressIndicator()
+                            : const Text("Confirm"),
                       ),
                     ),
                   ],
@@ -474,7 +567,7 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
 }
 
 class _JoinGameDialog extends ConsumerStatefulWidget {
-  const _JoinGameDialog({super.key, required this.game, required this.errorHandler});
+  const _JoinGameDialog({required this.game, required this.errorHandler});
 
   final LudoGame game;
   final void Function(String) errorHandler;
@@ -487,13 +580,15 @@ class _JoinGameDialogState extends ConsumerState<_JoinGameDialog> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: Theme.of(context).copyWith(textTheme: GoogleFonts.montserratTextTheme()),
+      data: Theme.of(context)
+          .copyWith(textTheme: GoogleFonts.montserratTextTheme()),
       child: Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: const Color(0xFF21262B),
         clipBehavior: Clip.antiAlias,
         child: FutureBuilder<List<LudoSessionData>>(future: () async {
-          final rooms = await ref.read(ludoSessionProvider.notifier).getOpenSessions();
+          final rooms =
+              await ref.read(ludoSessionProvider.notifier).getOpenSessions();
           return rooms;
         }(), builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -521,10 +616,15 @@ class _JoinGameDialogState extends ConsumerState<_JoinGameDialog> {
                       visualDensity: VisualDensity.compact,
                       padding: const EdgeInsets.all(0),
                       onPressed: Navigator.of(context).pop,
-                      icon: const Icon(Icons.cancel_outlined, color: Colors.white, size: 22),
+                      icon: const Icon(Icons.cancel_outlined,
+                          color: Colors.white, size: 22),
                     ),
                   ),
-                  const Text('Join Game', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+                  const Text('Join Game',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700)),
                   const SizedBox(height: 16),
                   Expanded(
                     child: SingleChildScrollView(
@@ -532,8 +632,11 @@ class _JoinGameDialogState extends ConsumerState<_JoinGameDialog> {
                       child: Column(
                         children: [
                           ...snapshot.data!.map(
-                            (sessionData) =>
-                                _OpenSessionRoomCard(game: widget.game, sessionData: sessionData, context: context, errorHandler: widget.errorHandler),
+                            (sessionData) => _OpenSessionRoomCard(
+                                game: widget.game,
+                                sessionData: sessionData,
+                                context: context,
+                                errorHandler: widget.errorHandler),
                           ),
                         ],
                       ),
@@ -550,7 +653,11 @@ class _JoinGameDialogState extends ConsumerState<_JoinGameDialog> {
 }
 
 class _OpenSessionRoomCard extends StatelessWidget {
-  const _OpenSessionRoomCard({super.key, required this.game, required this.sessionData, required this.context, required this.errorHandler});
+  const _OpenSessionRoomCard(
+      {required this.game,
+      required this.sessionData,
+      required this.context,
+      required this.errorHandler});
 
   final LudoGame game;
   final LudoSessionData sessionData;
@@ -561,7 +668,9 @@ class _OpenSessionRoomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = sessionData.getListOfColors;
     final roomName = sessionData.id;
-    final noOfPlayers = sessionData.sessionUserStatus.map((e) => e.status == "ACTIVE" ? 1 : 0).reduce((value, element) => value + element);
+    final noOfPlayers = sessionData.sessionUserStatus
+        .map((e) => e.status == "ACTIVE" ? 1 : 0)
+        .reduce((value, element) => value + element);
     final roomColor = sessionData.playAmount == '0'
         ? const Color(0xFF00ECFF)
         : sessionData.playToken == "STRK"
@@ -571,10 +680,14 @@ class _OpenSessionRoomCard extends StatelessWidget {
                 : const Color(0xFF404040);
 
     return Theme(
-      data: Theme.of(context).copyWith(textTheme: GoogleFonts.orbitronTextTheme()),
+      data: Theme.of(context)
+          .copyWith(textTheme: GoogleFonts.orbitronTextTheme()),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(color: const Color(0x94181B25), border: Border.all(color: const Color(0xFF2E2E2E)), borderRadius: BorderRadius.circular(4)),
+        decoration: BoxDecoration(
+            color: const Color(0x94181B25),
+            border: Border.all(color: const Color(0xFF2E2E2E)),
+            borderRadius: BorderRadius.circular(4)),
         child: Column(
           children: [
             Row(
@@ -583,33 +696,52 @@ class _OpenSessionRoomCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("ROOM $roomName", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
+                    Text("ROOM $roomName",
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white)),
                     const SizedBox(width: 4),
                     Consumer(
                       builder: (context, ref, child) {
                         return FutureBuilder(
-                            future: ref.read(userProvider.notifier).getSupportedTokens(),
+                            future: ref
+                                .read(userProvider.notifier)
+                                .getSupportedTokens(),
                             builder: (context, snapshot) {
                               final supportedTokens = <String, String>{};
                               if (snapshot.hasData) {
                                 for (var item in snapshot.data!) {
-                                  supportedTokens.addAll({item["tokenAddress"]!: item["tokenName"]!});
+                                  supportedTokens.addAll({
+                                    item["tokenAddress"]!: item["tokenName"]!
+                                  });
                                 }
                               }
                               final roomStake = sessionData.playAmount == '0'
                                   ? "Free"
                                   : "${(double.parse(sessionData.playAmount) / 1e18).toStringAsFixed(5)} ${supportedTokens[sessionData.playToken]}";
                               return Container(
-                                decoration: BoxDecoration(border: Border.all(color: roomColor), borderRadius: BorderRadius.circular(30)),
-                                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                                child: Text(roomStake, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: roomColor),
+                                    borderRadius: BorderRadius.circular(30)),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 8),
+                                child: Text(roomStake,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white)),
                               );
                             });
                       },
                     ),
                   ],
                 ),
-                Text("$noOfPlayers/4 Players", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF979797))),
+                Text("$noOfPlayers/4 Players",
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF979797))),
               ],
             ),
             const SizedBox(height: 8),
@@ -620,8 +752,10 @@ class _OpenSessionRoomCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    for (int i = 0; i < noOfPlayers; i++) _PlayerAvatarCard(index: i, size: 37, color: colors[i]),
-                    for (int i = 0; i < 4 - noOfPlayers; i++) const _PlayerEmptyCard(size: 37),
+                    for (int i = 0; i < noOfPlayers; i++)
+                      _PlayerAvatarCard(index: i, size: 37, color: colors[i]),
+                    for (int i = 0; i < 4 - noOfPlayers; i++)
+                      const _PlayerEmptyCard(size: 37),
                   ],
                 ),
                 //join button
@@ -634,7 +768,10 @@ class _OpenSessionRoomCard extends StatelessWidget {
                           final res = await showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return _FindRoomDialog(game: game, roomId: roomName, errorHandler: errorHandler);
+                              return _FindRoomDialog(
+                                  game: game,
+                                  roomId: roomName,
+                                  errorHandler: errorHandler);
                             },
                           );
                           if (res == true) {
@@ -643,12 +780,15 @@ class _OpenSessionRoomCard extends StatelessWidget {
                           }
                         },
                         style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero, // Remove the default padding from TextButton
+                          padding: EdgeInsets
+                              .zero, // Remove the default padding from TextButton
                         ),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 0, 236, 255), // Background color
-                            borderRadius: BorderRadius.circular(8), // Rounded edges
+                            color: const Color.fromARGB(
+                                255, 0, 236, 255), // Background color
+                            borderRadius:
+                                BorderRadius.circular(8), // Rounded edges
                           ),
                           padding: const EdgeInsets.symmetric(
                             vertical: 10.0,
@@ -673,7 +813,7 @@ class _OpenSessionRoomCard extends StatelessWidget {
 }
 
 class _PlayerEmptyCard extends StatelessWidget {
-  const _PlayerEmptyCard({super.key, required this.size});
+  const _PlayerEmptyCard({required this.size});
 
   final double size;
 
@@ -691,14 +831,16 @@ class _PlayerEmptyCard extends StatelessWidget {
             width: 1.5,
           ),
         ),
-        child: Center(child: SvgPicture.asset("assets/svg/empty_player_avatar.svg")),
+        child: Center(
+            child: SvgPicture.asset("assets/svg/empty_player_avatar.svg")),
       ),
     );
   }
 }
 
 class _PlayerAvatarCard extends StatelessWidget {
-  const _PlayerAvatarCard({super.key, required this.index, required this.size, required this.color});
+  const _PlayerAvatarCard(
+      {required this.index, required this.size, required this.color});
 
   final int index;
   final double size;
@@ -709,11 +851,12 @@ class _PlayerAvatarCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: Container(
-        width: size, 
-        height: size, 
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           color: color, // Background color
-          borderRadius: BorderRadius.circular(size / 8), // Rounded corners with radius 24
+          borderRadius:
+              BorderRadius.circular(size / 8), // Rounded corners with radius 24
         ),
         child: FittedBox(
           fit: BoxFit.fill,
@@ -745,7 +888,8 @@ class _PlayerAvatarCard extends StatelessWidget {
 }
 
 class _ColorChoosingCard extends StatefulWidget {
-  const _ColorChoosingCard({super.key, required this.onColorPicked, this.takenColors = const []});
+  const _ColorChoosingCard(
+      {required this.onColorPicked, this.takenColors = const []});
   final Function(String) onColorPicked;
   final List<String> takenColors;
 
@@ -762,8 +906,10 @@ class _ColorChoosingCardState extends State<_ColorChoosingCard> {
   void initState() {
     _takenColors = widget.takenColors;
     print("Taken Colors: $_takenColors");
-    _pickedColorIndex = colors.indexWhere((color) => !_takenColors.contains(color));
-    Future.delayed(Duration.zero, () => widget.onColorPicked(colors[_pickedColorIndex]));
+    _pickedColorIndex =
+        colors.indexWhere((color) => !_takenColors.contains(color));
+    Future.delayed(
+        Duration.zero, () => widget.onColorPicked(colors[_pickedColorIndex]));
     super.initState();
   }
 
@@ -800,7 +946,8 @@ class _ColorChoosingCardState extends State<_ColorChoosingCard> {
     }
   }
 
-  Widget _buildCornerBorder({double? top, double? left, double? right, double? bottom}) {
+  Widget _buildCornerBorder(
+      {double? top, double? left, double? right, double? bottom}) {
     return Positioned(
       top: top,
       left: left,
@@ -811,10 +958,18 @@ class _ColorChoosingCardState extends State<_ColorChoosingCard> {
         height: 10,
         decoration: BoxDecoration(
           border: Border(
-            top: top != null ? const BorderSide(width: 2, color: Colors.white) : BorderSide.none,
-            left: left != null ? const BorderSide(width: 2, color: Colors.white) : BorderSide.none,
-            right: right != null ? const BorderSide(width: 2, color: Colors.white) : BorderSide.none,
-            bottom: bottom != null ? const BorderSide(width: 2, color: Colors.white) : BorderSide.none,
+            top: top != null
+                ? const BorderSide(width: 2, color: Colors.white)
+                : BorderSide.none,
+            left: left != null
+                ? const BorderSide(width: 2, color: Colors.white)
+                : BorderSide.none,
+            right: right != null
+                ? const BorderSide(width: 2, color: Colors.white)
+                : BorderSide.none,
+            bottom: bottom != null
+                ? const BorderSide(width: 2, color: Colors.white)
+                : BorderSide.none,
           ),
         ),
       ),
@@ -857,10 +1012,14 @@ class _ColorChoosingCardState extends State<_ColorChoosingCard> {
                         "assets/svg/chess-and-bg/${_getColorChess(colors.indexOf(color))}.svg",
                       ),
                     ),
-                    if (_pickedColorIndex == colors.indexOf(color)) _buildCornerBorder(top: 0, left: 0),
-                    if (_pickedColorIndex == colors.indexOf(color)) _buildCornerBorder(top: 0, right: 0),
-                    if (_pickedColorIndex == colors.indexOf(color)) _buildCornerBorder(bottom: 0, left: 0),
-                    if (_pickedColorIndex == colors.indexOf(color)) _buildCornerBorder(bottom: 0, right: 0),
+                    if (_pickedColorIndex == colors.indexOf(color))
+                      _buildCornerBorder(top: 0, left: 0),
+                    if (_pickedColorIndex == colors.indexOf(color))
+                      _buildCornerBorder(top: 0, right: 0),
+                    if (_pickedColorIndex == colors.indexOf(color))
+                      _buildCornerBorder(bottom: 0, left: 0),
+                    if (_pickedColorIndex == colors.indexOf(color))
+                      _buildCornerBorder(bottom: 0, right: 0),
                     if (_takenColors.contains(color))
                       SizedBox(
                         width: 52,
@@ -883,16 +1042,21 @@ class _ColorChoosingCardState extends State<_ColorChoosingCard> {
 }
 
 class _FindGameChooseColorDialog extends ConsumerStatefulWidget {
-  const _FindGameChooseColorDialog({super.key, required this.roomId, required this.selectedSession, required this.game});
+  const _FindGameChooseColorDialog(
+      {required this.roomId,
+      required this.selectedSession,
+      required this.game});
   final String roomId;
   final LudoSessionData selectedSession;
   final LudoGame game;
 
   @override
-  ConsumerState<_FindGameChooseColorDialog> createState() => _FindGameChooseColorDialogState();
+  ConsumerState<_FindGameChooseColorDialog> createState() =>
+      _FindGameChooseColorDialogState();
 }
 
-class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColorDialog> {
+class _FindGameChooseColorDialogState
+    extends ConsumerState<_FindGameChooseColorDialog> {
   String _selectedColor = "";
   bool isLoading = false;
   // BigInt? _tokenBalance;
@@ -901,7 +1065,9 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
 
   late final colors = widget.selectedSession.getListOfColors;
   late final roomName = widget.selectedSession.id;
-  late final noOfPlayers = widget.selectedSession.sessionUserStatus.map((e) => e.status == "ACTIVE" ? 1 : 0).reduce((value, element) => value + element);
+  late final noOfPlayers = widget.selectedSession.sessionUserStatus
+      .map((e) => e.status == "ACTIVE" ? 1 : 0)
+      .reduce((value, element) => value + element);
   late final roomColor = widget.selectedSession.playAmount == '0'
       ? const Color(0xFF00ECFF)
       : widget.selectedSession.playToken == "STRK"
@@ -909,7 +1075,9 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
           : widget.selectedSession.playToken == "ETH"
               ? const Color(0xFF7531F4)
               : const Color(0xFF404040);
-  late final roomStake = widget.selectedSession.playAmount == '0' ? "Free" : "${widget.selectedSession.playAmount} ${widget.selectedSession.playToken}";
+  late final roomStake = widget.selectedSession.playAmount == '0'
+      ? "Free"
+      : "${widget.selectedSession.playAmount} ${widget.selectedSession.playToken}";
 
   void _selectColor(String color) {
     setState(() {
@@ -926,8 +1094,11 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
         showErrorDialog("Please select a color", context);
         return;
       }
-      final color = _selectedColor.split("/").last.split(".").first.split("_").first;
-      await ref.read(ludoSessionProvider.notifier).joinSession(widget.roomId, color);
+      final color =
+          _selectedColor.split("/").last.split(".").first.split("_").first;
+      await ref
+          .read(ludoSessionProvider.notifier)
+          .joinSession(widget.roomId, color);
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
@@ -951,9 +1122,15 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
           children: [
             Align(
               alignment: Alignment.centerRight,
-              child: IconButton(onPressed: Navigator.of(context).pop, icon: const Icon(Icons.cancel_outlined, color: Colors.white)),
+              child: IconButton(
+                  onPressed: Navigator.of(context).pop,
+                  icon: const Icon(Icons.cancel_outlined, color: Colors.white)),
             ),
-            const Text('Room Found!', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+            const Text('Room Found!',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700)),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(
@@ -969,31 +1146,52 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("ROOM $roomName", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
+                          Text("ROOM $roomName",
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white)),
                           const SizedBox(width: 4),
                           Container(
-                            decoration: BoxDecoration(border: Border.all(color: roomColor), borderRadius: BorderRadius.circular(30)),
-                            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                            child: Text(roomStake, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: roomColor),
+                                borderRadius: BorderRadius.circular(30)),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            child: Text(roomStake,
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white)),
                           ),
                         ],
                       ),
-                      Text("$noOfPlayers/4 Players", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF979797))),
+                      Text("$noOfPlayers/4 Players",
+                          style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF979797))),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      for (int i = 0; i < noOfPlayers; i++) _PlayerAvatarCard(index: i, size: 55, color: colors[i]),
-                      if (!widget.selectedSession.notAvailableColors.contains('green')) ...[
+                      for (int i = 0; i < noOfPlayers; i++)
+                        _PlayerAvatarCard(index: i, size: 55, color: colors[i]),
+                      if (!widget.selectedSession.notAvailableColors
+                          .contains('green')) ...[
                         SizedBox.square(
                           dimension: 55,
                           child: PinColorOption(
                             gradient: const LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Color(0xFF005C30), Color(0x730C3823), Color(0xFF005C30)],
+                              colors: [
+                                Color(0xFF005C30),
+                                Color(0x730C3823),
+                                Color(0xFF005C30)
+                              ],
                             ),
                             svgPath: 'assets/svg/chess-and-bg/green_chess.svg',
                             selectedPinColor: _selectedColor,
@@ -1002,14 +1200,19 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
                         ),
                         horizontalSpace(8),
                       ],
-                      if (!widget.selectedSession.notAvailableColors.contains('blue')) ...[
+                      if (!widget.selectedSession.notAvailableColors
+                          .contains('blue')) ...[
                         SizedBox.square(
                           dimension: 55,
                           child: PinColorOption(
                             gradient: const LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Color(0xC700CEDB), Color(0x73145559), Color(0x9E00CEDB)],
+                              colors: [
+                                Color(0xC700CEDB),
+                                Color(0x73145559),
+                                Color(0x9E00CEDB)
+                              ],
                             ),
                             svgPath: 'assets/svg/chess-and-bg/blue_chess.svg',
                             selectedPinColor: _selectedColor,
@@ -1018,14 +1221,19 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
                         ),
                         horizontalSpace(8),
                       ],
-                      if (!widget.selectedSession.notAvailableColors.contains('red')) ...[
+                      if (!widget.selectedSession.notAvailableColors
+                          .contains('red')) ...[
                         SizedBox.square(
                           dimension: 55,
                           child: PinColorOption(
                             gradient: const LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Color(0xC7DB0000), Color(0x73591414), Color(0x9EDB0000)],
+                              colors: [
+                                Color(0xC7DB0000),
+                                Color(0x73591414),
+                                Color(0x9EDB0000)
+                              ],
                             ),
                             svgPath: 'assets/svg/chess-and-bg/red_chess.svg',
                             selectedPinColor: _selectedColor,
@@ -1034,14 +1242,19 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
                         ),
                         horizontalSpace(8),
                       ],
-                      if (!widget.selectedSession.notAvailableColors.contains('yellow')) ...[
+                      if (!widget.selectedSession.notAvailableColors
+                          .contains('yellow')) ...[
                         SizedBox.square(
                           dimension: 55,
                           child: PinColorOption(
                             gradient: const LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Color(0xC7DBD200), Color(0x73595214), Color(0x9EDBD200)],
+                              colors: [
+                                Color(0xC7DBD200),
+                                Color(0x73595214),
+                                Color(0x9EDBD200)
+                              ],
                             ),
                             svgPath: 'assets/svg/chess-and-bg/yellow_chess.svg',
                             selectedPinColor: _selectedColor,
@@ -1063,7 +1276,8 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
                     child: OutlinedButton(
                       onPressed: Navigator.of(context).pop,
                       style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
                           foregroundColor: const Color(0xFF00ECFF),
                           side: const BorderSide(color: Color(0xFF00ECFF))),
                       child: const Text("Back"),
@@ -1074,12 +1288,16 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
                     child: ElevatedButton(
                       onPressed: noOfPlayers == 4 ? null : joinGame,
                       style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
                         foregroundColor: Colors.black,
                         backgroundColor: const Color(0xFF00ECFF),
-                        disabledBackgroundColor: const Color(0xFF00ECFF).withOpacity(0.5),
+                        disabledBackgroundColor:
+                            const Color(0xFF00ECFF).withOpacity(0.5),
                       ),
-                      child: isLoading ? const CircularProgressIndicator() : const Text("Join"),
+                      child: isLoading
+                          ? const CircularProgressIndicator()
+                          : const Text("Join"),
                     ),
                   ),
                 ],

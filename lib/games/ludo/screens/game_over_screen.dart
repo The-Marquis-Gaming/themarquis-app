@@ -13,7 +13,6 @@ import 'package:marquis_v2/games/ludo/ludo_game.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/providers/user.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -26,71 +25,70 @@ class MatchResultsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ValueListenableBuilder<PlayState>(
-      valueListenable: game.playStateNotifier,
-      builder: (context, playState, child) {
-        if (playState != PlayState.finished) return const SizedBox.shrink();
-        
-        final results = session.sessionUserStatus.map((element) {
-          final numWinningTokens = element.playerWinningTokens
-              .map((e) => e ? 1 : 0)
-              .reduce((a, b) => a + b);
-          return {
-            'index': session.sessionUserStatus.indexOf(element),
-            'score': numWinningTokens == 4 ? 400 : -100,
-            'numWinningTokens': numWinningTokens,
-            'exp': 400,
-          };
-        }).toList();
-        results.sort(
-            (a, b) => b['numWinningTokens']!.compareTo(a['numWinningTokens']!));
-        for (int i = 0; i < results.length; i++) {
-          results[i]['rank'] = i + 1;
-        }
-        final deviceSize = MediaQuery.of(context).size;
-        print("Device width: ${deviceSize.width}, game width: ${game.width}");
-        return Scaffold(
-           
-            body: Transform.scale(
-              scale: game.height / deviceSize.height,
-              alignment: Alignment.topLeft,
-              child: SizedBox(
-                width: deviceSize.height * game.width / game.height,
-                height: deviceSize.height,
-                child: FutureBuilder<List<Map<String, dynamic>>>(future: () async {
-                  final supportedTokens =
-                      await ref.read(userProvider.notifier).getSupportedTokens();
-                  supportedTokens.add({
-                    "tokenAddress":
-                        "0x0000000000000000000000000000000000000000000000000000000000000000",
-                    "tokenName": "No Token",
-                  });
-                  return supportedTokens;
-                }(), builder: (context, snapshot) {
-                  return snapshot.connectionState == ConnectionState.waiting
-                      ? const Center(child: CircularProgressIndicator())
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                           
-                            _buildHeader(),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            _buildTransactionsButton(context),
-                            Expanded(
-                                child: _buildResultsList(results, snapshot.data!)),
-                            _buildShareButton(context, results, snapshot.data!),
-                            _buildBackToMenuButton(ref),
-                            const SizedBox(
-                              height: 48,
-                            )
-                          ],
-                        );
-                }),
-              ),
-            ));
-      }
-    );
+        valueListenable: game.playStateNotifier,
+        builder: (context, playState, child) {
+          if (playState != PlayState.finished) return const SizedBox.shrink();
+
+          final results = session.sessionUserStatus.map((element) {
+            final numWinningTokens = element.playerWinningTokens
+                .map((e) => e ? 1 : 0)
+                .reduce((a, b) => a + b);
+            return {
+              'index': session.sessionUserStatus.indexOf(element),
+              'score': numWinningTokens == 4 ? 400 : -100,
+              'numWinningTokens': numWinningTokens,
+              'exp': 400,
+            };
+          }).toList();
+          results.sort((a, b) =>
+              b['numWinningTokens']!.compareTo(a['numWinningTokens']!));
+          for (int i = 0; i < results.length; i++) {
+            results[i]['rank'] = i + 1;
+          }
+          final deviceSize = MediaQuery.of(context).size;
+          print("Device width: ${deviceSize.width}, game width: ${game.width}");
+          return Scaffold(
+              body: Transform.scale(
+            scale: game.height / deviceSize.height,
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: deviceSize.height * game.width / game.height,
+              height: deviceSize.height,
+              child:
+                  FutureBuilder<List<Map<String, dynamic>>>(future: () async {
+                final supportedTokens =
+                    await ref.read(userProvider.notifier).getSupportedTokens();
+                supportedTokens.add({
+                  "tokenAddress":
+                      "0x0000000000000000000000000000000000000000000000000000000000000000",
+                  "tokenName": "No Token",
+                });
+                return supportedTokens;
+              }(), builder: (context, snapshot) {
+                return snapshot.connectionState == ConnectionState.waiting
+                    ? const Center(child: CircularProgressIndicator())
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _buildHeader(),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          _buildTransactionsButton(context),
+                          Expanded(
+                              child:
+                                  _buildResultsList(results, snapshot.data!)),
+                          _buildShareButton(context, results, snapshot.data!),
+                          _buildBackToMenuButton(ref),
+                          const SizedBox(
+                            height: 48,
+                          )
+                        ],
+                      );
+              }),
+            ),
+          ));
+        });
   }
 
   Widget _buildHeader() {
@@ -108,9 +106,12 @@ class MatchResultsScreen extends ConsumerWidget {
             ),
           ),
         ),
-       SizedBox(
-        width: 500,
-        child: Image.asset('assets/images/divider (1).png', fit: BoxFit.cover,)),
+        SizedBox(
+            width: 500,
+            child: Image.asset(
+              'assets/images/divider (1).png',
+              fit: BoxFit.cover,
+            )),
       ],
     );
   }
@@ -129,7 +130,8 @@ class MatchResultsScreen extends ConsumerWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF152A37),
-                    border: Border.all(color: const Color(0xFF00ECFF), width: 1),
+                    border:
+                        Border.all(color: const Color(0xFF00ECFF), width: 1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -149,7 +151,8 @@ class MatchResultsScreen extends ConsumerWidget {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white),
+                              icon:
+                                  const Icon(Icons.close, color: Colors.white),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                           ],
@@ -159,16 +162,19 @@ class MatchResultsScreen extends ConsumerWidget {
                         future: () async {
                           return await getTransactions(session.id);
                         }(),
-                        builder: (context, snapshot) => snapshot.connectionState ==
+                        builder: (context, snapshot) => snapshot
+                                    .connectionState ==
                                 ConnectionState.waiting
                             ? const CircularProgressIndicator()
                             : snapshot.data!.isEmpty
-                                ? const Center(child: Text('No transactions available.'))
+                                ? const Center(
+                                    child: Text('No transactions available.'))
                                 : Container(
-                                  color: Colors.transparent,
+                                    color: Colors.transparent,
                                     constraints: BoxConstraints(
-                                      maxHeight: MediaQuery.of(context).size.height * 0.6,
-                                      
+                                      maxHeight:
+                                          MediaQuery.of(context).size.height *
+                                              0.6,
                                     ),
                                     child: ListView.builder(
                                       shrinkWrap: true,
@@ -184,16 +190,19 @@ class MatchResultsScreen extends ConsumerWidget {
                                                 width: 16,
                                                 height: 16,
                                                 decoration: BoxDecoration(
-                                                  color: Color(0xFF00ECFF) ,
+                                                  color: Color(0xFF00ECFF),
                                                   border: Border.all(
-                                                      color: const Color(0xFF00ECFF)),
-                                                  borderRadius: BorderRadius.circular(4),
+                                                      color: const Color(
+                                                          0xFF00ECFF)),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
                                                 ),
                                               ),
                                               const SizedBox(width: 12),
                                               Expanded(
                                                 child: Text(
-                                                  _shortenHash(tx['transaction_hash']),
+                                                  _shortenHash(
+                                                      tx['transaction_hash']),
                                                   style: const TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 14,
@@ -220,7 +229,6 @@ class MatchResultsScreen extends ConsumerWidget {
               ),
             );
           },
-       
           label: const Text('Transactions',
               style: TextStyle(color: Colors.black, fontSize: 12.0)),
           style: ElevatedButton.styleFrom(
@@ -241,13 +249,6 @@ class MatchResultsScreen extends ConsumerWidget {
     return '${hash.substring(0, 4)}...${hash.substring(hash.length - 4)}';
   }
 
-  // Helper method to format date strings
-  String _formatDate(String dateStr) {
-    DateTime date = DateTime.parse(dateStr);
-    final intl.DateFormat formatter = intl.DateFormat('yyyy-MM-dd HH:mm:ss');
-    return formatter.format(date.toLocal());
-  }
-
   Widget _buildResultsList(List<Map<String, dynamic>> results,
       List<Map<String, dynamic>> supportedTokens) {
     return Column(
@@ -255,7 +256,8 @@ class MatchResultsScreen extends ConsumerWidget {
       children: [
         ...results.map(
           (result) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             child: Container(
               decoration: BoxDecoration(
                 // Add subtle gradient for depth
@@ -269,7 +271,8 @@ class MatchResultsScreen extends ConsumerWidget {
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
               child: Row(
                 children: [
                   // Player rank/name section
@@ -278,19 +281,26 @@ class MatchResultsScreen extends ConsumerWidget {
                     child: Row(
                       children: [
                         Text(
-                          result['rank'] == 1 ? 'Winner' : 'Player ${result['rank']}',
+                          result['rank'] == 1
+                              ? 'Winner'
+                              : 'Player ${result['rank']}',
                           style: TextStyle(
-                            color: result['rank'] == 1 ? Colors.white : Colors.grey[400],
+                            color: result['rank'] == 1
+                                ? Colors.white
+                                : Colors.grey[400],
                             fontSize: 12,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          session.sessionUserStatus[result['index'] as int].email
+                          session
+                              .sessionUserStatus[result['index'] as int].email
                               .split('@')[0]
                               .toUpperCase(),
                           style: TextStyle(
-                            color: result['rank'] == 1 ? Colors.white : Colors.white,
+                            color: result['rank'] == 1
+                                ? Colors.white
+                                : Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -348,30 +358,6 @@ class MatchResultsScreen extends ConsumerWidget {
               ),
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRankIndicator(int rank, {double width = 46}) {
-    return Stack(
-      alignment: AlignmentDirectional.center,
-      children: [
-        SvgPicture.asset(
-          switch (rank) {
-            1 => "assets/svg/ludo_rank_1.svg",
-            2 => "assets/svg/ludo_rank_2.svg",
-            3 => "assets/svg/ludo_rank_3.svg",
-            _ => "assets/svg/ludo_rank_4.svg"
-          },
-          width: width,
-        ),
-        Text(
-          '$rank',
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: width * 12 / 40,
-              fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -462,7 +448,8 @@ class MatchResultsScreen extends ConsumerWidget {
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Image successfully saved to gallery'),
+                                    content: Text(
+                                        'Image successfully saved to gallery'),
                                     duration: Duration(seconds: 2),
                                   ),
                                 );
@@ -496,9 +483,13 @@ class MatchResultsScreen extends ConsumerWidget {
                             child: IconButton(
                               onPressed: () {
                                 Share.shareXFiles(
-                                  [XFile.fromData(imageBytes, mimeType: 'image/png')],
+                                  [
+                                    XFile.fromData(imageBytes,
+                                        mimeType: 'image/png')
+                                  ],
                                   subject: 'Ludo Results',
-                                  text: 'Check out my results!\nRoom Id: ${session.id}',
+                                  text:
+                                      'Check out my results!\nRoom Id: ${session.id}',
                                   fileNameOverrides: ['share.png'],
                                 );
                               },
@@ -571,7 +562,8 @@ class MatchResultsScreen extends ConsumerWidget {
         width: 800,
         height: 418,
         decoration: BoxDecoration(
-          image: DecorationImage(image: AssetImage('assets/images/bg (1).png'), fit: BoxFit.cover),
+          image: DecorationImage(
+              image: AssetImage('assets/images/bg (1).png'), fit: BoxFit.cover),
           color: const Color(0xFF152A37),
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -585,21 +577,19 @@ class MatchResultsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SvgPicture.asset(
-                      'assets/images/Vector.svg',
-                     width: 100,
-                     height: 65,
-                    ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SvgPicture.asset(
+                'assets/images/Vector.svg',
+                width: 100,
+                height: 65,
               ),
+            ),
             // Logo and Title Row
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Row(
                 children: [
-                
                   const SizedBox(width: 16),
                   const Expanded(
                     child: Column(
@@ -624,9 +614,13 @@ class MatchResultsScreen extends ConsumerWidget {
               ),
             ),
             // Cyan line
-           Center(child: SizedBox(
-            width: 400,
-            child: Image.asset('assets/images/divider.png', fit: BoxFit.cover,))),
+            Center(
+                child: SizedBox(
+                    width: 400,
+                    child: Image.asset(
+                      'assets/images/divider.png',
+                      fit: BoxFit.cover,
+                    ))),
             const SizedBox(height: 16),
             // Results List
             ...results.map((result) => Padding(
@@ -635,7 +629,8 @@ class MatchResultsScreen extends ConsumerWidget {
                     vertical: 8.0,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 100.0, vertical: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -643,11 +638,12 @@ class MatchResultsScreen extends ConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 1.0),
                           child: Row(
-                            
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                result['rank'] == 1 ? 'Winner' : 'Player ${result['rank']}',
+                                result['rank'] == 1
+                                    ? 'Winner'
+                                    : 'Player ${result['rank']}',
                                 style: TextStyle(
                                   color: result['rank'] == 1
                                       ? Colors.white
@@ -657,7 +653,8 @@ class MatchResultsScreen extends ConsumerWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                session.sessionUserStatus[result['index'] as int]
+                                session
+                                    .sessionUserStatus[result['index'] as int]
                                     .email
                                     .split('@')[0]
                                     .toUpperCase(),
@@ -782,7 +779,7 @@ class CyanLinePainter extends CustomPainter {
         colors: [Color(0xFF00ECFF), Colors.transparent],
         stops: [0.0, 0.6],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    
+
     canvas.drawLine(
       Offset(0, size.height / 2),
       Offset(size.width, size.height / 2),
