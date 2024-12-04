@@ -127,7 +127,7 @@ class PlayerHome extends PositionComponent with HasGameReference<LudoGame> {
       textRenderer: TextPaint(
         style: TextStyle(
           color: Colors.white,
-           fontFamily: 'Orbitron',
+          fontFamily: 'Orbitron',
           fontSize: playerIndex == game.userIndex ? 30 : 30,
           fontWeight: FontWeight.w300,
         ),
@@ -151,7 +151,7 @@ class PlayerHome extends PositionComponent with HasGameReference<LudoGame> {
 
     // // Add background container for dice
     // final diceContainer = RectangleComponent(
-      
+
     //   position: targetPosition - Vector2(game.unitSize * 0.4, game.unitSize * 0.4),
     //   size: Vector2(game.unitSize * 2, game.unitSize * 2),
     //   paint: Paint()
@@ -161,28 +161,27 @@ class PlayerHome extends PositionComponent with HasGameReference<LudoGame> {
 
     // Add colored background glow
     final diceContainerGlow = RectangleComponent(
-      position: targetPosition - Vector2(game.unitSize * 0.4, game.unitSize * 0.4),
-      size: Vector2(game.unitSize * 0.8, game.unitSize * 0.8),
-      paint: Paint()
-        ..color = Colors.black
-        ..style = PaintingStyle.fill
-      
-    );
+        position:
+            targetPosition - Vector2(game.unitSize * 0.4, game.unitSize * 0.4),
+        size: Vector2(game.unitSize * 0.8, game.unitSize * 0.8),
+        paint: Paint()
+          ..color = Colors.black
+          ..style = PaintingStyle.fill);
 
     // Add border with glow
     final diceContainerBorder = RectangleComponent(
-      position: targetPosition - Vector2(game.unitSize * 0.4, game.unitSize * 0.4),
-      size: Vector2(game.unitSize * 0.8, game.unitSize * 0.8),
-      paint: Paint()
-        ..color = game.listOfColors[playerIndex]
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
-       
-    );
+        position:
+            targetPosition - Vector2(game.unitSize * 0.4, game.unitSize * 0.4),
+        size: Vector2(game.unitSize * 0.8, game.unitSize * 0.8),
+        paint: Paint()
+          ..color = game.listOfColors[playerIndex]
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2);
 
     // Add inner border
     final diceContainerInnerBorder = RectangleComponent(
-      position: targetPosition - Vector2(game.unitSize * 0.35, game.unitSize * 0.35),
+      position:
+          targetPosition - Vector2(game.unitSize * 0.35, game.unitSize * 0.35),
       size: Vector2(game.unitSize * 0.7, game.unitSize * 0.7),
       paint: Paint()
         ..color = game.listOfColors[playerIndex].withOpacity(0.5)
@@ -246,11 +245,6 @@ class PlayerHome extends PositionComponent with HasGameReference<LudoGame> {
       const Radius.circular(24.0),
     );
 
-    final avatarBgPaint = Paint()
-      ..color = Colors.transparent
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    
     // Draw border
     canvas.drawRRect(
       avatarBgRRect,

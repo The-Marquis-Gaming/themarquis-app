@@ -15,7 +15,6 @@ import 'package:marquis_v2/games/ludo/components/string_validation.dart';
 import 'package:marquis_v2/games/ludo/ludo_game.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
-import 'package:marquis_v2/games/ludo/screens/welcome_screen.dart';
 import 'package:marquis_v2/games/ludo/widgets/chevron_border.dart';
 import 'package:marquis_v2/games/ludo/widgets/divider_shape.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -725,74 +724,6 @@ class _FourPlayerWaitingRoomScreenState
               fontSize: 12, fontWeight: FontWeight.w400, color: Colors.white),
         ),
       ),
-    );
-  }
-
-  Widget _starkTonMenu() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 85),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _starkTokens(
-            "Play Amount",
-            "100",
-            Colors.black,
-          ),
-          _starkTokens(
-            "Total Prize",
-            "400",
-            const Color(0XFF00ECFF).withOpacity(0.3),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _starkTokens(String text, String amount, Color color) {
-    return Column(
-      children: [
-        Text(
-          text,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          height: 30,
-          width: 100,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: const Color(0XFF00ECFF),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: color,
-                blurRadius: 3,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset('assets/svg/starknet.svg'),
-              const SizedBox(width: 5),
-              Text(
-                amount,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

@@ -7,22 +7,19 @@ import 'package:http/http.dart' as http;
 import 'package:marquis_v2/env.dart';
 import 'package:marquis_v2/models/app_state.dart';
 import 'package:marquis_v2/providers/user.dart';
-import 'package:marquis_v2/router/router_delegate.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part "app_state.g.dart";
 
-final baseUrl = environment['build'] == 'DEBUG' ? environment['apiUrlDebug'] : environment['apiUrl'];
+final baseUrl = environment['build'] == 'DEBUG'
+    ? environment['apiUrlDebug']
+    : environment['apiUrl'];
 
 @Riverpod(keepAlive: true)
 class AppState extends _$AppState {
   Box<AppStateData>? _hiveBox;
   Timer? _refreshTokenTimer;
   Timer? _logoutTimer;
-
-  // bool _isBalanceVisible = false;
-
-  // bool get isBalanceVisible => state.isBalanceVisible;
 
   @override
   AppStateData build() {
@@ -45,9 +42,6 @@ class AppState extends _$AppState {
       selectedGame: id,
     );
     _hiveBox!.put("appState", state);
-    
-    // Force rebuild of router
-    ref.read(routerDelegateProvider).forceRebuild();
   }
 
   void selectGameSessionId(String? game, String? id) {
@@ -68,7 +62,8 @@ class AppState extends _$AppState {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 200) {
-      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException(
+          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
   }
 
@@ -80,7 +75,8 @@ class AppState extends _$AppState {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 200) {
-      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException(
+          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
     //verify token
@@ -117,7 +113,8 @@ class AppState extends _$AppState {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 201) {
-      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException(
+          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
   }
 
@@ -131,7 +128,8 @@ class AppState extends _$AppState {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 201) {
-      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException(
+          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
     //verify token
@@ -170,7 +168,8 @@ class AppState extends _$AppState {
       },
     );
     if (response.statusCode != 200) {
-      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException(
+          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
     //verify token
@@ -268,7 +267,8 @@ class AppState extends _$AppState {
       },
     );
     if (response.statusCode != 200) {
-      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException(
+          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
     //verify token

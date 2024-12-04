@@ -682,74 +682,6 @@ class _TwoPlayerWaitingRoomScreenState
     );
   }
 
-  Widget _starkTonMenu() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 85),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _starkTokens(
-            "Play Amount",
-            "100",
-            Colors.black,
-          ),
-          _starkTokens(
-            "Total Prize",
-            "400",
-            const Color(0XFF00ECFF).withOpacity(0.3),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _starkTokens(String text, String amount, Color color) {
-    return Column(
-      children: [
-        Text(
-          text,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          height: 30,
-          width: 100,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: const Color(0XFF00ECFF),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: color,
-                blurRadius: 3,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset('assets/svg/starknet.svg'),
-              const SizedBox(width: 5),
-              Text(
-                amount,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _roomID(session) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -838,5 +770,3 @@ class _TwoPlayerWaitingRoomScreenState
             2;
   }
 }
-
-
