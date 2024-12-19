@@ -94,7 +94,7 @@ class CheckersJoinGameDialogState
         textTheme: GoogleFonts.orbitronTextTheme(),
       ),
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.097,
+        height: 95,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           color: const Color(0x94181B25),
@@ -104,12 +104,20 @@ class CheckersJoinGameDialogState
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+          ),
+          child: Column(
             children: [
-              _roomDetials(context),
-              _joinMenu(),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _roomDetials(context),
+                  _joinMenu(),
+                ],
+              ),
             ],
           ),
         ),

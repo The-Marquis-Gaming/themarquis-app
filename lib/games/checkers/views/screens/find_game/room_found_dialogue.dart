@@ -138,8 +138,8 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
         textTheme: GoogleFonts.orbitronTextTheme(),
       ),
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.12,
-        width: MediaQuery.of(context).size.width * 0.33,
+        height: 115,
+        width:140,
         decoration: BoxDecoration(
           color: const Color(0x94181B25),
           borderRadius: BorderRadius.circular(4),
