@@ -23,24 +23,26 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
     if (user == null) {
       return const Center(child: Text("Not Logged In"));
     }
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          double scaledHeight(double height) {
-            return (height / 749) * constraints.maxHeight;
-          }
+    return SafeArea(
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(10),
+          child: SizedBox(),
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            double scaledHeight(double height) {
+              return (height / 717) * constraints.maxHeight;
+            }
 
-          return SingleChildScrollView(
-            child: SafeArea(
-              child: Column(
-                children: [
-                  _topBar(context),
-                  _checkerNavigationItems(scaledHeight, context),
-                ],
-              ),
-            ),
-          );
-        },
+            return Column(
+              children: [
+                _topBar(context, scaledHeight),
+                _checkerNavigationItems(scaledHeight, context),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -51,10 +53,11 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
       padding: EdgeInsets.only(
         left: 69,
         right: 35,
-        top: scaledHeight(25),
-        bottom: scaledHeight(10),
+        top: scaledHeight(15),
+      
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
             height: scaledHeight(64),
@@ -145,14 +148,22 @@ Future<void> _findGameDialog({required BuildContext ctx}) {
   );
 }
 
-Widget _topBar(BuildContext ctx) {
+Widget _topBar(
+  BuildContext ctx,
+  double Function(double height) scaledHeight,
+) {
   return Column(
     children: [
       const BalanceAppBar(),
-      Image.asset(
-        'assets/images/checkersHome.png',
-        width: MediaQuery.of(ctx).size.width,
-        fit: BoxFit.fill,
+      Container(
+        width: double.infinity,
+        height: scaledHeight(260),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: const AssetImage('assets/images/checkersHome.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
     ],
   );

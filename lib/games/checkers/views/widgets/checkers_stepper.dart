@@ -23,10 +23,10 @@ class CheckersStepper extends StatelessWidget {
             if (index != 0)
               ...List.generate(
                 (_activeTab == 1 && gameMode == GameMode.free)
-                    ? 65
+                    ? 55
                     : (_activeTab == 1 && gameMode == GameMode.token)
-                        ? 65
-                        : 30,
+                        ? 55
+                        : 25,
                 (index2) => Container(
                   width: 3,
                   height: 3,

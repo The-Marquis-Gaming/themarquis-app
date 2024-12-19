@@ -34,34 +34,31 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            double scaledHeight(double height) {
-              return (height / 749) * constraints.maxHeight;
-            }
-
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  _topBar(context, scaledHeight),
-                  SizedBox(height: 31),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal:
-                            (_activeTab == 2 && _gameMode == GameMode.free)
-                                ? 0
-                                : 12),
-                    child: Column(
+    return Scaffold(body: SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+        double scaledHeight(double height) =>
+            (height / 717) * constraints.maxHeight;
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              _topBar(scaledHeight),
+              SizedBox(height: 31),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal:
+                        (_activeTab == 2 && _gameMode == GameMode.free)
+                            ? 0
+                            : 12),
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: 32,
-                              child: (_activeTab == 2 &&
-                                      _gameMode == GameMode.free)
+                        SizedBox(
+                          width: 32,
+                          child:
+                              (_activeTab == 2 && _gameMode == GameMode.free)
                                   ? SizedBox()
                                   : (_activeTab == 3 &&
                                           _gameMode == GameMode.token)
@@ -71,59 +68,115 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                                           activeTab: _activeTab,
                                           numberOfSteps: _numberOfTabs,
                                         ),
-                            ),
-                            const SizedBox(width: 12),
-                            Flexible(
-                              child: (_activeTab == 2 &&
-                                      _gameMode == GameMode.free)
+                        ),
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: (_activeTab == 2 &&
+                                  _gameMode == GameMode.free)
+                              ? CeateGameWaitingRoom(
+                                  activeTab: _activeTab,
+                                  gameMode: _gameMode,
+                                )
+                              : (_activeTab == 3 &&
+                                      _gameMode == GameMode.token)
                                   ? CeateGameWaitingRoom(
                                       activeTab: _activeTab,
                                       gameMode: _gameMode,
                                     )
-                                  : (_activeTab == 3 &&
-                                          _gameMode == GameMode.token)
-                                      ? CeateGameWaitingRoom(
-                                          activeTab: _activeTab,
-                                          gameMode: _gameMode,
-                                        )
-                                      : Container(
-                                          height: scaledHeight(462),
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            color: const Color(0xFF21262B),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              if (_activeTab == 0)
-                                                _selectGame(scaledHeight),
-                                              if (_activeTab == 1)
-                                                _selectCharacter(scaledHeight),
-                                              if (_activeTab == 2 &&
-                                                  _gameMode == GameMode.token)
-                                                _selectPlayAmount(),
-                                            ],
-                                          ),
-                                        ),
-                            ),
-                          ],
+                                  : Container(
+                                      height: scaledHeight(462),
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(8),
+                                        color: const Color(0xFF21262B),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          if (_activeTab == 0)
+                                            _selectGame(scaledHeight),
+                                          if (_activeTab == 1)
+                                            _selectCharacter(scaledHeight),
+                                          if (_activeTab == 2 &&
+                                              _gameMode == GameMode.token)
+                                            _selectPlayAmount(scaledHeight),
+                                        ],
+                                      ),
+                                    ),
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    height: scaledHeight(20),
-                  ),
-                  _buttons(scaledHeight),
-                ],
+                  ],
+                ),
               ),
-            );
-          },
+              SizedBox(
+                height: scaledHeight(20),
+              ),
+              _buttons(scaledHeight),
+            ],
+          ),
+        );
+      }),
+    ));
+  }
+
+  Column _selectGame(double Function(double height) scaledHeight) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          'Select Game Mode',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
-      ),
+        SizedBox(
+          width: 12,
+          height: scaledHeight(12),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CheckersRadio(
+              width: 110,
+              padding: const EdgeInsets.symmetric(
+                vertical: 5,
+              ),
+              value: GameMode.free,
+              globalValue: _gameMode,
+              onTap: _selectGameMode,
+              selectedBackgroundColor: const Color(0x1200ECFF),
+              unSelectedBackgroundColor: Colors.transparent,
+              borderColor: const Color(0xFFF3B46E),
+              child: const Text(
+                'Free',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFFF3B46E)),
+              ),
+            ),
+            const SizedBox(width: 8),
+            CheckersRadio(
+              width: 110,
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              value: GameMode.token,
+              globalValue: _gameMode,
+              onTap: _selectGameMode,
+              selectedBackgroundColor: const Color(0x1200ECFF),
+              unSelectedBackgroundColor: Colors.transparent,
+              borderColor: const Color(0xFFF3B46E),
+              child: const Text(
+                'Token',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFFF3B46E)),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -141,7 +194,7 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                   ),
                   minimumSize: Size(
                     double.infinity,
-                    scaledHeight(43),
+                    43,
                   ),
                   side: const BorderSide(
                     color: Color(0xFFF3B46E),
@@ -166,7 +219,7 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                 ),
                 minimumSize: Size(
                   double.infinity,
-                  scaledHeight(43),
+                  43,
                 ),
                 disabledBackgroundColor: const Color(0xFF32363A),
                 backgroundColor: const Color(0xFFF3B46E),
@@ -179,22 +232,32 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
               ),
               onPressed: _activeTab == _numberOfTabs
                   ? () {
-                      Navigator.push(context, 
-                        MaterialPageRoute(builder: (context) => const CheckersGameScreen())
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CheckersGameScreen(),
+                        ),
                       );
                     }
                   : _gameMode == GameMode.free && _activeTab == 2
                       ? () {
-                          Navigator.push(context, 
-                            MaterialPageRoute(builder: (context) => const CheckersGameScreen())
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CheckersGameScreen(),
+                            ),
                           );
                         }
                       : _isNextEnabled
                           ? () {
                               _switchToNextTab();
                               if (_activeTab == 1) {
-                                Navigator.push(context, 
-                                  MaterialPageRoute(builder: (context) => const CheckersGameScreen())
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const CheckersGameScreen(),
+                                  ),
                                 );
                               }
                             }
@@ -217,7 +280,7 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
     );
   }
 
-  Widget _selectPlayAmount() {
+  Widget _selectPlayAmount(double Function(double height) scaledHeight) {
     return FutureBuilder(
       future: _supportedTokens.isEmpty
           ? ref.read(userProvider.notifier).getSupportedTokens()
@@ -239,9 +302,13 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
         }
         if (_supportedTokens.isEmpty) {
           return Center(
-              child: TextButton(
-                  onPressed: () => setState(() {}),
-                  child: const Text('retry')));
+            child: TextButton(
+              onPressed: () => setState(
+                () {},
+              ),
+              child: const Text('retry'),
+            ),
+          );
         }
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -253,7 +320,7 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: scaledHeight(8)),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -308,7 +375,9 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(
+              height: scaledHeight(8),
+            ),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -363,7 +432,9 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(
+              height: scaledHeight(8),
+            ),
             FutureBuilder(
               future: !_shouldRetrieveBalance
                   ? null
@@ -386,7 +457,9 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: scaledHeight(10),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 50),
                       child: Column(
@@ -395,9 +468,13 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                           Text(
                             "Amount",
                             style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w400),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(
+                            height: scaledHeight(4),
+                          ),
                           TextField(
                             controller: _tokenAmountController,
                             decoration: InputDecoration(
@@ -439,7 +516,9 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(
+                      height: scaledHeight(10),
+                    ),
                     Slider(
                       min: 0,
                       thumbColor: Colors.white,
@@ -542,63 +621,6 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
     );
   }
 
-  Widget _selectGame(double Function(double height) scaledHeight) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text(
-          'Select Game Mode',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        ),
-        SizedBox(
-          height: scaledHeight(12),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CheckersRadio(
-              width: 110,
-              padding: const EdgeInsets.symmetric(
-                vertical: 5,
-              ),
-              value: GameMode.free,
-              globalValue: _gameMode,
-              onTap: _selectGameMode,
-              selectedBackgroundColor: const Color(0x1200ECFF),
-              unSelectedBackgroundColor: Colors.transparent,
-              borderColor: const Color(0xFFF3B46E),
-              child: const Text(
-                'Free',
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFF3B46E)),
-              ),
-            ),
-            const SizedBox(width: 8),
-            CheckersRadio(
-              width: 110,
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              value: GameMode.token,
-              globalValue: _gameMode,
-              onTap: _selectGameMode,
-              selectedBackgroundColor: const Color(0x1200ECFF),
-              unSelectedBackgroundColor: Colors.transparent,
-              borderColor: const Color(0xFFF3B46E),
-              child: const Text(
-                'Token',
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFF3B46E)),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   Widget _selectCharacter(double Function(double height) scaledHeight) {
     final characterAssets = [
       'assets/images/jason.png',
@@ -621,7 +643,7 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
           height: scaledHeight(12),
         ),
         Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(
             characterAssets.length,
             (index) => GestureDetector(
@@ -631,9 +653,8 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                 });
               },
               child: Container(
-                height: 72,
-                width: 72,
-                margin: const EdgeInsets.only(right: 12),
+                height: scaledHeight(62),
+                width: scaledHeight(62),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   color: const Color(0xFFF3B46E),
@@ -668,16 +689,15 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
     );
   }
 
-  Widget _topBar(
-      BuildContext context, double Function(double height) scaledHeight) {
+  Widget _topBar(double Function(double height) scaledHeight) {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(
+          padding: EdgeInsets.only(
             left: 24,
             right: 7,
-            top: 17,
-            bottom: 4,
+            top: scaledHeight(17),
+            bottom: scaledHeight(4),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -701,10 +721,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                     color: Colors.white,
                     shape: ChevronBorder(),
                   ),
-                  padding: const EdgeInsets.only(
-                    top: 1,
+                  padding: EdgeInsets.only(
+                    top: scaledHeight(1),
                     left: 8,
-                    bottom: 1,
+                    bottom: scaledHeight(1),
                     right: 31,
                   ),
                   child: const Text(
