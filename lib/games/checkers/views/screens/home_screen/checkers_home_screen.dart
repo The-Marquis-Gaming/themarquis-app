@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marquis_v2/games/checkers/views/dialogs/game_outcome_dialog.dart';
 import 'package:marquis_v2/games/checkers/views/screens/create_game/checkers_create_game.dart';
 import 'package:marquis_v2/games/checkers/views/screens/find_game/find_game_dialogue.dart';
 import 'package:marquis_v2/games/checkers/views/screens/join_game/join_game_dialogue.dart';
@@ -78,7 +79,7 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
                 icon: 'assets/svg/threeFriend.svg',
                 label: 'Find Game',
                 onTap: () {
-                  _findGameDialog(ctx: context);
+                  _gameOutComeDialog(context: context);
                 },
               ),
             ),
@@ -142,6 +143,17 @@ Future<void> _findGameDialog({required BuildContext ctx}) {
     builder: (BuildContext context) {
       return CheckersFindRoomDialog();
     },
+  );
+}
+
+Future<void> _gameOutComeDialog({required BuildContext context}) {
+  return showDialog(
+      context: context,
+      builder: (BuildContext context){
+        return GameOutcomeDialog(
+          didUserWin: false,
+        );
+      }
   );
 }
 
