@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flame/components.dart';
@@ -298,7 +299,7 @@ class PlayerHome extends PositionComponent with HasGameReference<LudoGame> {
         }
       }
       ..returnToHome(_homePinLocations[pin.homeIndex]);
-    print("Player ${pin.playerIndex} pin ${pin.homeIndex} returned to home");
+    if(kDebugMode) print("Player ${pin.playerIndex} pin ${pin.homeIndex} returned to home");
     await add(_homePins[pin.homeIndex]!);
   }
 

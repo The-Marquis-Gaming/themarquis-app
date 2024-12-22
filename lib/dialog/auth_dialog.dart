@@ -303,8 +303,8 @@ class _OTPDialogState extends ConsumerState<OTPDialog> {
         _isLoading
             ? const CircularProgressIndicator()
             : TextButton(
-                child: const Text('Submit'),
                 onPressed: _submitOTP,
+                child: const Text('Submit'),
               ),
       ],
     );

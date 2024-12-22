@@ -1,4 +1,5 @@
 import 'package:flame/components.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import '../game/checkers_game.dart';
@@ -26,8 +27,8 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
       
       // Adjust component sizes and positions for larger screens
       final baseSize = Vector2(80, 60) * scale;
-      final spacing = isTablet ? 24.0 : 20.0;
-      final fontSize = isTablet ? 18.0 : 14.0;
+      // final spacing = isTablet ? 24.0 : 20.0;
+      // final fontSize = isTablet ? 18.0 : 14.0;
       
       // Create sprites from loaded images
       final topAvatarSprite = Sprite(topAvatar);
@@ -128,7 +129,7 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
       );
 
     } catch (e) {
-      print('Error loading assets: $e');
+      if(kDebugMode) print('Error loading assets: $e');
       rethrow;
     }
   }
@@ -139,7 +140,6 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
     required Vector2 position,
     required Sprite icon,
     required Vector2 containerSize,
-    bool isBottom = false,
   }) async {
     // Stats label ABOVE container
     final label = TextComponent(

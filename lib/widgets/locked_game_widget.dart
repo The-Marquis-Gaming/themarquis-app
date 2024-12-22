@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marquis_v2/dialog/auth_dialog.dart';
-import 'package:marquis_v2/games/checkers/views/screens/home_screen/checkers_home_screen.dart';
 import 'package:marquis_v2/providers/app_state.dart';
 import 'package:marquis_v2/widgets/ui_widgets.dart';
 
@@ -48,13 +47,11 @@ class LockedGameWidgetState extends ConsumerState<LockedGameWidget> {
                 children: [
                   Text(
                     widget.title,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     widget.subTitle,
-                    style:
-                        const TextStyle(fontSize: 10, color: Color(0xff868686)),
+                    style: const TextStyle(fontSize: 10, color: Color(0xff868686)),
                   ),
                 ],
               ),
@@ -64,9 +61,7 @@ class LockedGameWidgetState extends ConsumerState<LockedGameWidget> {
               ? IconButton(
                   onPressed: () {
                     if (!ref.read(appStateProvider).isAuth) {
-                      showDialog(
-                          context: context,
-                          builder: (ctx) => const AuthDialog());
+                      showDialog(context: context, builder: (ctx) => const AuthDialog());
                       return;
                     }
                     ref.read(appStateProvider.notifier).selectGame("checkers");
@@ -74,8 +69,7 @@ class LockedGameWidgetState extends ConsumerState<LockedGameWidget> {
                   icon: const Icon(Icons.arrow_forward, size: 32),
                   style: IconButton.styleFrom(
                     backgroundColor: Colors.white.withAlpha(100),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 )
               : SizedBox(),

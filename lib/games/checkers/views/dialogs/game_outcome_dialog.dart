@@ -7,9 +7,9 @@ import 'package:marquis_v2/widgets/ui_widgets.dart';
 
 class GameOutcomeDialog extends StatefulWidget {
   const GameOutcomeDialog({
-    Key? key,
+    super.key,
     required this.didUserWin
-  }) : super(key: key);
+  });
 
   final bool didUserWin;
 

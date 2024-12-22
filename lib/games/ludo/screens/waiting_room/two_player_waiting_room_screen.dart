@@ -26,12 +26,10 @@ class TwoPlayerWaitingRoomScreen extends ConsumerStatefulWidget {
   final LudoGame game;
 
   @override
-  ConsumerState<TwoPlayerWaitingRoomScreen> createState() =>
-      _TwoPlayerWaitingRoomScreenState();
+  ConsumerState<TwoPlayerWaitingRoomScreen> createState() => _TwoPlayerWaitingRoomScreenState();
 }
 
-class _TwoPlayerWaitingRoomScreenState
-    extends ConsumerState<TwoPlayerWaitingRoomScreen> {
+class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoomScreen> {
   Timer? _countdownTimer;
   int _countdown = 15;
 
@@ -137,7 +135,7 @@ class _TwoPlayerWaitingRoomScreenState
             showText: true,
           ),
           if (session.sessionUserStatus.length > 1) _invitePlayer(session),
-          if (session.sessionUserStatus.length == session.sessionUserStatus[2])
+          if (session.sessionUserStatus.length == 2)
             playerAvatarCard(
               index: 3,
               size: 72,
@@ -218,8 +216,7 @@ class _TwoPlayerWaitingRoomScreenState
         height: 418,
         child: Stack(
           children: [
-            Image.asset('assets/images/share_waiting_room_bg.png',
-                fit: BoxFit.cover),
+            Image.asset('assets/images/share_waiting_room_bg.png', fit: BoxFit.cover),
             Column(
               children: [
                 const SizedBox(height: 80),
@@ -266,17 +263,11 @@ class _TwoPlayerWaitingRoomScreenState
                                 showText: false,
                               ),
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 38.0),
+                                padding: const EdgeInsets.symmetric(vertical: 38.0),
                                 child: Text(
-                                  session.sessionUserStatus[index].email
-                                              .split("@")
-                                              .first ==
-                                          ""
+                                  session.sessionUserStatus[index].email.split("@").first == ""
                                       ? "No Player"
-                                      : session.sessionUserStatus[index].email
-                                          .split("@")
-                                          .first,
+                                      : session.sessionUserStatus[index].email.split("@").first,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -298,23 +289,19 @@ class _TwoPlayerWaitingRoomScreenState
         ),
       ),
     );
-    return await createImageFromWidget(shareWidget,
-        logicalSize: const Size(800, 418));
+    return await createImageFromWidget(shareWidget, logicalSize: const Size(800, 418));
   }
 
-  Future<Uint8List> createImageFromWidget(Widget widget,
-      {Duration? wait, Size? logicalSize}) async {
+  Future<Uint8List> createImageFromWidget(Widget widget, {Duration? wait, Size? logicalSize}) async {
     final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
     final view = PlatformDispatcher.instance.views.first;
     logicalSize ??= view.physicalSize / view.devicePixelRatio;
 
     final RenderView renderView = RenderView(
       view: view,
-      child: RenderPositionedBox(
-          alignment: Alignment.center, child: repaintBoundary),
+      child: RenderPositionedBox(alignment: Alignment.center, child: repaintBoundary),
       configuration: ViewConfiguration(
-        logicalConstraints: BoxConstraints(
-            maxWidth: logicalSize.width, maxHeight: logicalSize.height),
+        logicalConstraints: BoxConstraints(maxWidth: logicalSize.width, maxHeight: logicalSize.height),
         devicePixelRatio: 1.0,
       ),
     );
@@ -325,8 +312,7 @@ class _TwoPlayerWaitingRoomScreenState
     pipelineOwner.rootNode = renderView;
     renderView.prepareInitialFrame();
 
-    final RenderObjectToWidgetElement<RenderBox> rootElement =
-        RenderObjectToWidgetAdapter<RenderBox>(
+    final RenderObjectToWidgetElement<RenderBox> rootElement = RenderObjectToWidgetAdapter<RenderBox>(
       container: repaintBoundary,
       child: widget,
     ).attachToRenderTree(buildOwner);
@@ -345,8 +331,7 @@ class _TwoPlayerWaitingRoomScreenState
     pipelineOwner.flushPaint();
 
     final ui.Image image = await repaintBoundary.toImage();
-    final ByteData? byteData =
-        await image.toByteData(format: ui.ImageByteFormat.png);
+    final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
     return Uint8List.view(byteData!.buffer);
   }
@@ -383,14 +368,11 @@ class _TwoPlayerWaitingRoomScreenState
                               color: Colors.white,
                               iconSize: 20,
                               onPressed: () async {
-                                final tweetText =
-                                    'Join my Ludo Session\nRoom Id: ${session.id}';
-                                final url =
-                                    'https://themarquis.xyz/ludo?roomid=${session.id}';
+                                final tweetText = 'Join my Ludo Session\nRoom Id: ${session.id}';
+                                final url = 'https://themarquis.xyz/ludo?roomid=${session.id}';
 
                                 // Use the Twitter app's URL scheme
-                                final tweetUrl = Uri.encodeFull(
-                                    'twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
+                                final tweetUrl = Uri.encodeFull('twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
 
                                 // Fallback to web URL if the app isn't installed
                                 final webTweetUrl = Uri.encodeFull(
@@ -424,9 +406,7 @@ class _TwoPlayerWaitingRoomScreenState
                               iconSize: 20,
                               color: Colors.white,
                               onPressed: () async {
-                                Clipboard.setData(ClipboardData(
-                                    text:
-                                        "https://themarquis.xyz/ludo?roomid=${session.id}"));
+                                Clipboard.setData(ClipboardData(text: "https://themarquis.xyz/ludo?roomid=${session.id}"));
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -462,8 +442,7 @@ class _TwoPlayerWaitingRoomScreenState
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text(
-                                        'Image successfully saved to gallery'),
+                                    content: Text('Image successfully saved to gallery'),
                                     duration: Duration(seconds: 2),
                                   ),
                                 );
@@ -491,14 +470,8 @@ class _TwoPlayerWaitingRoomScreenState
                               iconSize: 20,
                               color: Colors.white,
                               onPressed: () {
-                                Share.shareXFiles(
-                                    [
-                                      XFile.fromData(imageBytes,
-                                          mimeType: 'image/png')
-                                    ],
-                                    subject: 'Ludo Invite',
-                                    text: 'I am playing Ludo, please join us!',
-                                    fileNameOverrides: ['share.png']);
+                                Share.shareXFiles([XFile.fromData(imageBytes, mimeType: 'image/png')],
+                                    subject: 'Ludo Invite', text: 'I am playing Ludo, please join us!', fileNameOverrides: ['share.png']);
                               },
                               icon: const Icon(Icons.share),
                             ),
@@ -545,9 +518,7 @@ class _TwoPlayerWaitingRoomScreenState
           Container(
             height: 24,
             width: 74,
-            decoration: BoxDecoration(
-                color: const Color(0XFF00ECFF),
-                borderRadius: BorderRadius.circular(5)),
+            decoration: BoxDecoration(color: const Color(0XFF00ECFF), borderRadius: BorderRadius.circular(5)),
             child: const Center(
               child: Text(
                 'Invite',
@@ -585,20 +556,14 @@ class _TwoPlayerWaitingRoomScreenState
                       padding: EdgeInsets.all(6.0),
                       child: Text(
                         "Game: Ludo",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Text(
                         "Room ID: ${session.id}",
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                     QrImageView(
@@ -651,9 +616,7 @@ class _TwoPlayerWaitingRoomScreenState
         border: Border.all(
           color: const Color(0xFF00ECFF),
         ),
-        gradient: RadialGradient(
-            colors: [Colors.transparent, Color(0xFF00ECFF).withOpacity(0.9)],
-            radius: 1.7),
+        gradient: RadialGradient(colors: [Colors.transparent, Color(0xFF00ECFF).withOpacity(0.9)], radius: 1.7),
       ),
       clipBehavior: Clip.antiAlias,
       alignment: Alignment.center,
@@ -675,8 +638,7 @@ class _TwoPlayerWaitingRoomScreenState
         alignment: Alignment.center,
         child: const Text(
           'Players',
-          style: TextStyle(
-              fontSize: 12, fontWeight: FontWeight.w400, color: Colors.white),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.white),
         ),
       ),
     );
@@ -729,12 +691,9 @@ class _TwoPlayerWaitingRoomScreenState
               GestureDetector(
                 onTap: Navigator.of(context).pop,
                 child: Container(
-                  decoration: ShapeDecoration(
-                      color: Colors.white, shape: ChevronBorder()),
-                  padding: const EdgeInsets.only(
-                      top: 2, left: 8, bottom: 1, right: 31),
-                  child:
-                      const Text('MENU', style: TextStyle(color: Colors.black)),
+                  decoration: ShapeDecoration(color: Colors.white, shape: ChevronBorder()),
+                  padding: const EdgeInsets.only(top: 2, left: 8, bottom: 1, right: 31),
+                  child: const Text('MENU', style: TextStyle(color: Colors.black)),
                 ),
               ),
             ],
@@ -765,8 +724,6 @@ class _TwoPlayerWaitingRoomScreenState
   }
 
   bool _isRoomFull(LudoSessionData? session) {
-    return session != null &&
-        session.sessionUserStatus.where((e) => e.status == "ACTIVE").length ==
-            2;
+    return session != null && session.sessionUserStatus.where((e) => e.status == "ACTIVE").length == 2;
   }
 }

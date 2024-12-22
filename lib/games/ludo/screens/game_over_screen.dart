@@ -46,7 +46,7 @@ class MatchResultsScreen extends ConsumerWidget {
             results[i]['rank'] = i + 1;
           }
           final deviceSize = MediaQuery.of(context).size;
-          print("Device width: ${deviceSize.width}, game width: ${game.width}");
+          if(kDebugMode) print("Device width: ${deviceSize.width}, game width: ${game.width}");
           return Scaffold(
               body: Transform.scale(
             scale: game.height / deviceSize.height,

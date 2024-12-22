@@ -2,14 +2,13 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flame/flame.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marquis_v2/games/checkers/core/components/checkers_pin.dart';
 import '../game/checkers_game.dart';
 import 'checkers_state.dart';
 
 class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGame>, TapCallbacks {
-  static const int BOARD_SIZE = 8;
+  static const int boardSize = 8;
   late PictureInfo blackPinSprite;
   late PictureInfo whitePinSprite;
   
@@ -19,8 +18,8 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
   
   // Add this line to track pieces
   List<List<CheckersPin?>> pieces = List.generate(
-    BOARD_SIZE, 
-    (_) => List.filled(BOARD_SIZE, null)
+    boardSize, 
+    (_) => List.filled(boardSize, null)
   );
   
   late CheckersState gameState;
@@ -72,7 +71,7 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
     );
 
     // Initialize pieces array with default positions
-    final squareSize = size.x / BOARD_SIZE;
+    final squareSize = size.x / boardSize;
     
     // Initialize black pieces
     final blackPositions = [
@@ -104,11 +103,11 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
     
     for (int row = 0; row < 3; row++) {
       for (int col in whitePositions[row]) {
-        pieces[BOARD_SIZE - 3 + row][col] = CheckersPin(
+        pieces[boardSize - 3 + row][col] = CheckersPin(
           isBlack: false,
           position: Vector2(
             col * squareSize + squareSize / 2,
-            (BOARD_SIZE - 3 + row) * squareSize + squareSize / 2,
+            (boardSize - 3 + row) * squareSize + squareSize / 2,
           ),
           dimensions: Vector2.all(squareSize * 0.8),
           spritePath: 'assets/images/whitechecker.svg',
@@ -119,7 +118,7 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
 
   @override
   void render(Canvas canvas) {
-    final squareSize = size.x / BOARD_SIZE;
+    final squareSize = size.x / boardSize;
     final pinSize = squareSize * 0.8;
     
    
@@ -139,8 +138,8 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
     );
     
     // Draw the 8x8 board with rounded corners
-    for (int row = 0; row < BOARD_SIZE; row++) {
-      for (int col = 0; col < BOARD_SIZE; col++) {
+    for (int row = 0; row < boardSize; row++) {
+      for (int col = 0; col < boardSize; col++) {
         final isBlackSquare = (row + col) % 2 == 1;
         final rect = RRect.fromRectAndRadius(
           Rect.fromLTWH(
@@ -162,8 +161,8 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
     }
 
     // Draw pieces from the pieces array
-    for (int row = 0; row < BOARD_SIZE; row++) {
-      for (int col = 0; col < BOARD_SIZE; col++) {
+    for (int row = 0; row < boardSize; row++) {
+      for (int col = 0; col < boardSize; col++) {
         if (pieces[row][col] != null) {
           canvas.save();
           canvas.translate(
@@ -212,7 +211,7 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
 
   @override
   bool onTapUp(TapUpEvent event) {
-    final squareSize = size.x / BOARD_SIZE;
+    final squareSize = size.x / boardSize;
     final col = (event.localPosition.x / squareSize).floor();
     final row = (event.localPosition.y / squareSize).floor();
 
@@ -226,7 +225,7 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
   }
 
   bool isValidPosition(int row, int col) {
-    return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
+    return row >= 0 && row < boardSize && col >= 0 && col < boardSize;
   }
 
   List<Vector2> getValidMoves(int row, int col) {
@@ -270,8 +269,8 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
   }
 
   void movePiece(CheckersPin piece, int newRow, int col) {
-    final oldRow = piece.position.y ~/ (size.x / BOARD_SIZE);
-    final oldCol = piece.position.x ~/ (size.x / BOARD_SIZE);
+    final oldRow = piece.position.y ~/ (size.x / boardSize);
+    final oldCol = piece.position.x ~/ (size.x / boardSize);
     
     // Update board state
     pieces[oldRow][oldCol] = null;
@@ -286,8 +285,8 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
     
     // Move the piece
     piece.position = Vector2(
-      col * size.x / BOARD_SIZE + size.x / BOARD_SIZE / 2,
-      newRow * size.x / BOARD_SIZE + size.x / BOARD_SIZE / 2,
+      col * size.x / boardSize + size.x / boardSize / 2,
+      newRow * size.x / boardSize + size.x / boardSize / 2,
     );
   }
 
@@ -297,8 +296,8 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
     bool blackCanMove = false;
     bool whiteCanMove = false;
 
-    for (int row = 0; row < BOARD_SIZE; row++) {
-      for (int col = 0; col < BOARD_SIZE; col++) {
+    for (int row = 0; row < boardSize; row++) {
+      for (int col = 0; col < boardSize; col++) {
         final piece = pieces[row][col];
         if (piece != null) {
           if (piece.isBlack) {
@@ -339,8 +338,8 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
   void randomizePieces(List<Vector2> randomPositions) {
     // Create a list of all current pieces
     List<CheckersPin> currentPieces = [];
-    for (int row = 0; row < BOARD_SIZE; row++) {
-      for (int col = 0; col < BOARD_SIZE; col++) {
+    for (int row = 0; row < boardSize; row++) {
+      for (int col = 0; col < boardSize; col++) {
         if (pieces[row][col] != null) {
           currentPieces.add(pieces[row][col]!);
         }
@@ -349,12 +348,12 @@ class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGam
     
     // Clear the current board
     pieces = List.generate(
-      BOARD_SIZE, 
-      (_) => List.filled(BOARD_SIZE, null)
+      boardSize, 
+      (_) => List.filled(boardSize, null)
     );
     
     // Place pieces in new positions
-    final squareSize = size.x / BOARD_SIZE;
+    final squareSize = size.x / boardSize;
     for (int i = 0; i < currentPieces.length; i++) {
       if (i < randomPositions.length) {
         final newRow = randomPositions[i].y.toInt();

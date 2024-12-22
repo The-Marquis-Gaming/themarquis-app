@@ -8,6 +8,7 @@ import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -49,8 +50,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
   dart_async.Timer? _messageTimer;
   Completer<void>? ludoSessionLoadingCompleter;
 
-  final ValueNotifier<PlayState> playStateNotifier =
-      ValueNotifier(PlayState.welcome);
+  final ValueNotifier<PlayState> playStateNotifier = ValueNotifier(PlayState.welcome);
 
   LudoGame()
       : super(
@@ -75,9 +75,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
         Color(0xffb0d02f),
       ];
   int get userIndex => _userIndex;
-  List<String> get playerNames => _sessionData!.sessionUserStatus
-      .map((user) => user.email.split('@')[0])
-      .toList();
+  List<String> get playerNames => _sessionData!.sessionUserStatus.map((user) => user.email.split('@')[0]).toList();
 
   Dice get currentDice => diceContainer.currentDice;
   Dice? getPlayerDice(int playerIndex) => playerHomes[playerIndex].playerDice;
@@ -101,9 +99,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
         diceContainer.currentDice.state = DiceState.preparing;
         await Future.delayed(const Duration(seconds: 8), () async {
           diceContainer.currentDice.state = DiceState.playingMove;
-          await ref
-              .read(ludoSessionProvider.notifier)
-              .playMove(index.toString());
+          await ref.read(ludoSessionProvider.notifier).playMove(index.toString());
         });
       } else {
         diceContainer.currentDice.state = DiceState.playingMove;
@@ -218,8 +214,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
                                   onTap: () {
                                     Navigator.pop(context);
                                   },
-                                  child: SvgPicture.asset(
-                                      'assets/images/ok_btn.svg'),
+                                  child: SvgPicture.asset('assets/images/ok_btn.svg'),
                                 ),
                                 const SizedBox(height: 16),
                               ],
@@ -276,9 +271,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
           backgroundColor: Colors.red,
         );
         if (_sessionData!.message!.startsWith("EXITED")) {
-          await ref
-              .read(ludoSessionProvider.notifier)
-              .clearData(refreshUser: true);
+          await ref.read(ludoSessionProvider.notifier).clearData(refreshUser: true);
           overlays.remove(PlayState.waiting.name);
           overlays.remove(PlayState.finished.name);
           playState = PlayState.welcome;
@@ -315,10 +308,8 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
             final currentPinLocations = playerPinLocations[player.playerId];
             final playerHome = playerHomes[player.playerId];
             for (int i = 0; i < pinLocations.length; i++) {
-              final pinLocation = int.parse(pinLocations[i]) +
-                  (player.playerTokensCircled?[i] ?? false ? 52 : 0);
-              if (player.playerWinningTokens[i] == true &&
-                  currentPinLocations[i] != -1) {
+              final pinLocation = int.parse(pinLocations[i]) + (player.playerTokensCircled?[i] ?? false ? 52 : 0);
+              if (player.playerWinningTokens[i] == true && currentPinLocations[i] != -1) {
                 // Remove from board and add to destination
                 playerPinLocations[player.playerId][i] = -1;
                 final pin = board.getPinWithIndex(player.playerId, i);
@@ -326,8 +317,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
                 // board.remove(pin!);
                 // await pin.removed;
                 // destination.addPin(pin);
-              } else if (player.playerWinningTokens[i] != true &&
-                  currentPinLocations[i] != pinLocation) {
+              } else if (player.playerWinningTokens[i] != true && currentPinLocations[i] != pinLocation) {
                 if (currentPinLocations[i] == 0 && pinLocation != 0) {
                   // Remove from home and add to board
                   final pin = playerHome.removePin(i);
@@ -335,8 +325,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
                     await pin.removed;
                   }
 
-                  await board.addPin(pin,
-                      location: pinLocation - player.playerId * 13 - 1);
+                  await board.addPin(pin, location: pinLocation - player.playerId * 13 - 1);
                 } else if (currentPinLocations[i] != 0 && pinLocation == 0) {
                   // Pin attacked
                   final pin = board.getPinWithIndex(player.playerId, i);
@@ -353,8 +342,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
             }
           }
           movePinsCompleter.complete();
-          if (_currentPlayer == _userIndex &&
-              diceContainer.currentDice.state == DiceState.preparing) {
+          if (_currentPlayer == _userIndex && diceContainer.currentDice.state == DiceState.preparing) {
             Future.delayed(const Duration(seconds: 8), () {
               diceContainer.currentDice.state = DiceState.active;
             });
@@ -379,24 +367,18 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
     await Flame.images.load('play.png');
 
     camera.viewfinder.anchor = Anchor.topLeft;
-    _userIndex = _sessionData!.sessionUserStatus.indexWhere(
-        (user) => user.userId.toString() == ref.read(userProvider)?.id);
+    _userIndex = _sessionData!.sessionUserStatus.indexWhere((user) => user.userId.toString() == ref.read(userProvider)?.id);
     _currentPlayer = _sessionData!.nextPlayerIndex;
     board = Board();
     await add(board);
     final positions = [
-      Vector2(center.x - unitSize * 6.25,
-          center.y - unitSize * 6.25), // Top-left corner (Player 1)
-      Vector2(center.x + unitSize * 2.25,
-          center.y - unitSize * 6.25), // Top-right corner (Player 2)
-      Vector2(center.x + unitSize * 2.25,
-          center.y + unitSize * 2.25), // Bottom-right corner (Player 3)
-      Vector2(center.x - unitSize * 6.25,
-          center.y + unitSize * 2.25), // Bottom-left corner (Player 4)
+      Vector2(center.x - unitSize * 6.25, center.y - unitSize * 6.25), // Top-left corner (Player 1)
+      Vector2(center.x + unitSize * 2.25, center.y - unitSize * 6.25), // Top-right corner (Player 2)
+      Vector2(center.x + unitSize * 2.25, center.y + unitSize * 2.25), // Bottom-right corner (Player 3)
+      Vector2(center.x - unitSize * 6.25, center.y + unitSize * 2.25), // Bottom-left corner (Player 4)
     ];
     for (int i = 0; i < positions.length; i++) {
-      playerHomes
-          .add(PlayerHome(i, _sessionData!.sessionUserStatus[i], positions[i]));
+      playerHomes.add(PlayerHome(i, _sessionData!.sessionUserStatus[i], positions[i]));
       await add(playerHomes.last);
     }
 
@@ -416,14 +398,12 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
           color: Colors.white,
           shadows: [
             Shadow(
-              color: _sessionData!.getListOfColors[_currentPlayer]
-                  .withOpacity(0.8),
+              color: _sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
               offset: const Offset(0, 0),
               blurRadius: 20,
             ),
             Shadow(
-              color: _sessionData!.getListOfColors[_currentPlayer]
-                  .withOpacity(0.8),
+              color: _sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
               offset: const Offset(0, 0),
               blurRadius: 10,
             ),
@@ -439,8 +419,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
       final pinLocations = player.playerTokensPosition;
       final playerHome = playerHomes[player.playerId];
       for (int i = 0; i < pinLocations.length; i++) {
-        var pinLocation = int.parse(pinLocations[i]) +
-            (player.playerTokensCircled?[i] ?? false ? 52 : 0);
+        var pinLocation = int.parse(pinLocations[i]) + (player.playerTokensCircled?[i] ?? false ? 52 : 0);
 
         if (player.playerWinningTokens[i] == true) {
           playerPinLocations[player.playerId][i] = -1;
@@ -451,8 +430,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
         } else if (pinLocation != 0 || player.playerTokensCircled?[i] == true) {
           final pin = playerHome.removePin(i);
           //  pin.removed;
-          board.addPin(pin,
-              location: pinLocation - player.playerId * 13 - 1, isInit: true);
+          board.addPin(pin, location: pinLocation - player.playerId * 13 - 1, isInit: true);
           playerPinLocations[player.playerId][i] = pinLocation;
         }
       }
@@ -493,8 +471,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
 
   void updateTurnText() {
     final playerName = playerNames[_currentPlayer];
-    turnText.text =
-        _currentPlayer == _userIndex ? 'Your Turn' : "$playerName's Turn";
+    turnText.text = _currentPlayer == _userIndex ? 'Your Turn' : "$playerName's Turn";
     turnText.textRenderer = TextPaint(
       style: TextStyle(
         fontSize: unitSize * 1.2,
@@ -508,8 +485,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
             blurRadius: 10,
           ),
           Shadow(
-            color:
-                _sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
+            color: _sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
             offset: const Offset(0, 0),
             blurRadius: 6,
           ),
@@ -519,7 +495,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
   }
 
   Future<void> rollDice() async {
-    print("rollDice called, playerCanMove: $playerCanMove");
+    if (kDebugMode) print("rollDice called, playerCanMove: $playerCanMove");
     if (playerCanMove) return;
 
     // Show animated dice dialog
@@ -538,11 +514,11 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
       );
     }
 
-    print("Rolling dice...");
+    if (kDebugMode) print("Rolling dice...");
     await diceContainer.currentDice.roll();
     // // playState = PlayState.finished;
 
-    print("Dice rolled, value: ${diceContainer.currentDice.value}");
+    if (kDebugMode) print("Dice rolled, value: ${diceContainer.currentDice.value}");
 
     List<PlayerPin> listOfPlayerPin = board.getPlayerPinsOnBoard(_userIndex);
     List<PlayerPin> movablePins = [];
@@ -558,8 +534,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
       final pinsAtHome = playerHomes[_userIndex].pinsAtHome;
       if (diceContainer.currentDice.value < 6) {
         if (pinsAtHome.isNotEmpty) {
-          showGameMessage(
-              message: "Can not move from Basement, try to get a 6!!");
+          showGameMessage(message: "Can not move from Basement, try to get a 6!!");
           // If there are pins at home, play the first one (dummy move)
           await playMove(pinsAtHome[0]!.homeIndex, isAuto: true);
           return;
@@ -587,9 +562,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
     }
 
     if ((movablePins.length == 1 && diceContainer.currentDice.value < 6) ||
-        (movablePins.length == 1 &&
-            diceContainer.currentDice.value > 6 &&
-            playerHomes[_userIndex].pinsAtHome.isEmpty)) {
+        (movablePins.length == 1 && diceContainer.currentDice.value > 6 && playerHomes[_userIndex].pinsAtHome.isEmpty)) {
       // Automatically play move on the only movable pin
       await playMove(movablePins[0].homeIndex);
       return;
@@ -746,12 +719,13 @@ class CustomRectangleComponent extends PositionComponent {
 
 // Add this new widget class
 class DiceAnimationWidget extends StatefulWidget {
+  const DiceAnimationWidget({super.key});
+
   @override
-  _DiceAnimationWidgetState createState() => _DiceAnimationWidgetState();
+  State<DiceAnimationWidget> createState() => _DiceAnimationWidgetState();
 }
 
-class _DiceAnimationWidgetState extends State<DiceAnimationWidget>
-    with SingleTickerProviderStateMixin {
+class _DiceAnimationWidgetState extends State<DiceAnimationWidget> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late int currentDiceFace = 1;
   final List<int> diceSequence = [1, 2, 3, 4, 5, 6];
@@ -775,7 +749,7 @@ class _DiceAnimationWidgetState extends State<DiceAnimationWidget>
     _controller.repeat();
     Future.delayed(const Duration(seconds: 2), () {
       _controller.stop();
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
     });
   }
 

@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:marquis_v2/games/ludo/ludo_game.dart';
 
@@ -201,7 +202,7 @@ class Dice extends PositionComponent
           .toList();
       state = DiceState.rolledDice;
     } catch (e) {
-      print(e);
+      if(kDebugMode) print(e);
       state = DiceState.active;
     }
   }
@@ -209,10 +210,10 @@ class Dice extends PositionComponent
   @override
   void onTapUp(TapUpEvent event) {
     super.onTapUp(event);
-    print("Dice tapped, current state: $_state"); 
+    if(kDebugMode) print("Dice tapped, current state: $_state"); 
 
     if (_state == DiceState.active) {
-      print("Calling game.rollDice()"); 
+      if(kDebugMode) print("Calling game.rollDice()"); 
       game.rollDice();
     }
   }

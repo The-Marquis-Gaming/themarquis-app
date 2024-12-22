@@ -1,6 +1,5 @@
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
-import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:marquis_v2/games/checkers/core/components/checkers_board.dart';

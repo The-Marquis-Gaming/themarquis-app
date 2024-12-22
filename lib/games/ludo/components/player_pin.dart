@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:marquis_v2/games/ludo/components/board.dart';
 import 'package:marquis_v2/games/ludo/config.dart';
@@ -141,7 +142,7 @@ class PlayerPin extends SpriteComponent with TapCallbacks, HasGameReference<Ludo
       throw Exception("Invalid move: target index ($targetIndex) is greater than 56");
     }
 
-    print("Player $playerIndex moving to position $targetIndex");
+    if(kDebugMode) print("Player $playerIndex moving to position $targetIndex");
 
     currentPosIndex = targetIndex;
 
@@ -189,7 +190,7 @@ class PlayerPin extends SpriteComponent with TapCallbacks, HasGameReference<Ludo
       // Wait for the animation to complete
       await completer.future;
     } else {
-      print("No movement required: start and target positions are the same");
+      if(kDebugMode) print("No movement required: start and target positions are the same");
     }
   }
 

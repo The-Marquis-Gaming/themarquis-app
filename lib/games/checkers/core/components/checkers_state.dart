@@ -1,5 +1,4 @@
 import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
 import '../game/checkers_game.dart';
 import 'checkers_pin.dart';
 import 'dart:math';

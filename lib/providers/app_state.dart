@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:marquis_v2/env.dart';
@@ -199,7 +200,7 @@ class AppState extends _$AppState {
   }
 
   Future<void> logout() async {
-    print("logout");
+    if(kDebugMode) print("logout");
     await Future.delayed(
       Duration.zero,
       () {

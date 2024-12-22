@@ -24,6 +24,7 @@ final innerRouterDelegateProvider =
 
 class AppRouterDelegate extends RouterDelegate<AppRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
+  @override
   final GlobalKey<NavigatorState> navigatorKey;
   bool? _showPageNotFound;
   bool _isSignUp = false;
