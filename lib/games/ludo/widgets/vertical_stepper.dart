@@ -2,9 +2,19 @@ import 'package:flutter/material.dart';
 
 class VerticalStepper extends StatelessWidget {
   final int _activeTab, _numberOfSteps;
-  const VerticalStepper({required int activeTab, required int numberOfSteps, super.key})
+  final Color _activeColor;
+  const VerticalStepper({required int activeTab, required int numberOfSteps, required Color activeColor, super.key})
       : _activeTab = activeTab,
-        _numberOfSteps = numberOfSteps;
+        _numberOfSteps = numberOfSteps,
+        _activeColor = activeColor;
+
+  int get _numberOfBreaks {
+    return _numberOfSteps == 2
+        ? 30
+        : _numberOfSteps == 3
+            ? 15
+            : 10;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +26,11 @@ class VerticalStepper extends StatelessWidget {
           children: [
             if (index != 0)
               ...List.generate(
-                10,
+                _numberOfBreaks,
                 (index2) => Container(
                   width: 3,
                   height: 3,
-                  color: index <= _activeTab + 1 ? Colors.cyan : Colors.grey,
+                  color: index <= _activeTab + 1 ? _activeColor : Colors.grey,
                   margin: const EdgeInsets.only(bottom: 4),
                 ),
               ),
@@ -29,17 +39,17 @@ class VerticalStepper extends StatelessWidget {
               width: 11,
               height: 11,
               decoration: BoxDecoration(
-                color: index <= _activeTab ? Colors.cyan : Colors.grey,
+                color: index <= _activeTab ? _activeColor : Colors.grey,
                 shape: BoxShape.circle,
               ),
             ),
             if (index != _numberOfSteps - 1)
               ...List.generate(
-                10,
+                _numberOfBreaks,
                 (index2) => Container(
                   width: 3,
                   height: 3,
-                  color: index <= _activeTab ? Colors.cyan : Colors.grey,
+                  color: index <= _activeTab ? _activeColor : Colors.grey,
                   margin: const EdgeInsets.only(bottom: 4),
                 ),
               ),

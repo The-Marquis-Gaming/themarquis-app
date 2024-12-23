@@ -170,7 +170,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                       if (_activeTab != _numberOfTabs) ...[
                         SizedBox(
                           width: 32,
-                          child: VerticalStepper(activeTab: _activeTab, numberOfSteps: _numberOfTabs),
+                          child: VerticalStepper(activeTab: _activeTab, numberOfSteps: _numberOfTabs, activeColor: Colors.cyan),
                         ),
                         const SizedBox(width: 12),
                         Flexible(
@@ -446,9 +446,9 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                                     Slider(
                                                       min: 0,
                                                       divisions: 100,
-                                                      activeColor: Colors.white,
+                                                      activeColor: Colors.cyan,
+                                                      thumbColor: Colors.white,
                                                       label: ((_selectedTokenAmount ?? 0) / 1e18).toStringAsFixed(7),
-                                                      secondaryActiveColor: Colors.cyan,
                                                       allowedInteraction: SliderInteraction.slideThumb,
                                                       max: _selectedTokenBalance.toDouble(),
                                                       value: _selectedTokenAmount ?? 0,

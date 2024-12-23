@@ -52,13 +52,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
 
   final ValueNotifier<PlayState> playStateNotifier = ValueNotifier(PlayState.welcome);
 
-  LudoGame()
-      : super(
-          camera: CameraComponent.withFixedResolution(
-            width: gameWidth,
-            height: gameHeight,
-          ),
-        );
+  LudoGame() : super(camera: CameraComponent.withFixedResolution(width: gameWidth, height: gameHeight));
 
   double get width => size.x;
   double get height => size.y;

@@ -36,39 +36,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Column(
               children: [
                 const SizedBox(height: 64),
-                Image.asset('assets/images/banner.png',
-                    width: MediaQuery.of(context).size.width, fit: BoxFit.fill),
+                Image.asset('assets/images/banner.png', width: MediaQuery.of(context).size.width, fit: BoxFit.fill),
               ],
             ),
             Column(
               children: [
                 AppBar(
                   backgroundColor: Colors.white.withOpacity(0.02),
-                  systemOverlayStyle: const SystemUiOverlayStyle(
-                      statusBarIconBrightness: Brightness.light,
-                      statusBarBrightness: Brightness.light),
+                  systemOverlayStyle: const SystemUiOverlayStyle(statusBarIconBrightness: Brightness.light, statusBarBrightness: Brightness.light),
                   title: const BalanceAppBar(),
                 ),
                 const SizedBox(height: 24.0),
                 const ListTile(
-                  title: Text('Top picks',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
-                  subtitle: Text('Lets explore our games',
-                      style: TextStyle(fontSize: 12)),
+                  title: Text('Top picks', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+                  subtitle: Text('Lets explore our games', style: TextStyle(fontSize: 12)),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
                     child: Container(
-                      decoration:
-                          BoxDecoration(borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                       child: Stack(
                         children: [
-                          Image.asset('assets/images/ludo.png',
-                              fit: BoxFit.fitWidth,
-                              color: Colors.black.withAlpha(100),
-                              colorBlendMode: BlendMode.darken),
+                          Image.asset('assets/images/ludo.png', fit: BoxFit.fitWidth, color: Colors.black.withAlpha(100), colorBlendMode: BlendMode.darken),
                           const Positioned(
                             bottom: 0,
                             left: 0,
@@ -77,12 +67,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text('Dice Game',
-                                      style: TextStyle(fontSize: 12)),
-                                  Text('Ludo',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold))
+                                  Text('Dice Game', style: TextStyle(fontSize: 12)),
+                                  Text('Ludo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
                                 ],
                               ),
                             ),
@@ -95,20 +81,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               child: IconButton(
                                 onPressed: () {
                                   if (!ref.read(appStateProvider).isAuth) {
-                                    showDialog(
-                                        context: context,
-                                        builder: (ctx) => const AuthDialog());
+                                    showDialog(context: context, builder: (ctx) => const AuthDialog());
                                     return;
                                   }
-                                  ref
-                                      .read(appStateProvider.notifier)
-                                      .selectGame("ludo");
+                                  ref.read(appStateProvider.notifier).selectGame("ludo");
                                 },
                                 icon: const Icon(Icons.arrow_forward, size: 32),
                                 style: IconButton.styleFrom(
                                   backgroundColor: Colors.white.withAlpha(100),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16)),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                 ),
                               ),
                             ),
@@ -124,9 +105,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: [
                       Container(
                         width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            border: Border.all(color: const Color(0xff181B25))),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0), border: Border.all(color: const Color(0xff181B25))),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -247,10 +226,7 @@ class GameCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(fontWeight: FontWeight.w800),
+                            style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w800),
                           ),
                         ),
                         if (isActive)
@@ -321,8 +297,7 @@ class MyChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration:
-          BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: Row(
         children: [
@@ -330,18 +305,14 @@ class MyChip extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(0, 0, iconPadding, 0),
             child: Icon(
               icon,
-              color: isLightColor
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.onSurface,
+              color: isLightColor ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
               size: 15,
             ),
           ),
           Text(
             title,
             style: TextStyle(
-              color: isLightColor
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.onSurface,
+              color: isLightColor ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
               fontSize: 11,
               fontWeight: FontWeight.bold,
             ),
