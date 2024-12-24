@@ -7,8 +7,7 @@ Sparta App
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-void showErrorDialog(String? message, BuildContext context,
-    {bool isInfo = false}) {
+void showErrorDialog(String? message, BuildContext context, {bool isInfo = false}) {
   if (message == "") {
     message = "Please try again later";
   }
@@ -16,8 +15,8 @@ void showErrorDialog(String? message, BuildContext context,
     context: context,
     builder: (ctx) => AlertDialog(
       scrollable: true,
-      title: Text(isInfo ? 'Info' : 'An Error Occurred!'),
-      content: SelectableText(message!),
+      title: Text(isInfo ? 'Info' : 'An Error Occurred!', style: TextStyle(color: Colors.white)),
+      content: SelectableText(message!, style: TextStyle(color: Colors.white)),
       actions: <Widget>[
         TextButton(
           child: const Text('Copy'),
