@@ -17,6 +17,7 @@ import 'package:marquis_v2/games/ludo/components/string_validation.dart';
 import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
+import 'package:marquis_v2/games/ludo/widgets/angled_border_button.dart';
 import 'package:marquis_v2/games/ludo/widgets/chevron_border.dart';
 import 'package:marquis_v2/games/ludo/widgets/divider_shape.dart';
 import 'package:marquis_v2/models/enums.dart';
@@ -85,40 +86,15 @@ class _FourPlayerWaitingRoomScreenState extends ConsumerState<FourPlayerWaitingR
   }
 
   Widget _bottom(LudoSessionData session) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GestureDetector(
-        onTap: _isRoomFull(session)
-            ? () {
-                widget.game.playState = PlayState.playing;
-              }
-            : null,
-        child: IconButton(
-          onPressed: () {},
-          disabledColor: Colors.grey,
-          icon: Stack(
-            alignment: AlignmentDirectional.center,
-            children: [
-              Center(
-                child: SvgPicture.asset("assets/svg/ludo_elevated_button.svg"),
-              ),
-              Center(
-                child: Text(
-                  _isRoomFull(session)
-                      ? _countdownTimer == null
-                          ? 'Start Game'
-                          : 'Starting in $_countdown'
-                      : 'Waiting for players',
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+    return AngledBorderButton(
+      onTap: _isRoomFull(session) ? () => widget.game.playState = PlayState.playing : null,
+      child: Text(
+        _isRoomFull(session)
+            ? _countdownTimer == null
+                ? 'Start Game'
+                : 'Starting in $_countdown'
+            : 'Waiting for players',
+        style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
       ),
     );
   }

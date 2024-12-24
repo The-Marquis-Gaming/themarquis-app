@@ -12,6 +12,7 @@ import 'package:gal/gal.dart';
 import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
+import 'package:marquis_v2/games/ludo/widgets/angled_border_button.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:share_plus/share_plus.dart';
@@ -328,8 +329,8 @@ class MatchResultsScreen extends ConsumerWidget {
   }
 
   Widget _buildShareButton(BuildContext context, List<Map<String, dynamic>> results, List<Map<String, dynamic>> supportedTokens) {
-    return IconButton(
-      onPressed: () async {
+    return AngledBorderButton(
+      onTap: () async {
         final imageBytes = await _buildShareImage(results, supportedTokens);
         if (!context.mounted) return;
         showDialog(
@@ -357,38 +358,27 @@ class MatchResultsScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(24),
                             ),
                             child: IconButton(
-                              onPressed: () async {
-                                final tweetText = 'Check out my results!\nRoom Id: ${session.id}';
-                                final url = 'https://themarquis.xyz/ludo?roomid=${session.id}';
+                                onPressed: () async {
+                                  final tweetText = 'Check out my results!\nRoom Id: ${session.id}';
+                                  final url = 'https://themarquis.xyz/ludo?roomid=${session.id}';
 
-                                // Use the Twitter app's URL scheme
-                                final tweetUrl = Uri.encodeFull('twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
+                                  // Use the Twitter app's URL scheme
+                                  final tweetUrl = Uri.encodeFull('twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
 
-                                // Fallback to web URL if the app isn't installed
-                                final webTweetUrl = Uri.encodeFull(
-                                    'https://x.com/intent/tweet?text=$tweetText&url=$url&via=themarquisxyz&image=data:image/png;base64,${base64Encode(imageBytes)}');
+                                  // Fallback to web URL if the app isn't installed
+                                  final webTweetUrl = Uri.encodeFull(
+                                      'https://x.com/intent/tweet?text=$tweetText&url=$url&via=themarquisxyz&image=data:image/png;base64,${base64Encode(imageBytes)}');
 
-                                if (await canLaunchUrl(Uri.parse(tweetUrl))) {
-                                  await launchUrl(Uri.parse(tweetUrl));
-                                } else {
-                                  await launchUrl(Uri.parse(webTweetUrl));
-                                }
-                              },
-                              icon: const Icon(
-                                FontAwesomeIcons.xTwitter,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
+                                  if (await canLaunchUrl(Uri.parse(tweetUrl))) {
+                                    await launchUrl(Uri.parse(tweetUrl));
+                                  } else {
+                                    await launchUrl(Uri.parse(webTweetUrl));
+                                  }
+                                },
+                                icon: const Icon(FontAwesomeIcons.xTwitter, color: Colors.white, size: 20)),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'X',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
+                          const Text('X', style: TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                       Column(
@@ -396,36 +386,20 @@ class MatchResultsScreen extends ConsumerWidget {
                           Container(
                             width: 48,
                             height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[700],
-                              borderRadius: BorderRadius.circular(24),
-                            ),
+                            decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(24)),
                             child: IconButton(
                               onPressed: () async {
                                 await Gal.putImageBytes(imageBytes);
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Image successfully saved to gallery'),
-                                    duration: Duration(seconds: 2),
-                                  ),
+                                  const SnackBar(content: Text('Image successfully saved to gallery'), duration: Duration(seconds: 2)),
                                 );
                               },
-                              icon: const Icon(
-                                Icons.image,
-                                color: Colors.white,
-                                size: 20,
-                              ),
+                              icon: const Icon(Icons.image, color: Colors.white, size: 20),
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'Save Image',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
+                          const Text('Save Image', style: TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                       Column(
@@ -433,10 +407,7 @@ class MatchResultsScreen extends ConsumerWidget {
                           Container(
                             width: 48,
                             height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[700],
-                              borderRadius: BorderRadius.circular(24),
-                            ),
+                            decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(24)),
                             child: IconButton(
                               onPressed: () {
                                 Share.shareXFiles(
@@ -446,21 +417,11 @@ class MatchResultsScreen extends ConsumerWidget {
                                   fileNameOverrides: ['share.png'],
                                 );
                               },
-                              icon: const Icon(
-                                Icons.share,
-                                color: Colors.white,
-                                size: 20,
-                              ),
+                              icon: const Icon(Icons.share, color: Colors.white, size: 20),
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'Share',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
+                          const Text('Share', style: TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ],
@@ -471,15 +432,7 @@ class MatchResultsScreen extends ConsumerWidget {
           ),
         );
       },
-      icon: Stack(
-        alignment: AlignmentDirectional.center,
-        children: [
-          Center(child: SvgPicture.asset("assets/svg/ludo_elevated_button.svg")),
-          const Center(
-            child: Text('Share', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
+      child: Text('Share', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
     );
   }
 
