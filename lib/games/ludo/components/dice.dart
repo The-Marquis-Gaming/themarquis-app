@@ -6,7 +6,7 @@ import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 
 enum DiceState {
   inactive,
@@ -17,8 +17,7 @@ enum DiceState {
   playingMove,
 }
 
-class Dice extends PositionComponent
-    with TapCallbacks, HasGameReference<LudoGame> {
+class Dice extends PositionComponent with TapCallbacks, HasGameReference<LudoGameController> {
   List<int> _values = [1];
   DiceState _state = DiceState.inactive;
   late SpriteSheet diceSpriteSheet;
@@ -36,9 +35,7 @@ class Dice extends PositionComponent
   List<int> get values => _values;
   set values(List<int> newValues) {
     _values = newValues;
-    _currentSprites = values
-        .map((value) => diceSpriteSheet.getSprite(0, min(value - 1, 5)))
-        .toList();
+    _currentSprites = values.map((value) => diceSpriteSheet.getSprite(0, min(value - 1, 5))).toList();
     update(0);
   }
 
@@ -47,9 +44,7 @@ class Dice extends PositionComponent
       ...List.filled(value ~/ 6, 6),
       if (value % 6 != 0) value % 6,
     ];
-    _currentSprites = _values
-        .map((value) => diceSpriteSheet.getSprite(0, min(value - 1, 5)))
-        .toList();
+    _currentSprites = _values.map((value) => diceSpriteSheet.getSprite(0, min(value - 1, 5))).toList();
     update(0);
   }
 
@@ -78,7 +73,7 @@ class Dice extends PositionComponent
       srcSize: Vector2(267, 267),
     );
     _currentSprites = [diceSpriteSheet.getSprite(0, 0)];
-    
+
     rollActiveSprite = Sprite(Flame.images.fromCache('active_button.png'));
     rollInactiveSprite = Sprite(Flame.images.fromCache('play.png'));
   }
@@ -155,8 +150,7 @@ class Dice extends PositionComponent
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4;
 
-    final sweepAngle =
-        2 * pi * (DateTime.now().millisecondsSinceEpoch % 1000) / 1000;
+    final sweepAngle = 2 * pi * (DateTime.now().millisecondsSinceEpoch % 1000) / 1000;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -pi / 2,
@@ -188,8 +182,7 @@ class Dice extends PositionComponent
         break;
     }
 
-    canvas.drawCircle(
-        Offset(size.x * 0.9, size.y * 0.1), size.x / 20, indicatorPaint);
+    canvas.drawCircle(Offset(size.x * 0.9, size.y * 0.1), size.x / 20, indicatorPaint);
   }
 
   Future<void> roll() async {
@@ -197,12 +190,10 @@ class Dice extends PositionComponent
     try {
       final moveResults = await game.generateMove();
       _values = moveResults;
-      _currentSprites = _values
-          .map((value) => diceSpriteSheet.getSprite(0, min(value - 1, 5)))
-          .toList();
+      _currentSprites = _values.map((value) => diceSpriteSheet.getSprite(0, min(value - 1, 5))).toList();
       state = DiceState.rolledDice;
     } catch (e) {
-      if(kDebugMode) print(e);
+      if (kDebugMode) print(e);
       state = DiceState.active;
     }
   }
@@ -210,10 +201,10 @@ class Dice extends PositionComponent
   @override
   void onTapUp(TapUpEvent event) {
     super.onTapUp(event);
-    if(kDebugMode) print("Dice tapped, current state: $_state"); 
+    if (kDebugMode) print("Dice tapped, current state: $_state");
 
     if (_state == DiceState.active) {
-      if(kDebugMode) print("Calling game.rollDice()"); 
+      if (kDebugMode) print("Calling game.rollDice()");
       game.rollDice();
     }
   }

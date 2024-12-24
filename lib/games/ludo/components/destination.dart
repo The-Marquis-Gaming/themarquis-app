@@ -4,13 +4,11 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import 'package:marquis_v2/games/ludo/components/player_pin.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
+import 'package:marquis_v2/models/enums.dart';
 
-class Destination extends PositionComponent with HasGameReference<LudoGame> {
-  Destination()
-      : super(
-          anchor: Anchor.center,
-        );
+class Destination extends PositionComponent with HasGameReference<LudoGameController> {
+  Destination() : super(anchor: Anchor.center);
 
   late Map<int, List<BarComponent>> _bars;
 
@@ -123,8 +121,7 @@ class Destination extends PositionComponent with HasGameReference<LudoGame> {
   void render(Canvas canvas) {
     super.render(canvas);
     canvas.drawRRect(
-        RRect.fromLTRBR(0, 0, game.unitSize * 2.5, game.unitSize * 2.5,
-            const Radius.circular(6.0)),
+        RRect.fromLTRBR(0, 0, game.unitSize * 2.5, game.unitSize * 2.5, const Radius.circular(6.0)),
         Paint()
           ..color = const Color(0xff4c4c4c)
           ..style = PaintingStyle.stroke
@@ -136,9 +133,7 @@ class Destination extends PositionComponent with HasGameReference<LudoGame> {
     _bars[pin.playerIndex]![index].lightUp();
     if (index == 3) {
       // Show winner announcement before changing game state
-      game.showGameMessage(
-          message: 'The Winner is ${game.playerNames[pin.playerIndex]}!',
-          durationSeconds: 5);
+      game.showGameMessage(message: 'The Winner is ${game.playerNames[pin.playerIndex]}!', durationSeconds: 5);
 
       // Delay the game over screen
       Future.delayed(const Duration(seconds: 5), () {
@@ -149,8 +144,7 @@ class Destination extends PositionComponent with HasGameReference<LudoGame> {
   }
 }
 
-class BarComponent extends PositionComponent
-    with HasPaint, HasGameReference<LudoGame> {
+class BarComponent extends PositionComponent with HasPaint, HasGameReference<LudoGameController> {
   final int playerIndex;
   BarComponent({
     required this.playerIndex,
@@ -162,9 +156,7 @@ class BarComponent extends PositionComponent
 
   @override
   void render(Canvas canvas) {
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(size.toRect(), const Radius.circular(5)),
-        paint);
+    canvas.drawRRect(RRect.fromRectAndRadius(size.toRect(), const Radius.circular(5)), paint);
   }
 
   void lightUp() {

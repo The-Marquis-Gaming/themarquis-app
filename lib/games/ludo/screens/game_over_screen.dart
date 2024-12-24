@@ -9,18 +9,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gal/gal.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
+import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MatchResultsScreen extends ConsumerWidget {
-  const MatchResultsScreen(
-      {super.key, required this.session, required this.game});
+  const MatchResultsScreen({super.key, required this.session, required this.game});
   final LudoSessionData session;
-  final LudoGame game;
+  final LudoGameController game;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,9 +30,7 @@ class MatchResultsScreen extends ConsumerWidget {
           if (playState != PlayState.finished) return const SizedBox.shrink();
 
           final results = session.sessionUserStatus.map((element) {
-            final numWinningTokens = element.playerWinningTokens
-                .map((e) => e ? 1 : 0)
-                .reduce((a, b) => a + b);
+            final numWinningTokens = element.playerWinningTokens.map((e) => e ? 1 : 0).reduce((a, b) => a + b);
             return {
               'index': session.sessionUserStatus.indexOf(element),
               'score': numWinningTokens == 4 ? 400 : -100,
@@ -40,13 +38,12 @@ class MatchResultsScreen extends ConsumerWidget {
               'exp': 400,
             };
           }).toList();
-          results.sort((a, b) =>
-              b['numWinningTokens']!.compareTo(a['numWinningTokens']!));
+          results.sort((a, b) => b['numWinningTokens']!.compareTo(a['numWinningTokens']!));
           for (int i = 0; i < results.length; i++) {
             results[i]['rank'] = i + 1;
           }
           final deviceSize = MediaQuery.of(context).size;
-          if(kDebugMode) print("Device width: ${deviceSize.width}, game width: ${game.width}");
+          if (kDebugMode) print("Device width: ${deviceSize.width}, game width: ${game.width}");
           return Scaffold(
               body: Transform.scale(
             scale: game.height / deviceSize.height,
@@ -54,13 +51,10 @@ class MatchResultsScreen extends ConsumerWidget {
             child: SizedBox(
               width: deviceSize.height * game.width / game.height,
               height: deviceSize.height,
-              child:
-                  FutureBuilder<List<Map<String, dynamic>>>(future: () async {
-                final supportedTokens =
-                    await ref.read(userProvider.notifier).getSupportedTokens();
+              child: FutureBuilder<List<Map<String, dynamic>>>(future: () async {
+                final supportedTokens = await ref.read(userProvider.notifier).getSupportedTokens();
                 supportedTokens.add({
-                  "tokenAddress":
-                      "0x0000000000000000000000000000000000000000000000000000000000000000",
+                  "tokenAddress": "0x0000000000000000000000000000000000000000000000000000000000000000",
                   "tokenName": "No Token",
                 });
                 return supportedTokens;
@@ -75,9 +69,7 @@ class MatchResultsScreen extends ConsumerWidget {
                             height: 10,
                           ),
                           _buildTransactionsButton(context),
-                          Expanded(
-                              child:
-                                  _buildResultsList(results, snapshot.data!)),
+                          Expanded(child: _buildResultsList(results, snapshot.data!)),
                           _buildShareButton(context, results, snapshot.data!),
                           _buildBackToMenuButton(ref),
                           const SizedBox(
@@ -130,8 +122,7 @@ class MatchResultsScreen extends ConsumerWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF152A37),
-                    border:
-                        Border.all(color: const Color(0xFF00ECFF), width: 1),
+                    border: Border.all(color: const Color(0xFF00ECFF), width: 1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -151,8 +142,7 @@ class MatchResultsScreen extends ConsumerWidget {
                               ),
                             ),
                             IconButton(
-                              icon:
-                                  const Icon(Icons.close, color: Colors.white),
+                              icon: const Icon(Icons.close, color: Colors.white),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                           ],
@@ -162,19 +152,14 @@ class MatchResultsScreen extends ConsumerWidget {
                         future: () async {
                           return await getTransactions(session.id);
                         }(),
-                        builder: (context, snapshot) => snapshot
-                                    .connectionState ==
-                                ConnectionState.waiting
+                        builder: (context, snapshot) => snapshot.connectionState == ConnectionState.waiting
                             ? const CircularProgressIndicator()
                             : snapshot.data!.isEmpty
-                                ? const Center(
-                                    child: Text('No transactions available.'))
+                                ? const Center(child: Text('No transactions available.'))
                                 : Container(
                                     color: Colors.transparent,
                                     constraints: BoxConstraints(
-                                      maxHeight:
-                                          MediaQuery.of(context).size.height *
-                                              0.6,
+                                      maxHeight: MediaQuery.of(context).size.height * 0.6,
                                     ),
                                     child: ListView.builder(
                                       shrinkWrap: true,
@@ -182,8 +167,7 @@ class MatchResultsScreen extends ConsumerWidget {
                                       itemBuilder: (context, index) {
                                         final tx = snapshot.data![index];
                                         return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 16.0, vertical: 8.0),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                                           child: Row(
                                             children: [
                                               Container(
@@ -191,18 +175,14 @@ class MatchResultsScreen extends ConsumerWidget {
                                                 height: 16,
                                                 decoration: BoxDecoration(
                                                   color: Color(0xFF00ECFF),
-                                                  border: Border.all(
-                                                      color: const Color(
-                                                          0xFF00ECFF)),
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
+                                                  border: Border.all(color: const Color(0xFF00ECFF)),
+                                                  borderRadius: BorderRadius.circular(4),
                                                 ),
                                               ),
                                               const SizedBox(width: 12),
                                               Expanded(
                                                 child: Text(
-                                                  _shortenHash(
-                                                      tx['transaction_hash']),
+                                                  _shortenHash(tx['transaction_hash']),
                                                   style: const TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 14,
@@ -229,15 +209,13 @@ class MatchResultsScreen extends ConsumerWidget {
               ),
             );
           },
-          label: const Text('Transactions',
-              style: TextStyle(color: Colors.black, fontSize: 12.0)),
+          label: const Text('Transactions', style: TextStyle(color: Colors.black, fontSize: 12.0)),
           style: ElevatedButton.styleFrom(
               backgroundColor: Colors.cyan,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0)),
+              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0)),
         ),
       ),
     );
@@ -249,15 +227,13 @@ class MatchResultsScreen extends ConsumerWidget {
     return '${hash.substring(0, 4)}...${hash.substring(hash.length - 4)}';
   }
 
-  Widget _buildResultsList(List<Map<String, dynamic>> results,
-      List<Map<String, dynamic>> supportedTokens) {
+  Widget _buildResultsList(List<Map<String, dynamic>> results, List<Map<String, dynamic>> supportedTokens) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         ...results.map(
           (result) => Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             child: Container(
               decoration: BoxDecoration(
                 // Add subtle gradient for depth
@@ -271,8 +247,7 @@ class MatchResultsScreen extends ConsumerWidget {
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              padding:
-                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
               child: Row(
                 children: [
                   // Player rank/name section
@@ -281,26 +256,17 @@ class MatchResultsScreen extends ConsumerWidget {
                     child: Row(
                       children: [
                         Text(
-                          result['rank'] == 1
-                              ? 'Winner'
-                              : 'Player ${result['rank']}',
+                          result['rank'] == 1 ? 'Winner' : 'Player ${result['rank']}',
                           style: TextStyle(
-                            color: result['rank'] == 1
-                                ? Colors.white
-                                : Colors.grey[400],
+                            color: result['rank'] == 1 ? Colors.white : Colors.grey[400],
                             fontSize: 12,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          session
-                              .sessionUserStatus[result['index'] as int].email
-                              .split('@')[0]
-                              .toUpperCase(),
+                          session.sessionUserStatus[result['index'] as int].email.split('@')[0].toUpperCase(),
                           style: TextStyle(
-                            color: result['rank'] == 1
-                                ? Colors.white
-                                : Colors.white,
+                            color: result['rank'] == 1 ? Colors.white : Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -327,9 +293,7 @@ class MatchResultsScreen extends ConsumerWidget {
                             Text(
                               result['rank'] == 1 ? '400' : '100',
                               style: TextStyle(
-                                color: result['rank'] == 1
-                                    ? Colors.yellow
-                                    : Colors.red,
+                                color: result['rank'] == 1 ? Colors.yellow : Colors.red,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -363,10 +327,7 @@ class MatchResultsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildShareButton(
-      BuildContext context,
-      List<Map<String, dynamic>> results,
-      List<Map<String, dynamic>> supportedTokens) {
+  Widget _buildShareButton(BuildContext context, List<Map<String, dynamic>> results, List<Map<String, dynamic>> supportedTokens) {
     return IconButton(
       onPressed: () async {
         final imageBytes = await _buildShareImage(results, supportedTokens);
@@ -397,14 +358,11 @@ class MatchResultsScreen extends ConsumerWidget {
                             ),
                             child: IconButton(
                               onPressed: () async {
-                                final tweetText =
-                                    'Check out my results!\nRoom Id: ${session.id}';
-                                final url =
-                                    'https://themarquis.xyz/ludo?roomid=${session.id}';
+                                final tweetText = 'Check out my results!\nRoom Id: ${session.id}';
+                                final url = 'https://themarquis.xyz/ludo?roomid=${session.id}';
 
                                 // Use the Twitter app's URL scheme
-                                final tweetUrl = Uri.encodeFull(
-                                    'twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
+                                final tweetUrl = Uri.encodeFull('twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
 
                                 // Fallback to web URL if the app isn't installed
                                 final webTweetUrl = Uri.encodeFull(
@@ -448,8 +406,7 @@ class MatchResultsScreen extends ConsumerWidget {
                                 if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text(
-                                        'Image successfully saved to gallery'),
+                                    content: Text('Image successfully saved to gallery'),
                                     duration: Duration(seconds: 2),
                                   ),
                                 );
@@ -483,13 +440,9 @@ class MatchResultsScreen extends ConsumerWidget {
                             child: IconButton(
                               onPressed: () {
                                 Share.shareXFiles(
-                                  [
-                                    XFile.fromData(imageBytes,
-                                        mimeType: 'image/png')
-                                  ],
+                                  [XFile.fromData(imageBytes, mimeType: 'image/png')],
                                   subject: 'Ludo Results',
-                                  text:
-                                      'Check out my results!\nRoom Id: ${session.id}',
+                                  text: 'Check out my results!\nRoom Id: ${session.id}',
                                   fileNameOverrides: ['share.png'],
                                 );
                               },
@@ -521,14 +474,9 @@ class MatchResultsScreen extends ConsumerWidget {
       icon: Stack(
         alignment: AlignmentDirectional.center,
         children: [
-          Center(
-              child: SvgPicture.asset("assets/svg/ludo_elevated_button.svg")),
+          Center(child: SvgPicture.asset("assets/svg/ludo_elevated_button.svg")),
           const Center(
-            child: Text('Share',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold)),
+            child: Text('Share', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -544,26 +492,21 @@ class MatchResultsScreen extends ConsumerWidget {
           game.playState = PlayState.welcome;
           game.overlays.remove(PlayState.finished.name);
 
-          await ref
-              .read(ludoSessionProvider.notifier)
-              .clearData(refreshUser: true);
+          await ref.read(ludoSessionProvider.notifier).clearData(refreshUser: true);
         },
-        child:
-            const Text('Back to Menu', style: TextStyle(color: Colors.white)),
+        child: const Text('Back to Menu', style: TextStyle(color: Colors.white)),
       ),
     );
   }
 
-  Future<Uint8List> _buildShareImage(List<Map<String, dynamic>> results,
-      List<Map<String, dynamic>> supportedTokens) async {
+  Future<Uint8List> _buildShareImage(List<Map<String, dynamic>> results, List<Map<String, dynamic>> supportedTokens) async {
     final Widget shareWidget = Directionality(
       textDirection: ui.TextDirection.ltr,
       child: Container(
         width: 800,
         height: 418,
         decoration: BoxDecoration(
-          image: DecorationImage(
-              image: AssetImage('assets/images/bg (1).png'), fit: BoxFit.cover),
+          image: DecorationImage(image: AssetImage('assets/images/bg (1).png'), fit: BoxFit.cover),
           color: const Color(0xFF152A37),
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -629,8 +572,7 @@ class MatchResultsScreen extends ConsumerWidget {
                     vertical: 8.0,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 100.0, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -641,27 +583,17 @@ class MatchResultsScreen extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                result['rank'] == 1
-                                    ? 'Winner'
-                                    : 'Player ${result['rank']}',
+                                result['rank'] == 1 ? 'Winner' : 'Player ${result['rank']}',
                                 style: TextStyle(
-                                  color: result['rank'] == 1
-                                      ? Colors.white
-                                      : Colors.grey[400],
+                                  color: result['rank'] == 1 ? Colors.white : Colors.grey[400],
                                   fontSize: 16,
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                session
-                                    .sessionUserStatus[result['index'] as int]
-                                    .email
-                                    .split('@')[0]
-                                    .toUpperCase(),
+                                session.sessionUserStatus[result['index'] as int].email.split('@')[0].toUpperCase(),
                                 style: TextStyle(
-                                  color: result['rank'] == 1
-                                      ? const Color(0xFF00ECFF)
-                                      : Colors.white,
+                                  color: result['rank'] == 1 ? const Color(0xFF00ECFF) : Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -683,9 +615,7 @@ class MatchResultsScreen extends ConsumerWidget {
                                 Text(
                                   result['rank'] == 1 ? '400' : '100',
                                   style: TextStyle(
-                                    color: result['rank'] == 1
-                                        ? Colors.yellow
-                                        : Colors.red,
+                                    color: result['rank'] == 1 ? Colors.yellow : Colors.red,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -717,23 +647,19 @@ class MatchResultsScreen extends ConsumerWidget {
         ),
       ),
     );
-    return await createImageFromWidget(shareWidget,
-        logicalSize: const Size(800, 418));
+    return await createImageFromWidget(shareWidget, logicalSize: const Size(800, 418));
   }
 
-  Future<Uint8List> createImageFromWidget(Widget widget,
-      {Duration? wait, Size? logicalSize}) async {
+  Future<Uint8List> createImageFromWidget(Widget widget, {Duration? wait, Size? logicalSize}) async {
     final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
     final view = PlatformDispatcher.instance.views.first;
     logicalSize ??= view.physicalSize / view.devicePixelRatio;
 
     final RenderView renderView = RenderView(
       view: view,
-      child: RenderPositionedBox(
-          alignment: Alignment.center, child: repaintBoundary),
+      child: RenderPositionedBox(alignment: Alignment.center, child: repaintBoundary),
       configuration: ViewConfiguration(
-        logicalConstraints: BoxConstraints(
-            maxWidth: logicalSize.width, maxHeight: logicalSize.height),
+        logicalConstraints: BoxConstraints(maxWidth: logicalSize.width, maxHeight: logicalSize.height),
         devicePixelRatio: 1.0,
       ),
     );
@@ -744,8 +670,7 @@ class MatchResultsScreen extends ConsumerWidget {
     pipelineOwner.rootNode = renderView;
     renderView.prepareInitialFrame();
 
-    final RenderObjectToWidgetElement<RenderBox> rootElement =
-        RenderObjectToWidgetAdapter<RenderBox>(
+    final RenderObjectToWidgetElement<RenderBox> rootElement = RenderObjectToWidgetAdapter<RenderBox>(
       container: repaintBoundary,
       child: widget,
     ).attachToRenderTree(buildOwner);
@@ -764,8 +689,7 @@ class MatchResultsScreen extends ConsumerWidget {
     pipelineOwner.flushPaint();
 
     final ui.Image image = await repaintBoundary.toImage();
-    final ByteData? byteData =
-        await image.toByteData(format: ui.ImageByteFormat.png);
+    final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
     return Uint8List.view(byteData!.buffer);
   }

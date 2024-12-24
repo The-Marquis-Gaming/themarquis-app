@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 
 Map<int, List<double>> spriteLocationMap = {
   0: [1, 1, 2160, 2160], // x, y, w, h
@@ -11,7 +11,7 @@ Map<int, List<double>> spriteLocationMap = {
   2: [2163, 2163, 2160, 2160],
 };
 
-class PlayerAvatar extends SpriteComponent with HasGameReference<LudoGame> {
+class PlayerAvatar extends SpriteComponent with HasGameReference<LudoGameController> {
   PlayerAvatar(
     Vector2 position,
     int index,
@@ -19,10 +19,8 @@ class PlayerAvatar extends SpriteComponent with HasGameReference<LudoGame> {
           position: position,
           sprite: Sprite(
             Flame.images.fromCache('avatar_spritesheet.png'),
-            srcPosition: Vector2(
-                spriteLocationMap[index]![0], spriteLocationMap[index]![1]),
-            srcSize: Vector2(
-                spriteLocationMap[index]![2], spriteLocationMap[index]![3]),
+            srcPosition: Vector2(spriteLocationMap[index]![0], spriteLocationMap[index]![1]),
+            srcSize: Vector2(spriteLocationMap[index]![2], spriteLocationMap[index]![3]),
           ),
         );
 

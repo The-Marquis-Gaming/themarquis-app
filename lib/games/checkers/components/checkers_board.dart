@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marquis_v2/games/checkers/core/components/checkers_pin.dart';
+import 'package:marquis_v2/games/checkers/core/components/checkers_state.dart';
 
-import '../game/checkers_game_controller.dart';
-import 'checkers_state.dart';
+import '../core/game/checkers_game_controller.dart';
 
 class CheckersBoard extends RectangleComponent with HasGameReference<CheckersGameController>, TapCallbacks {
   static const int boardSize = 8;

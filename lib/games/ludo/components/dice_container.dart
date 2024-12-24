@@ -1,8 +1,8 @@
 import 'package:flame/components.dart';
 import 'package:marquis_v2/games/ludo/components/dice.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 
-class DiceContainer extends PositionComponent with HasGameReference<LudoGame> {
+class DiceContainer extends PositionComponent with HasGameReference<LudoGameController> {
   Dice currentDice;
 
   DiceContainer({

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 // Game dimensions
-const double gameWidth = 450;
-const double gameHeight = 800;
+const double kCheckersGameWidth = 450;
+const double kCheckersGameHeight = 800;
 
 // Colors
 const Color backgroundColor = Color(0xFF0F1118);
@@ -19,4 +19,4 @@ const double boardPadding = 0.3;
 
 // UI constants
 const double topBarOffset = -90.0;
-const double uiPadding = 10.0; 
+const double uiPadding = 10.0;

@@ -1,5 +1,5 @@
-const gameWidth = 900.0;
-const gameHeight = 1600.0;
+const kLudoGameWidth = 900.0;
+const kLudoGameHeight = 1600.0;
 
 //47 steps [0...46]
 const playerRouteMap = {

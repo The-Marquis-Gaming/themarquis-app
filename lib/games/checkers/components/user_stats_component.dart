@@ -5,7 +5,7 @@ import 'package:flame/flame.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../game/checkers_game_controller.dart';
+import '../core/game/checkers_game_controller.dart';
 
 class UserStatsComponent extends PositionComponent with HasGameReference<CheckersGameController> {
   late TextComponent player1Name;

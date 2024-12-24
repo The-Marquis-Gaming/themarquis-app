@@ -1,30 +1,28 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:marquis_v2/games/checkers/views/screens/match_result/match_result_screen.dart';
+import 'package:marquis_v2/games/checkers/core/game/checkers_game_controller.dart';
+import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/widgets/ui_widgets.dart';
 
-class GameOutcomeDialog extends StatefulWidget {
-  const GameOutcomeDialog({
-    super.key,
-    required this.didUserWin
-  });
+class CheckersGameOutcomeDialog extends StatefulWidget {
+  final CheckersGameController _game;
+  const CheckersGameOutcomeDialog(this._game, {super.key, required this.didUserWin});
 
   final bool didUserWin;
 
   @override
-  State<GameOutcomeDialog> createState() => _GameOutcomeDialogState();
+  State<CheckersGameOutcomeDialog> createState() => _CheckersGameOutcomeDialogState();
 }
 
-class _GameOutcomeDialogState extends State<GameOutcomeDialog> {
+class _CheckersGameOutcomeDialogState extends State<CheckersGameOutcomeDialog> {
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final isTablet = screenSize.shortestSide >= 600;
     return Stack(children: [
       GestureDetector(
-        onTap: ()=> Navigator.of(context).pop,
+        onTap: () => Navigator.of(context).pop,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
           child: Container(
@@ -40,16 +38,10 @@ class _GameOutcomeDialogState extends State<GameOutcomeDialog> {
         child: Stack(children: [
           Container(
             height: widget.didUserWin ? 255 : 270,
-            width: isTablet ? 350 : double.infinity,
+            width: widget._game.isTablet ? 350 : double.infinity,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(21.0), bottomRight: Radius.circular(21.0)),
-              border: Border(
-                bottom: BorderSide(
-                  width: 5,
-                  color: Color(0xFF4F5E7C)
-                )
-              )
-            ),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(21.0), bottomRight: Radius.circular(21.0)),
+                border: Border(bottom: BorderSide(width: 5, color: Color(0xFF4F5E7C)))),
             padding: const EdgeInsets.all(16),
             child: Stack(
               clipBehavior: Clip.none,
@@ -59,19 +51,15 @@ class _GameOutcomeDialogState extends State<GameOutcomeDialog> {
                   left: 0,
                   right: 0,
                   child: SvgPicture.asset(
-                    widget.didUserWin ?
-                    'assets/svg/win_header.svg' : 'assets/svg/lose_header.svg',
+                    widget.didUserWin ? 'assets/svg/win_header.svg' : 'assets/svg/lose_header.svg',
                     fit: BoxFit.contain,
                   ),
                 ),
-
                 Positioned(
                   top: 50,
                   left: 0,
                   right: 0,
-                  child: widget.didUserWin ?
-                  RewardDetailsWidget() :
-                  WinnerDetailsWidget(),
+                  child: widget.didUserWin ? RewardDetailsWidget(widget._game) : WinnerDetailsWidget(widget._game),
                 ),
               ],
             ),
@@ -83,7 +71,8 @@ class _GameOutcomeDialogState extends State<GameOutcomeDialog> {
 }
 
 class RewardDetailsWidget extends StatelessWidget {
-  const RewardDetailsWidget({super.key});
+  final CheckersGameController _game;
+  const RewardDetailsWidget(this._game, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -96,50 +85,37 @@ class RewardDetailsWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Padding(
-                  padding: EdgeInsets.only(left: isTablet ? 100: 70.0),
+                  padding: EdgeInsets.only(left: isTablet ? 100 : 70.0),
                   child: Text(
                     'REWARD',
-                    style: GoogleFonts.orbitron(
-                      color: Color(0xFFF3B46E),
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: GoogleFonts.orbitron(color: Color(0xFFF3B46E), fontSize: 20, fontWeight: FontWeight.w700),
                   ),
                 ),
                 verticalSpace(10),
                 Padding(
-                  padding: EdgeInsets.only(left: isTablet ? 100: 70.0),
+                  padding: EdgeInsets.only(left: isTablet ? 100 : 70.0),
                   child: Row(
                     children: [
                       SvgPicture.asset("assets/svg/STRK_logo.svg", width: 19),
                       horizontalSpace(4),
                       Text(
                         '400',
-                        style: GoogleFonts.orbitron(
-                          color: Color(0xFFFFE500),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
+                        style: GoogleFonts.orbitron(color: Color(0xFFFFE500), fontSize: 14, fontWeight: FontWeight.w400),
                       ),
                     ],
                   ),
                 ),
                 verticalSpace(10),
                 Padding(
-                  padding: EdgeInsets.only(left: isTablet ? 100: 70.0),
+                  padding: EdgeInsets.only(left: isTablet ? 100 : 70.0),
                   child: Row(
                     children: [
                       Image.asset('assets/images/member.png'),
                       horizontalSpace(4),
                       Text(
                         '400 EXP',
-                        style: GoogleFonts.orbitron(
-                          color: Color(0xFF00ECFF),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
+                        style: GoogleFonts.orbitron(color: Color(0xFF00ECFF), fontSize: 14, fontWeight: FontWeight.w400),
                       ),
                     ],
                   ),
@@ -148,11 +124,7 @@ class RewardDetailsWidget extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const MatchResultScreen(),
-                      ),
-                    );
+                    _game.playState = PlayState.finished;
                   },
                   child: Container(
                     height: 43,
@@ -164,11 +136,7 @@ class RewardDetailsWidget extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'Ok',
-                        style: GoogleFonts.montserrat(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: GoogleFonts.montserrat(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),
@@ -182,9 +150,9 @@ class RewardDetailsWidget extends StatelessWidget {
   }
 }
 
-
 class WinnerDetailsWidget extends StatelessWidget {
-  const WinnerDetailsWidget({super.key});
+  final CheckersGameController _game;
+  const WinnerDetailsWidget(this._game, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -192,11 +160,7 @@ class WinnerDetailsWidget extends StatelessWidget {
       children: [
         Text(
           'Winner',
-          style: GoogleFonts.orbitron(
-            color: Color(0xFFF3B46E),
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
+          style: GoogleFonts.orbitron(color: Color(0xFFF3B46E), fontSize: 20, fontWeight: FontWeight.w700),
         ),
         verticalSpace(10),
         Row(
@@ -209,17 +173,8 @@ class WinnerDetailsWidget extends StatelessWidget {
                 Container(
                   height: 72,
                   width: 72,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: const Color(0xFFF3B46E),
-                  ),
-                  child: Center(
-                    child: Image.asset(
-                      'assets/images/jason.png',
-                      width: 91,
-                      height: 91,
-                    ),
-                  ),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), color: const Color(0xFFF3B46E)),
+                  child: Center(child: Image.asset('assets/images/jason.png', width: 91, height: 91)),
                 ),
                 verticalSpace(4.0),
                 SizedBox(
@@ -228,10 +183,7 @@ class WinnerDetailsWidget extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     'WINNER',
-                    style: GoogleFonts.orbitron(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: GoogleFonts.orbitron(fontSize: 12, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -247,11 +199,7 @@ class WinnerDetailsWidget extends StatelessWidget {
                     horizontalSpace(4),
                     Text(
                       '400',
-                      style: GoogleFonts.orbitron(
-                        color: Color(0xFFFFE500),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: GoogleFonts.orbitron(color: Color(0xFFFFE500), fontSize: 14, fontWeight: FontWeight.w400),
                     ),
                   ],
                 ),
@@ -263,11 +211,7 @@ class WinnerDetailsWidget extends StatelessWidget {
                     horizontalSpace(4),
                     Text(
                       '400 EXP',
-                      style: GoogleFonts.orbitron(
-                        color: Color(0xFF00ECFF),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: GoogleFonts.orbitron(color: Color(0xFF00ECFF), fontSize: 14, fontWeight: FontWeight.w400),
                     ),
                   ],
                 ),
@@ -279,27 +223,16 @@ class WinnerDetailsWidget extends StatelessWidget {
         GestureDetector(
           onTap: () {
             Navigator.pop(context);
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const MatchResultScreen(),
-              ),
-            );
+            _game.playState = PlayState.finished;
           },
           child: Container(
             height: 43,
             width: double.infinity,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3B46E),
-              borderRadius: BorderRadius.circular(5),
-            ),
+            decoration: BoxDecoration(color: const Color(0xFFF3B46E), borderRadius: BorderRadius.circular(5)),
             child: Center(
               child: Text(
                 'Ok',
-                style: GoogleFonts.montserrat(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: GoogleFonts.montserrat(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ),
           ),

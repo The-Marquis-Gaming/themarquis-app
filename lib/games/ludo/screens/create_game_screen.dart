@@ -2,27 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/widgets/chevron_border.dart';
 import 'package:marquis_v2/games/ludo/widgets/divider_shape.dart';
 import 'package:marquis_v2/games/ludo/widgets/pin_color_option.dart';
 import 'package:marquis_v2/games/ludo/widgets/radio_option.dart';
 import 'package:marquis_v2/games/ludo/widgets/vertical_stepper.dart';
+import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:marquis_v2/widgets/error_dialog.dart';
 
 import '../../../widgets/balance_appbar.dart';
-
-enum NumberOfPlayers {
-  two,
-  four;
-}
-
-enum GameMode {
-  free,
-  token;
-}
 
 class CreateGameScreen extends ConsumerStatefulWidget {
   @override
@@ -105,7 +96,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   int get _numberOfTabs => _gameMode == GameMode.token ? 4 : 3;
 
   Future<void> _createGame() async {
-    final game = ModalRoute.of(context)!.settings.arguments as LudoGame;
+    final game = ModalRoute.of(context)!.settings.arguments as LudoGameController;
     final color = _playerColor!.split("/").last.split(".").first.split("_").first;
     try {
       setState(() {

@@ -10,16 +10,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gal/gal.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
+import 'package:marquis_v2/models/enums.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WaitingRoomScreen extends ConsumerStatefulWidget {
   const WaitingRoomScreen({super.key, required this.game});
-  final LudoGame game;
+  final LudoGameController game;
 
   @override
   ConsumerState<WaitingRoomScreen> createState() => _WaitingRoomScreenState();
@@ -495,7 +496,6 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
           width: size, // Width of the displayed sprite
           height: size, // Height of the displayed sprite
           decoration: BoxDecoration(
-            
             color: color, // Background color
             borderRadius: BorderRadius.circular(size / 8), // Rounded corners with radius 24
           ),

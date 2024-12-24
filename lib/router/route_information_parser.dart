@@ -1,4 +1,4 @@
-import 'package:marquis_v2/games/ludo/main.dart';
+import 'package:marquis_v2/games/ludo/ludo_main.dart';
 import 'package:marquis_v2/router/route_path.dart';
 import 'package:marquis_v2/screens/game_screen.dart';
 import 'package:marquis_v2/screens/home_screen.dart';

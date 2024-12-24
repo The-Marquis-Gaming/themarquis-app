@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:marquis_v2/games/ludo/components/board.dart';
 import 'package:marquis_v2/games/ludo/config.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 
 Map<Color, List<double>> spriteLocationMap = {
   const Color(0xffd04c2f): [1, 1, 366, 590], // x, y, w, h
@@ -17,7 +17,7 @@ Map<Color, List<double>> spriteLocationMap = {
   const Color(0xffb0d02f): [737, 431, 290, 472],
 };
 
-class PlayerPin extends SpriteComponent with TapCallbacks, HasGameReference<LudoGame> {
+class PlayerPin extends SpriteComponent with TapCallbacks, HasGameReference<LudoGameController> {
   bool Function(TapUpEvent event, PlayerPin pin) onTap;
   final int playerIndex;
   final int homeIndex;
@@ -142,7 +142,7 @@ class PlayerPin extends SpriteComponent with TapCallbacks, HasGameReference<Ludo
       throw Exception("Invalid move: target index ($targetIndex) is greater than 56");
     }
 
-    if(kDebugMode) print("Player $playerIndex moving to position $targetIndex");
+    if (kDebugMode) print("Player $playerIndex moving to position $targetIndex");
 
     currentPosIndex = targetIndex;
 
@@ -190,7 +190,7 @@ class PlayerPin extends SpriteComponent with TapCallbacks, HasGameReference<Ludo
       // Wait for the animation to complete
       await completer.future;
     } else {
-      if(kDebugMode) print("No movement required: start and target positions are the same");
+      if (kDebugMode) print("No movement required: start and target positions are the same");
     }
   }
 

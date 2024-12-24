@@ -6,11 +6,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/screens/create_game_screen.dart';
 import 'package:marquis_v2/games/ludo/widgets/pin_color_option.dart';
+import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/app_state.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:marquis_v2/widgets/balance_appbar.dart';
@@ -19,7 +20,7 @@ import 'package:marquis_v2/widgets/ui_widgets.dart';
 
 class LudoWelcomeScreen extends ConsumerStatefulWidget {
   const LudoWelcomeScreen({super.key, required this.game});
-  final LudoGame game;
+  final LudoGameController game;
 
   @override
   ConsumerState<LudoWelcomeScreen> createState() => _LudoWelcomeScreenState();
@@ -250,7 +251,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
     );
   }
 
-  Future<void> _joinGameDialog({required BuildContext ctx, required LudoGame game}) {
+  Future<void> _joinGameDialog({required BuildContext ctx, required LudoGameController game}) {
     return showDialog(
       context: ctx,
       builder: (BuildContext context) {
@@ -259,7 +260,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
     );
   }
 
-  Future<void> _findRoomDialog({required BuildContext ctx, required LudoGame game}) {
+  Future<void> _findRoomDialog({required BuildContext ctx, required LudoGameController game}) {
     return showDialog(
       context: ctx,
       builder: (BuildContext context) {
@@ -268,7 +269,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
     );
   }
 
-  void _createRoomDialog({required BuildContext ctx, required LudoGame game}) {
+  void _createRoomDialog({required BuildContext ctx, required LudoGameController game}) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CreateGameScreen(), settings: RouteSettings(arguments: game)));
   }
 }
@@ -330,7 +331,7 @@ class _MenuButton extends StatelessWidget {
 class _FindRoomDialog extends ConsumerStatefulWidget {
   const _FindRoomDialog({required this.game, this.roomId, required this.errorHandler});
 
-  final LudoGame game;
+  final LudoGameController game;
   final String? roomId;
   final void Function(String) errorHandler;
 
@@ -480,7 +481,7 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
 class _JoinGameDialog extends ConsumerStatefulWidget {
   const _JoinGameDialog({required this.game, required this.errorHandler});
 
-  final LudoGame game;
+  final LudoGameController game;
   final void Function(String) errorHandler;
 
   @override
@@ -556,7 +557,7 @@ class _JoinGameDialogState extends ConsumerState<_JoinGameDialog> {
 class _OpenSessionRoomCard extends StatelessWidget {
   const _OpenSessionRoomCard({required this.game, required this.sessionData, required this.context, required this.errorHandler});
 
-  final LudoGame game;
+  final LudoGameController game;
   final LudoSessionData sessionData;
   final BuildContext context;
   final void Function(String) errorHandler;
@@ -767,7 +768,7 @@ class _ColorChoosingCardState extends State<_ColorChoosingCard> {
   @override
   void initState() {
     _takenColors = widget._takenColors;
-    if(kDebugMode) print("Taken Colors: $_takenColors");
+    if (kDebugMode) print("Taken Colors: $_takenColors");
     _pickedColorIndex = colors.indexWhere((color) => !_takenColors.contains(color));
     Future.delayed(Duration.zero, () => widget._onColorPicked(colors[_pickedColorIndex]));
     super.initState();
@@ -892,7 +893,7 @@ class _FindGameChooseColorDialog extends ConsumerStatefulWidget {
   const _FindGameChooseColorDialog({required this.roomId, required this.selectedSession, required this.game});
   final String roomId;
   final LudoSessionData selectedSession;
-  final LudoGame game;
+  final LudoGameController game;
 
   @override
   ConsumerState<_FindGameChooseColorDialog> createState() => _FindGameChooseColorDialogState();

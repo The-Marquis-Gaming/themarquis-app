@@ -4,28 +4,25 @@ import 'dart:async';
 // ignore_for_file: unused_field
 
 import 'package:flame/components.dart';
-import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
-import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 import 'package:marquis_v2/games/ludo/components/board.dart';
 import 'package:marquis_v2/games/ludo/components/destination.dart';
 import 'package:marquis_v2/games/ludo/components/dice.dart';
+import 'package:marquis_v2/games/ludo/components/dice_container.dart';
 import 'package:marquis_v2/games/ludo/components/player_home.dart';
 import 'package:marquis_v2/games/ludo/components/player_pin.dart';
 import 'package:marquis_v2/games/ludo/config.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
+import 'package:marquis_v2/models/enums.dart';
+import 'package:marquis_v2/models/marquis_game.dart';
 import 'package:marquis_v2/providers/user.dart';
-import 'package:marquis_v2/games/ludo/components/dice_container.dart';
 
-enum PlayState { welcome, waiting, playing, finished }
-
-class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
+class LudoGameController extends MarquisGameController {
   bool isInit = false;
   late DiceContainer diceContainer;
   late Board board;
@@ -50,16 +47,13 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
   dart_async.Timer? _messageTimer;
   Completer<void>? ludoSessionLoadingCompleter;
 
-  final ValueNotifier<PlayState> playStateNotifier = ValueNotifier(PlayState.welcome);
-
-  LudoGame() : super(camera: CameraComponent.withFixedResolution(width: gameWidth, height: gameHeight));
-
-  double get width => size.x;
-  double get height => size.y;
-  double get unitSize => size.x / 17;
-  Vector2 get center => size / 2;
+  LudoGameController() : super(camera: CameraComponent.withFixedResolution(width: kLudoGameWidth, height: kLudoGameHeight));
 
   int get currentPlayer => _currentPlayer;
+
+  @override
+  double get unitSize => size.x / 17;
+
   List<Color> get listOfColors =>
       _sessionData?.getListOfColors ??
       const [
@@ -108,7 +102,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
     }
   }
 
-  PlayState get playState => playStateNotifier.value;
+  @override
   set playState(PlayState value) {
     if (playStateNotifier.value != value) {
       playStateNotifier.value = value;
@@ -353,6 +347,7 @@ class LudoGame extends FlameGame with TapCallbacks, RiverpodGameMixin {
     ludoSessionLoadingCompleter = null;
   }
 
+  @override
   Future<void> initGame() async {
     await Flame.images.load('spritesheet.png');
     await Flame.images.load('avatar_spritesheet.png');

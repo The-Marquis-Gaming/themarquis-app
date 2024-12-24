@@ -8,13 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marquis_v2/games/ludo/components/player_pin.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 
 final playerFirstTile = {
   0: Vector2(0, 0),
 };
 
-class Board extends RectangleComponent with HasGameReference<LudoGame> {
+class Board extends RectangleComponent with HasGameReference<LudoGameController> {
   late PictureInfo centerSvgInfo;
 
   Board()
@@ -217,7 +217,7 @@ class Board extends RectangleComponent with HasGameReference<LudoGame> {
         }
         return false;
       });
-    if(kDebugMode) print("moving pin");
+    if (kDebugMode) print("moving pin");
     await pin.movePin(location, maxDuration: isInit ? 2 : 7);
   }
 

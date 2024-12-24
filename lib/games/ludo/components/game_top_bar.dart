@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:marquis_v2/games/ludo/ludo_game.dart';
+import 'package:marquis_v2/models/enums.dart';
+import 'package:marquis_v2/models/marquis_game.dart';
 import 'package:marquis_v2/providers/user.dart';
 
 class GameTopBar extends StatelessWidget {
-  final LudoGame game;
+  final MarquisGameController game;
 
   const GameTopBar({super.key, required this.game});
 
