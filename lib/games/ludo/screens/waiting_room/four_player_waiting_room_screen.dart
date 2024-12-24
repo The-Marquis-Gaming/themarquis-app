@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -123,21 +124,13 @@ class _FourPlayerWaitingRoomScreenState extends ConsumerState<FourPlayerWaitingR
   }
 
   Widget _playesrDetailsList(LudoSessionData session) {
+    log("${session.getListOfColors}");
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          playerAvatarCard(
-            session,
-            index: 0,
-            size: 72,
-            isSelf: false,
-            player: session.sessionUserStatus[0],
-            color: session.getListOfColors[0],
-            showText: true,
-          ),
-          for (int i = 1; i < session.sessionUserStatus.length && i < 3; i++)
+          for (int i = 0; i < session.sessionUserStatus.length; i++)
             playerAvatarCard(
               session,
               index: i,
@@ -145,17 +138,6 @@ class _FourPlayerWaitingRoomScreenState extends ConsumerState<FourPlayerWaitingR
               isSelf: false,
               player: session.sessionUserStatus[i],
               color: session.getListOfColors[i],
-              showText: true,
-            ),
-          if (session.sessionUserStatus.length > 1 || session.sessionUserStatus.length > 2 || session.sessionUserStatus.length == 3) _invitePlayer(session),
-          if (session.sessionUserStatus.length == 4)
-            playerAvatarCard(
-              session,
-              index: 3,
-              size: 72,
-              isSelf: false,
-              player: session.sessionUserStatus[3],
-              color: session.getListOfColors[3],
               showText: true,
             ),
         ],

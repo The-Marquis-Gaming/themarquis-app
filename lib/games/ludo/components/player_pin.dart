@@ -169,7 +169,7 @@ class PlayerPin extends SpriteComponent with TapCallbacks, HasGameReference<Ludo
       moveEffects.last.onComplete = () async {
         position = routeIndexToPos(playerIndex, targetIndex);
         if (currentPosIndex == 56) {
-          game.board.remove(this);
+          game.board!.remove(this);
           if (!isRemoved) {
             await removed;
           }
