@@ -25,7 +25,7 @@ import 'package:marquis_v2/providers/user.dart';
 class LudoGameController extends MarquisGameController {
   bool isInit = false;
   late DiceContainer diceContainer;
-  late Board board;
+  Board? board;
   late TextComponent turnText;
   late Destination destination;
   final List<PlayerHome> playerHomes = [];
@@ -104,130 +104,135 @@ class LudoGameController extends MarquisGameController {
 
   @override
   set playState(PlayState value) {
-    if (playStateNotifier.value != value) {
-      playStateNotifier.value = value;
+    if (playStateNotifier.value == value) return;
+    if (value != PlayState.playing && board != null) {
+      remove(board!);
+      remove(diceContainer);
+      removeAll(playerHomes);
+      remove(destination);
+    }
+    playStateNotifier.value = value;
 
-      switch (value) {
-        case PlayState.welcome:
-        case PlayState.waiting:
-          overlays.clear();
-          overlays.add(value.name);
-          break;
-        case PlayState.playing:
-          overlays.clear();
-          if (_sessionData != null) {
-            Future.microtask(() async {
-              await initGame();
-            });
-          }
-          break;
-        case PlayState.finished:
-          overlays.clear();
-          overlays.add(value.name);
+    switch (value) {
+      case PlayState.welcome:
+      case PlayState.waiting:
+        overlays.clear();
+        overlays.add(value.name);
+        break;
+      case PlayState.playing:
+        overlays.clear();
+        if (_sessionData != null) {
           Future.microtask(() async {
-            if (buildContext != null && buildContext!.mounted) {
-              // Force rebuild of game over screen
-              (buildContext! as Element).markNeedsBuild();
+            await initGame();
+          });
+        }
+        break;
+      case PlayState.finished:
+        overlays.clear();
+        overlays.add(value.name);
+        Future.microtask(() async {
+          if (buildContext != null && buildContext!.mounted) {
+            // Force rebuild of game over screen
+            (buildContext! as Element).markNeedsBuild();
 
-              if (playState == PlayState.finished) {
-                if (buildContext != null && buildContext!.mounted) {
-                  await showDialog(
-                    context: buildContext!,
-                    barrierDismissible: false,
-                    builder: (context) => Center(
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.topCenter,
-                        children: [
-                          // Main Dialog Container
-                          Container(
-                            margin: const EdgeInsets.only(top: 40),
-                            width: 180,
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(26, 32, 45, 1),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const SizedBox(height: 60),
-                                const Text(
-                                  'REWARD',
-                                  style: TextStyle(
-                                    color: Color(0xFF00ECFF),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
+            if (playState == PlayState.finished) {
+              if (buildContext != null && buildContext!.mounted) {
+                await showDialog(
+                  context: buildContext!,
+                  barrierDismissible: false,
+                  builder: (context) => Center(
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.topCenter,
+                      children: [
+                        // Main Dialog Container
+                        Container(
+                          margin: const EdgeInsets.only(top: 40),
+                          width: 180,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(26, 32, 45, 1),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(height: 60),
+                              const Text(
+                                'REWARD',
+                                style: TextStyle(
+                                  color: Color(0xFF00ECFF),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/starknet-token-strk-logo (4) 7.svg',
+                                    height: 24,
                                   ),
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/images/starknet-token-strk-logo (4) 7.svg',
-                                      height: 24,
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    '400',
+                                    style: TextStyle(
+                                      color: Colors.yellow,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    const SizedBox(width: 8),
-                                    const Text(
-                                      '400',
-                                      style: TextStyle(
-                                        color: Colors.yellow,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/会员.svg',
+                                    height: 24,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    '400 EXP',
+                                    style: TextStyle(
+                                      color: Color(0xFF00ECFF),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/images/会员.svg',
-                                      height: 24,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Text(
-                                      '400 EXP',
-                                      style: TextStyle(
-                                        color: Color(0xFF00ECFF),
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: SvgPicture.asset('assets/images/ok_btn.svg'),
-                                ),
-                                const SizedBox(height: 16),
-                              ],
-                            ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: SvgPicture.asset('assets/images/ok_btn.svg'),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
                           ),
-                          // Header Image positioned on top
-                          Positioned(
-                            top: -20,
-                            child: Image.asset(
-                              'assets/images/header.png',
-                              height: 100,
-                              width: 300,
-                            ),
+                        ),
+                        // Header Image positioned on top
+                        Positioned(
+                          top: -20,
+                          child: Image.asset(
+                            'assets/images/header.png',
+                            height: 100,
+                            width: 300,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  );
-                }
+                  ),
+                );
               }
             }
-          });
+          }
+        });
 
-          break;
-      }
+        break;
     }
   }
 
@@ -300,7 +305,7 @@ class LudoGameController extends MarquisGameController {
               if (player.playerWinningTokens[i] == true && currentPinLocations[i] != -1) {
                 // Remove from board and add to destination
                 playerPinLocations[player.playerId][i] = -1;
-                final pin = board.getPinWithIndex(player.playerId, i);
+                final pin = board!.getPinWithIndex(player.playerId, i);
                 await pin?.movePin(56);
                 // board.remove(pin!);
                 // await pin.removed;
@@ -313,16 +318,16 @@ class LudoGameController extends MarquisGameController {
                     await pin.removed;
                   }
 
-                  await board.addPin(pin, location: pinLocation - player.playerId * 13 - 1);
+                  await board!.addPin(pin, location: pinLocation - player.playerId * 13 - 1);
                 } else if (currentPinLocations[i] != 0 && pinLocation == 0) {
                   // Pin attacked
-                  final pin = board.getPinWithIndex(player.playerId, i);
+                  final pin = board!.getPinWithIndex(player.playerId, i);
                   movePinsCompleter.future.then((_) async {
-                    await board.attackPin(pin!);
+                    await board!.attackPin(pin!);
                   });
                 } else {
                   // Move pin
-                  final pin = board.getPinWithIndex(player.playerId, i);
+                  final pin = board!.getPinWithIndex(player.playerId, i);
                   await pin?.movePin(pinLocation - player.playerId * 13 - 1);
                 }
                 playerPinLocations[player.playerId][i] = pinLocation;
@@ -336,10 +341,7 @@ class LudoGameController extends MarquisGameController {
             });
           }
         } catch (e) {
-          showGameMessage(
-            message: e.toString(),
-            backgroundColor: Colors.red,
-          );
+          showGameMessage(message: e.toString(), backgroundColor: Colors.red);
         }
       }
     }
@@ -359,7 +361,7 @@ class LudoGameController extends MarquisGameController {
     _userIndex = _sessionData!.sessionUserStatus.indexWhere((user) => user.userId.toString() == ref.read(userProvider)?.id);
     _currentPlayer = _sessionData!.nextPlayerIndex;
     board = Board();
-    await add(board);
+    await add(board!);
     final positions = [
       Vector2(center.x - unitSize * 6.25, center.y - unitSize * 6.25), // Top-left corner (Player 1)
       Vector2(center.x + unitSize * 2.25, center.y - unitSize * 6.25), // Top-right corner (Player 2)
@@ -419,7 +421,7 @@ class LudoGameController extends MarquisGameController {
         } else if (pinLocation != 0 || player.playerTokensCircled?[i] == true) {
           final pin = playerHome.removePin(i);
           //  pin.removed;
-          board.addPin(pin, location: pinLocation - player.playerId * 13 - 1, isInit: true);
+          board!.addPin(pin, location: pinLocation - player.playerId * 13 - 1, isInit: true);
           playerPinLocations[player.playerId][i] = pinLocation;
         }
       }
@@ -509,7 +511,7 @@ class LudoGameController extends MarquisGameController {
 
     if (kDebugMode) print("Dice rolled, value: ${diceContainer.currentDice.value}");
 
-    List<PlayerPin> listOfPlayerPin = board.getPlayerPinsOnBoard(_userIndex);
+    List<PlayerPin> listOfPlayerPin = board!.getPlayerPinsOnBoard(_userIndex);
     List<PlayerPin> movablePins = [];
 
     for (PlayerPin pin in listOfPlayerPin) {
@@ -530,7 +532,7 @@ class LudoGameController extends MarquisGameController {
         } else {
           showGameMessage(message: "No pins to move!!");
           // If there are no pins at home, play the first pin on the board (dummy move)
-          final pins = board.getPlayerPinsOnBoard(_userIndex);
+          final pins = board!.getPlayerPinsOnBoard(_userIndex);
           await playMove(pins[0].homeIndex, isAuto: true);
           return;
         }
@@ -539,7 +541,7 @@ class LudoGameController extends MarquisGameController {
         if (pinsAtHome.isEmpty) {
           showGameMessage(message: "No pins to move!!");
           // If there are no pins at home, play the first pin on the board (dummy move)
-          final pins = board.getPlayerPinsOnBoard(_userIndex);
+          final pins = board!.getPlayerPinsOnBoard(_userIndex);
           await playMove(pins[0].homeIndex, isAuto: true);
           return;
         } else if (pinsAtHome.length == 1) {
@@ -603,13 +605,7 @@ class LudoGameController extends MarquisGameController {
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          child: SizedBox(
-            width: 120,
-            height: 120,
-            child: GameWidget(
-              game: this,
-            ),
-          ),
+          child: SizedBox(width: 120, height: 120, child: GameWidget(game: this)),
         );
       },
     );
