@@ -12,9 +12,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part "app_state.g.dart";
 
-final baseUrl = environment['build'] == 'DEBUG'
-    ? environment['apiUrlDebug']
-    : environment['apiUrl'];
+final baseUrl = environment['build'] == 'DEBUG' ? environment['apiUrlDebug'] : environment['apiUrl'];
 
 @Riverpod(keepAlive: true)
 class AppState extends _$AppState {
@@ -63,8 +61,7 @@ class AppState extends _$AppState {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 200) {
-      throw HttpException(
-          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
   }
 
@@ -76,21 +73,23 @@ class AppState extends _$AppState {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 200) {
-      throw HttpException(
-          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+    final accessTokenExpiryTime = DateTime.now().add(const Duration(hours: 1));
+    final refreshTokenExpiryTime = DateTime.now().add(const Duration(days: 1));
+
     //verify token
     state = state.copyWith(
       accessToken: decodedResponse['access_token'],
       refreshToken: decodedResponse['refresh_token'],
-      accessTokenExpiry: DateTime.now().add(const Duration(hours: 1)),
-      refreshTokenExpiry: DateTime.now().add(const Duration(days: 1)),
+      accessTokenExpiry: accessTokenExpiryTime,
+      refreshTokenExpiry: refreshTokenExpiryTime,
       autoLoginResult: true,
     );
     if (_refreshTokenTimer != null) _refreshTokenTimer!.cancel();
     _refreshTokenTimer = Timer(
-      state.accessTokenExpiry!.difference(DateTime.now()),
+      state.accessTokenExpiry!.subtract(Duration(minutes: 10)).difference(DateTime.now()),
       () {
         refreshToken();
       },
@@ -114,8 +113,7 @@ class AppState extends _$AppState {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 201) {
-      throw HttpException(
-          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
   }
 
@@ -129,8 +127,7 @@ class AppState extends _$AppState {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode != 201) {
-      throw HttpException(
-          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
     //verify token
@@ -143,7 +140,7 @@ class AppState extends _$AppState {
     );
     if (_refreshTokenTimer != null) _refreshTokenTimer!.cancel();
     _refreshTokenTimer = Timer(
-      state.accessTokenExpiry!.difference(DateTime.now()),
+      state.accessTokenExpiry!.subtract(Duration(minutes: 10)).difference(DateTime.now()),
       () {
         refreshToken();
       },
@@ -169,8 +166,7 @@ class AppState extends _$AppState {
       },
     );
     if (response.statusCode != 200) {
-      throw HttpException(
-          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
     //verify token
@@ -183,7 +179,7 @@ class AppState extends _$AppState {
     );
     if (_refreshTokenTimer != null) _refreshTokenTimer!.cancel();
     _refreshTokenTimer = Timer(
-      state.accessTokenExpiry!.difference(DateTime.now()),
+      state.accessTokenExpiry!.subtract(Duration(minutes: 10)).difference(DateTime.now()),
       () {
         refreshToken();
       },
@@ -200,7 +196,7 @@ class AppState extends _$AppState {
   }
 
   Future<void> logout() async {
-    if(kDebugMode) print("logout");
+    if (kDebugMode) print("logout");
     await Future.delayed(
       Duration.zero,
       () {
@@ -255,47 +251,55 @@ class AppState extends _$AppState {
   //   state = state.copyWith(autoLoginResult: val);
   // }
 
-  Future<void> refreshToken() async {
-    final url = Uri.parse('$baseUrl/auth/refresh');
-    final response = await http.post(
-      url,
-      body: jsonEncode({
-        'refresh_token': state.refreshToken,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': state.bearerToken,
-      },
-    );
-    if (response.statusCode != 200) {
-      throw HttpException(
-          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+  Future<void> refreshToken([int tries = 1]) async {
+    const int maxRetries = 3;
+    const Duration retryDelay = Duration(seconds: 5);
+
+    while (tries <= maxRetries) {
+      try {
+        final url = Uri.parse('$baseUrl/auth/refresh');
+        final response = await http.post(
+          url,
+          body: jsonEncode({'refresh_token': state.refreshToken}),
+          headers: {'Content-Type': 'application/json', 'Authorization': state.bearerToken},
+        );
+
+        if (response.statusCode != 200) {
+          throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+        }
+
+        final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+        // Verify token
+        state = state.copyWith(
+          accessToken: decodedResponse['access_token'],
+          refreshToken: decodedResponse['refresh_token'],
+          accessTokenExpiry: DateTime.now().add(const Duration(hours: 1)),
+          refreshTokenExpiry: DateTime.now().add(const Duration(days: 1)),
+          autoLoginResult: true,
+        );
+
+        if (_refreshTokenTimer != null) _refreshTokenTimer!.cancel();
+        _refreshTokenTimer = Timer(
+          state.accessTokenExpiry!.subtract(Duration(minutes: 10)).difference(DateTime.now()),
+          () {
+            refreshToken();
+          },
+        );
+
+        if (_logoutTimer != null) _logoutTimer!.cancel();
+        _logoutTimer = Timer(state.refreshTokenExpiry!.difference(DateTime.now()), logout);
+
+        await _hiveBox!.put("appState", state);
+        await ref.read(userProvider.notifier).getUser();
+        return;
+      } catch (e) {
+        if (tries == maxRetries) {
+          throw Exception("Failed to refresh token after $maxRetries attempts");
+        }
+        await Future.delayed(retryDelay);
+        tries++;
+      }
     }
-    final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-    //verify token
-    state = state.copyWith(
-      accessToken: decodedResponse['access_token'],
-      refreshToken: decodedResponse['refresh_token'],
-      accessTokenExpiry: DateTime.now().add(const Duration(hours: 1)),
-      refreshTokenExpiry: DateTime.now().add(const Duration(days: 1)),
-      autoLoginResult: true,
-    );
-    if (_refreshTokenTimer != null) _refreshTokenTimer!.cancel();
-    _refreshTokenTimer = Timer(
-      state.accessTokenExpiry!.difference(DateTime.now()),
-      () {
-        refreshToken();
-      },
-    );
-    if (_logoutTimer != null) _logoutTimer!.cancel();
-    _logoutTimer = Timer(
-      state.refreshTokenExpiry!.difference(DateTime.now()),
-      () {
-        logout();
-      },
-    );
-    await _hiveBox!.put("appState", state);
-    await ref.read(userProvider.notifier).getUser();
   }
 
   // Future<void> requestChangePassword(String email) async {
