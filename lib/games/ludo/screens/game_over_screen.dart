@@ -15,6 +15,7 @@ import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/widgets/angled_border_button.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/user.dart';
+import 'package:marquis_v2/services/snackbar_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -329,6 +330,7 @@ class MatchResultsScreen extends ConsumerWidget {
   }
 
   Widget _buildShareButton(BuildContext context, List<Map<String, dynamic>> results, List<Map<String, dynamic>> supportedTokens) {
+    final snackBarService = SnackbarService();
     return AngledBorderButton(
       onTap: () async {
         final imageBytes = await _buildShareImage(results, supportedTokens);
@@ -391,9 +393,7 @@ class MatchResultsScreen extends ConsumerWidget {
                               onPressed: () async {
                                 await Gal.putImageBytes(imageBytes);
                                 if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Image successfully saved to gallery'), duration: Duration(seconds: 2)),
-                                );
+                                snackBarService.displaySnackbar('Image successfully saved to gallery');
                               },
                               icon: const Icon(Icons.image, color: Colors.white, size: 20),
                             ),

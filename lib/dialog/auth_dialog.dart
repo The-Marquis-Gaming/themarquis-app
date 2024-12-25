@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marquis_v2/providers/app_state.dart';
+import 'package:marquis_v2/services/snackbar_service.dart';
 import 'package:marquis_v2/widgets/error_dialog.dart';
 
 class AuthDialog extends ConsumerStatefulWidget {
@@ -224,6 +225,7 @@ class _OTPDialogState extends ConsumerState<OTPDialog> {
   }
 
   Future<void> _verifyOTP() async {
+    final snackBarService = SnackbarService();
     setState(() {
       _isLoading = true;
     });
@@ -242,13 +244,9 @@ class _OTPDialogState extends ConsumerState<OTPDialog> {
     } catch (e) {
       if (!mounted) return;
       if (e.toString().contains('Invalid')) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid OTP. Please try again.')),
-        );
+        snackBarService.displaySnackbar('Invalid OTP. Please try again.');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('An error occurred. Please try again.')),
-        );
+        snackBarService.displaySnackbar('An error occurred. Please try again.');
       }
     } finally {
       if (mounted) {

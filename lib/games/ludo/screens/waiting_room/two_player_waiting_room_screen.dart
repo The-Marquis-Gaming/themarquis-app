@@ -20,6 +20,7 @@ import 'package:marquis_v2/games/ludo/widgets/angled_border_button.dart';
 import 'package:marquis_v2/games/ludo/widgets/chevron_border.dart';
 import 'package:marquis_v2/games/ludo/widgets/divider_shape.dart';
 import 'package:marquis_v2/models/enums.dart';
+import 'package:marquis_v2/services/snackbar_service.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -314,9 +315,8 @@ class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoo
     return Uint8List.view(byteData!.buffer);
   }
 
-  Widget _invitePlayer(
-    LudoSessionData session,
-  ) {
+  Widget _invitePlayer(LudoSessionData session) {
+    final snackBarService = SnackbarService();
     return GestureDetector(
       onTap: () async {
         final imageBytes = await _buildShareImage(session);
@@ -386,12 +386,7 @@ class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoo
                               onPressed: () async {
                                 Clipboard.setData(ClipboardData(text: "https://themarquis.xyz/ludo?roomid=${session.id}"));
                                 if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Link Copied to Clipboard'),
-                                    duration: Duration(seconds: 2),
-                                  ),
-                                );
+                                snackBarService.displaySnackbar('Link Copied to Clipboard');
                               },
                               icon: const Icon(FontAwesomeIcons.link),
                             ),
@@ -418,12 +413,7 @@ class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoo
                               onPressed: () async {
                                 await Gal.putImageBytes(qrImageBytes);
                                 if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Image successfully saved to gallery'),
-                                    duration: Duration(seconds: 2),
-                                  ),
-                                );
+                                snackBarService.displaySnackbar('Image successfully saved to gallery');
                               },
                               icon: const Icon(Icons.qr_code),
                             ),

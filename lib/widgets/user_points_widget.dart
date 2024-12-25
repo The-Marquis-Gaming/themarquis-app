@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marquis_v2/dialog/auth_dialog.dart';
 import 'package:marquis_v2/widgets/ui_widgets.dart';
 
-import '../dialog/auth_dialog.dart';
 import '../providers/user.dart';
 import 'gradient_separator.dart';
 
