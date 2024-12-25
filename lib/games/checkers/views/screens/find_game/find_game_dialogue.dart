@@ -169,6 +169,7 @@ class CheckersFindRoomDialogState
   Future<void> _roomFoundDialog({required BuildContext ctx}) {
     return showDialog(
       context: ctx,
+      useRootNavigator: false,
       builder: (BuildContext context) {
         return RoomFoundDialogue();
       },

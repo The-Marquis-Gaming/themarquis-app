@@ -141,6 +141,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                                     try {
                                       // Show confirmation dialog
                                       final bool confirmExit = await showDialog(
+                                        useRootNavigator: false,
                                         context: context,
                                         builder: (BuildContext context) {
                                           return AlertDialog(
@@ -249,6 +250,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
 
   Future<void> _joinGameDialog({required BuildContext ctx, required LudoGameController game}) {
     return showDialog(
+      useRootNavigator: false,
       context: ctx,
       builder: (BuildContext context) {
         return _JoinGameDialog(game: widget.game, errorHandler: _showError);
@@ -258,6 +260,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
 
   Future<void> _findRoomDialog({required BuildContext ctx, required LudoGameController game}) {
     return showDialog(
+      useRootNavigator: false,
       context: ctx,
       builder: (BuildContext context) {
         return _FindRoomDialog(game: game, errorHandler: _showError);
@@ -360,6 +363,7 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
       }
       if (!mounted) return;
       final res = await showDialog(
+          useRootNavigator: false,
           context: context,
           builder: (c) {
             return _FindGameChooseColorDialog(roomId: _roomIdController.text, selectedSession: ludoSession, game: widget.game);
@@ -446,8 +450,12 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
                       child: OutlinedButton(
                         onPressed: () {
                           if (widget._fromJoinGame) {
-                            Navigator.of(context);
-                            showDialog(context: context, builder: (context) => _JoinGameDialog(game: widget.game, errorHandler: widget.errorHandler));
+                            Navigator.of(context).pop();
+                            showDialog(
+                                context: context,
+                                useRootNavigator: false,
+                                builder: (context) => _JoinGameDialog(game: widget.game, errorHandler: widget.errorHandler));
+
                             return;
                           }
                           Navigator.of(context).pop();
@@ -595,9 +603,10 @@ class _OpenSessionRoomCard extends StatelessWidget {
                   children: [
                     Text("ROOM $roomName", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
                     const SizedBox(width: 4),
-                    Consumer(
-                      builder: (context, ref, child) {
-                        return FutureBuilder(
+                    Flexible(
+                      child: Consumer(
+                        builder: (context, ref, child) {
+                          return FutureBuilder(
                             future: ref.read(userProvider.notifier).getSupportedTokens(),
                             builder: (context, snapshot) {
                               final supportedTokens = <String, String>{};
@@ -614,8 +623,10 @@ class _OpenSessionRoomCard extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                                 child: Text(roomStake, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
                               );
-                            });
-                      },
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -641,14 +652,14 @@ class _OpenSessionRoomCard extends StatelessWidget {
                       )
                     : TextButton(
                         onPressed: () async {
+                          Navigator.of(context).pop();
                           showDialog(
                             context: context,
+                            useRootNavigator: false,
                             builder: (BuildContext context) {
-                              return _FindRoomDialog(game: game, roomId: roomName, errorHandler: errorHandler);
+                              return _FindRoomDialog(game: game, roomId: roomName, errorHandler: errorHandler, fromJoinGame: true);
                             },
                           );
-
-                          Navigator.of(context).pop();
                         },
                         style: TextButton.styleFrom(padding: EdgeInsets.zero),
                         child: Container(

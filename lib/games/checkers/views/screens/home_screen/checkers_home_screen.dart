@@ -117,6 +117,7 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
 Future<void> _joinGameDialog({required BuildContext ctx}) {
   return showDialog(
     context: ctx,
+    useRootNavigator: false,
     builder: (BuildContext context) {
       return CheckersJoinGameDialog();
     },
@@ -126,6 +127,7 @@ Future<void> _joinGameDialog({required BuildContext ctx}) {
 Future<void> _findGameDialog({required BuildContext ctx}) {
   return showDialog(
     context: ctx,
+    useRootNavigator: false,
     builder: (BuildContext context) {
       return CheckersFindRoomDialog();
     },
