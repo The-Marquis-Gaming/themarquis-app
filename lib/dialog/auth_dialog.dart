@@ -129,7 +129,7 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
                                   );
                                   if (context.mounted) Navigator.of(context).pop();
                                 } catch (e) {
-                                  showErrorDialog(e.toString(), context);
+                                  if (context.mounted) showErrorDialog(e.toString(), context);
                                 }
                               }
                             }

@@ -199,11 +199,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                           SizedBox(
                             height: scaledHeight(64),
                             child: FittedBox(
-                              child: _MenuButton(
-                                icon: Icons.casino,
-                                label: 'Join Game',
-                                onTap: () => _joinGameDialog(ctx: context, game: widget.game),
-                              ),
+                              child: _MenuButton(icon: Icons.casino, label: 'Join Game', onTap: () => _joinGameDialog(ctx: context, game: widget.game)),
                             ),
                           ),
                           SizedBox(height: scaledHeight(20)),
@@ -329,10 +325,11 @@ class _MenuButton extends StatelessWidget {
 }
 
 class _FindRoomDialog extends ConsumerStatefulWidget {
-  const _FindRoomDialog({required this.game, this.roomId, required this.errorHandler});
+  const _FindRoomDialog({required this.game, this.roomId, required this.errorHandler, bool fromJoinGame = false}) : _fromJoinGame = fromJoinGame;
 
   final LudoGameController game;
   final String? roomId;
+  final bool _fromJoinGame;
   final void Function(String) errorHandler;
 
   @override
@@ -447,11 +444,19 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: Navigator.of(context).pop,
+                        onPressed: () {
+                          if (widget._fromJoinGame) {
+                            Navigator.of(context);
+                            showDialog(context: context, builder: (context) => _JoinGameDialog(game: widget.game, errorHandler: widget.errorHandler));
+                            return;
+                          }
+                          Navigator.of(context).pop();
+                        },
                         style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            foregroundColor: const Color(0xFF00ECFF),
-                            side: const BorderSide(color: Color(0xFF00ECFF))),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          foregroundColor: const Color(0xFF00ECFF),
+                          side: const BorderSide(color: Color(0xFF00ECFF)),
+                        ),
                         child: const Text("Cancel"),
                       ),
                     ),
@@ -636,29 +641,19 @@ class _OpenSessionRoomCard extends StatelessWidget {
                       )
                     : TextButton(
                         onPressed: () async {
-                          final res = await showDialog(
+                          showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return _FindRoomDialog(game: game, roomId: roomName, errorHandler: errorHandler);
                             },
                           );
-                          if (res == true) {
-                            if (!context.mounted) return;
-                            Navigator.of(context).pop();
-                          }
+
+                          Navigator.of(context).pop();
                         },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero, // Remove the default padding from TextButton
-                        ),
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
                         child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 0, 236, 255), // Background color
-                            borderRadius: BorderRadius.circular(8), // Rounded edges
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10.0,
-                            horizontal: 25.0,
-                          ), // Padding inside the button
+                          decoration: BoxDecoration(color: const Color.fromARGB(255, 0, 236, 255), borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                           child: const Text(
                             "JOIN",
                             style: TextStyle(
@@ -978,7 +973,7 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
                           children: [
                             Text("ROOM $roomName", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)),
                             const SizedBox(width: 5),
-                            Expanded(
+                            Flexible(
                               child: Container(
                                 decoration: BoxDecoration(border: Border.all(color: roomColor), borderRadius: BorderRadius.circular(30)),
                                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -990,7 +985,8 @@ class _FindGameChooseColorDialogState extends ConsumerState<_FindGameChooseColor
                                       } else {
                                         final roomStake = widget.selectedSession.playAmount == '0'
                                             ? "Free"
-                                            : "${(((double.tryParse(widget.selectedSession.playAmount)) ?? 0) / 1e18).toStringAsFixed(7)} ${snapshot.data!.firstWhere((e) => e["tokenAddress"] == widget.selectedSession.playToken)["tokenName"]}";
+                                            : "${(((double.tryParse(widget.selectedSession.playAmount)) ?? 0) / 1e18).toStringAsFixed(7)}"
+                                                "${snapshot.data!.firstWhere((e) => e["tokenAddress"] == widget.selectedSession.playToken)["tokenName"]}";
                                         return Text(
                                           roomStake,
                                           style: const TextStyle(
