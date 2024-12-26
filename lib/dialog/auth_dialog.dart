@@ -15,6 +15,7 @@ class AuthDialog extends ConsumerStatefulWidget {
 class _AuthDialogState extends ConsumerState<AuthDialog> {
   final _emailController = TextEditingController();
   final _refCodeController = TextEditingController();
+  final _inputKey = GlobalKey<FormFieldState>();
   String? _emailError;
   String? _refCodeError;
   bool _isLoading = false;
@@ -40,10 +41,21 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: TextField(
+              child: TextFormField(
+                key: _inputKey,
                 decoration: InputDecoration(label: const Text("Email"), errorText: _emailError),
                 inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r" "))],
                 controller: _emailController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Invalid Email";
+                  }
+
+                  if (!value.contains(RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'))) {
+                    return "Invalid Email";
+                  }
+                  return null;
+                },
                 onChanged: (value) {
                   _emailController.text = _emailController.text.toLowerCase();
                 },
@@ -84,6 +96,7 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
                             ),
                           ),
                           onPressed: () async {
+                            if (!_inputKey.currentState!.validate()) return;
                             setState(() {
                               _isLoading = true;
                             });
@@ -91,10 +104,7 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
                               if (_emailController.text != "" && _refCodeController.text != "") {
                                 try {
                                   if (!_emailController.text.endsWith('@test.com')) {
-                                    await ref.read(appStateProvider.notifier).signup(
-                                          _emailController.text.trim(),
-                                          _refCodeController.text.trim(),
-                                        );
+                                    await ref.read(appStateProvider.notifier).signup(_emailController.text.trim(), _refCodeController.text.trim());
                                   }
                                   if (!context.mounted) return;
                                   await showDialog<String>(
