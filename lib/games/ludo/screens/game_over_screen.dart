@@ -119,6 +119,7 @@ class MatchResultsScreen extends ConsumerWidget {
           onPressed: () {
             showDialog(
               context: context,
+              useRootNavigator: false,
               builder: (ctx) => Dialog(
                 backgroundColor: Colors.transparent,
                 child: Container(
@@ -331,108 +332,112 @@ class MatchResultsScreen extends ConsumerWidget {
 
   Widget _buildShareButton(BuildContext context, List<Map<String, dynamic>> results, List<Map<String, dynamic>> supportedTokens) {
     final snackBarService = SnackbarService();
-    return AngledBorderButton(
-      onTap: () async {
-        final imageBytes = await _buildShareImage(results, supportedTokens);
-        if (!context.mounted) return;
-        showDialog(
-          context: context,
-          barrierColor: Colors.black.withAlpha(220),
-          builder: (ctx) => Dialog(
-            backgroundColor: Colors.transparent,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.memory(imageBytes),
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[700],
-                              borderRadius: BorderRadius.circular(24),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 29),
+      child: AngledBorderButton(
+        onTap: () async {
+          final imageBytes = await _buildShareImage(results, supportedTokens);
+          if (!context.mounted) return;
+          showDialog(
+            context: context,
+            useRootNavigator: false,
+            barrierColor: Colors.black.withAlpha(220),
+            builder: (ctx) => Dialog(
+              backgroundColor: Colors.transparent,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.memory(imageBytes),
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[700],
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: IconButton(
+                                  onPressed: () async {
+                                    final tweetText = 'Check out my results!\nRoom Id: ${session.id}';
+                                    final url = 'https://themarquis.xyz/ludo?roomid=${session.id}';
+      
+                                    // Use the Twitter app's URL scheme
+                                    final tweetUrl = Uri.encodeFull('twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
+      
+                                    // Fallback to web URL if the app isn't installed
+                                    final webTweetUrl = Uri.encodeFull(
+                                        'https://x.com/intent/tweet?text=$tweetText&url=$url&via=themarquisxyz&image=data:image/png;base64,${base64Encode(imageBytes)}');
+      
+                                    if (await canLaunchUrl(Uri.parse(tweetUrl))) {
+                                      await launchUrl(Uri.parse(tweetUrl));
+                                    } else {
+                                      await launchUrl(Uri.parse(webTweetUrl));
+                                    }
+                                  },
+                                  icon: const Icon(FontAwesomeIcons.xTwitter, color: Colors.white, size: 20)),
                             ),
-                            child: IconButton(
+                            const SizedBox(height: 8),
+                            const Text('X', style: TextStyle(color: Colors.white, fontSize: 12)),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(24)),
+                              child: IconButton(
                                 onPressed: () async {
-                                  final tweetText = 'Check out my results!\nRoom Id: ${session.id}';
-                                  final url = 'https://themarquis.xyz/ludo?roomid=${session.id}';
-
-                                  // Use the Twitter app's URL scheme
-                                  final tweetUrl = Uri.encodeFull('twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
-
-                                  // Fallback to web URL if the app isn't installed
-                                  final webTweetUrl = Uri.encodeFull(
-                                      'https://x.com/intent/tweet?text=$tweetText&url=$url&via=themarquisxyz&image=data:image/png;base64,${base64Encode(imageBytes)}');
-
-                                  if (await canLaunchUrl(Uri.parse(tweetUrl))) {
-                                    await launchUrl(Uri.parse(tweetUrl));
-                                  } else {
-                                    await launchUrl(Uri.parse(webTweetUrl));
-                                  }
+                                  await Gal.putImageBytes(imageBytes);
+                                  if (!context.mounted) return;
+                                  snackBarService.displaySnackbar('Image successfully saved to gallery');
                                 },
-                                icon: const Icon(FontAwesomeIcons.xTwitter, color: Colors.white, size: 20)),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text('X', style: TextStyle(color: Colors.white, fontSize: 12)),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(24)),
-                            child: IconButton(
-                              onPressed: () async {
-                                await Gal.putImageBytes(imageBytes);
-                                if (!context.mounted) return;
-                                snackBarService.displaySnackbar('Image successfully saved to gallery');
-                              },
-                              icon: const Icon(Icons.image, color: Colors.white, size: 20),
+                                icon: const Icon(Icons.image, color: Colors.white, size: 20),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text('Save Image', style: TextStyle(color: Colors.white, fontSize: 12)),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(24)),
-                            child: IconButton(
-                              onPressed: () {
-                                Share.shareXFiles(
-                                  [XFile.fromData(imageBytes, mimeType: 'image/png')],
-                                  subject: 'Ludo Results',
-                                  text: 'Check out my results!\nRoom Id: ${session.id}',
-                                  fileNameOverrides: ['share.png'],
-                                );
-                              },
-                              icon: const Icon(Icons.share, color: Colors.white, size: 20),
+                            const SizedBox(height: 8),
+                            const Text('Save Image', style: TextStyle(color: Colors.white, fontSize: 12)),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(24)),
+                              child: IconButton(
+                                onPressed: () {
+                                  Share.shareXFiles(
+                                    [XFile.fromData(imageBytes, mimeType: 'image/png')],
+                                    subject: 'Ludo Results',
+                                    text: 'Check out my results!\nRoom Id: ${session.id}',
+                                    fileNameOverrides: ['share.png'],
+                                  );
+                                },
+                                icon: const Icon(Icons.share, color: Colors.white, size: 20),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text('Share', style: TextStyle(color: Colors.white, fontSize: 12)),
-                        ],
-                      ),
-                    ],
+                            const SizedBox(height: 8),
+                            const Text('Share', style: TextStyle(color: Colors.white, fontSize: 12)),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
-      child: Text('Share', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+          );
+        },
+        child: Text('Share', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+      ),
     );
   }
 

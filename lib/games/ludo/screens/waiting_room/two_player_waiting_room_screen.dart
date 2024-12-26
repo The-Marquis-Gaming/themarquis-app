@@ -86,15 +86,18 @@ class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoo
   }
 
   Widget _bottom(LudoSessionData session) {
-    return AngledBorderButton(
-      onTap: _isRoomFull(session) ? () => widget.game.playState = PlayState.playing : null,
-      child: Text(
-        _isRoomFull(session)
-            ? _countdownTimer == null
-                ? 'Start Game'
-                : 'Starting in $_countdown'
-            : 'Waiting for players',
-        style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 29),
+      child: AngledBorderButton(
+        onTap: _isRoomFull(session) ? () => widget.game.playState = PlayState.playing : null,
+        child: Text(
+          _isRoomFull(session)
+              ? _countdownTimer == null
+                  ? 'Start Game'
+                  : 'Starting in $_countdown'
+              : 'Waiting for players',
+          style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -323,6 +326,7 @@ class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoo
         final qrImageBytes = await _buildQrImage(session);
         if (!context.mounted) return;
         showDialog(
+          useRootNavigator: false,
           barrierColor: Colors.black.withAlpha(220),
           context: context,
           builder: (ctx) => Dialog(

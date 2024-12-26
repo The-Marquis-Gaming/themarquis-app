@@ -36,6 +36,7 @@ class GameTopBar extends StatelessWidget {
                 } else {
                   showDialog(
                     context: context,
+                    useRootNavigator: false,
                     builder: (context) => AlertDialog(
                       title: Text('Leave Game?'),
                       content: Text('Are you sure you want to leave the game?'),

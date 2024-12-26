@@ -13,6 +13,7 @@ void showErrorDialog(String? message, BuildContext context, {bool isInfo = false
   }
   showDialog(
     context: context,
+    useRootNavigator: false,
     builder: (ctx) => AlertDialog(
       scrollable: true,
       title: Text(isInfo ? 'Info' : 'An Error Occurred!', style: TextStyle(color: Colors.white)),

@@ -30,7 +30,7 @@ class User extends _$User {
       url,
       headers: {'Content-Type': 'application/json', 'Authorization': ref.read(appStateProvider).bearerToken},
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
@@ -95,7 +95,7 @@ class User extends _$User {
       url,
       headers: {'Content-Type': 'application/json', 'Authorization': ref.read(appStateProvider).bearerToken},
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final List<Map<String, String>> results = [];
@@ -116,7 +116,7 @@ class User extends _$User {
       url,
       headers: {'Content-Type': 'application/json', 'Authorization': ref.read(appStateProvider).bearerToken},
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;

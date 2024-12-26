@@ -188,7 +188,9 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                           SizedBox(
                             height: scaledHeight(64),
                             child: FittedBox(
-                              child: _MenuButton(icon: Icons.add, label: 'Create Game', onTap: () => _createRoomDialog(ctx: context, game: widget.game)),
+                              child: _MenuButton(icon: Icons.add, label: 'Create Game', onTap: () => _createRoomDialog(ctx: context, game: widget.game)
+                                  // onTap: () => widget.game.playState = PlayState.playing,
+                                  ),
                             ),
                           ),
                           SizedBox(height: scaledHeight(20)),

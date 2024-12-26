@@ -20,7 +20,7 @@ class _UserPointsWidgetState extends ConsumerState<UserPointsWidget> {
     return GestureDetector(
       onTap: user == null
           ? () {
-              showDialog(context: context, builder: (c) => const AuthDialog());
+              showDialog(context: context, useRootNavigator: false, builder: (c) => const AuthDialog());
             }
           : () {
               //go to profile page

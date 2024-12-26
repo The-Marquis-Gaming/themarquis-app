@@ -101,7 +101,7 @@ class PlayerPin extends SpriteComponent with TapCallbacks, HasGameReference<Ludo
     }
   }
 
-  bool get canMove => game.diceContainer.currentDice.value + currentPosIndex <= 56;
+  bool get canMove => game.diceContainer!.currentDice.value + currentPosIndex <= 56;
 
   void returnToHome(Vector2 homePosition) {
     currentPosIndex = -1;
@@ -173,7 +173,7 @@ class PlayerPin extends SpriteComponent with TapCallbacks, HasGameReference<Ludo
           if (!isRemoved) {
             await removed;
           }
-          game.destination.addPin(this);
+          game.destination!.addPin(this);
         } else if (parent is Board) {
           (parent as Board).updateOverlappingPins();
         }

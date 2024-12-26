@@ -5,7 +5,6 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,10 +23,10 @@ import 'package:marquis_v2/providers/user.dart';
 
 class LudoGameController extends MarquisGameController {
   bool isInit = false;
-  late DiceContainer diceContainer;
+  DiceContainer? diceContainer;
   Board? board;
   late TextComponent turnText;
-  late Destination destination;
+  Destination? destination;
   final List<PlayerHome> playerHomes = [];
   final List<List<int>> playerPinLocations = [
     [0, 0, 0, 0],
@@ -65,7 +64,7 @@ class LudoGameController extends MarquisGameController {
   int get userIndex => _userIndex;
   List<String> get playerNames => _sessionData!.sessionUserStatus.map((user) => user.email.split('@')[0]).toList();
 
-  Dice get currentDice => diceContainer.currentDice;
+  Dice get currentDice => diceContainer!.currentDice;
   Dice? getPlayerDice(int playerIndex) => playerHomes[playerIndex].playerDice;
 
   Future<List<int>> generateMove() async {
@@ -84,17 +83,17 @@ class LudoGameController extends MarquisGameController {
   Future<void> playMove(int index, {bool isAuto = false}) async {
     try {
       if (!isAuto) {
-        diceContainer.currentDice.state = DiceState.preparing;
+        diceContainer!.currentDice.state = DiceState.preparing;
         await Future.delayed(const Duration(seconds: 8), () async {
-          diceContainer.currentDice.state = DiceState.playingMove;
+          diceContainer!.currentDice.state = DiceState.playingMove;
           await ref.read(ludoSessionProvider.notifier).playMove(index.toString());
         });
       } else {
-        diceContainer.currentDice.state = DiceState.playingMove;
+        diceContainer!.currentDice.state = DiceState.playingMove;
         await ref.read(ludoSessionProvider.notifier).playMove(index.toString());
       }
     } catch (e) {
-      diceContainer.currentDice.state = DiceState.rolledDice;
+      diceContainer!.currentDice.state = DiceState.rolledDice;
       showGameMessage(
         message: e.toString(),
         backgroundColor: Colors.red,
@@ -105,11 +104,11 @@ class LudoGameController extends MarquisGameController {
   @override
   set playState(PlayState value) {
     if (playStateNotifier.value == value) return;
-    if (value != PlayState.playing && board != null) {
-      remove(board!);
-      remove(diceContainer);
-      removeAll(playerHomes);
-      remove(destination);
+    if (value != PlayState.playing) {
+      if (board != null) remove(board!);
+      if (diceContainer != null) remove(diceContainer!);
+      if (playerHomes.isNotEmpty) removeAll(playerHomes);
+      if (destination != null) remove(destination!);
     }
     playStateNotifier.value = value;
 
@@ -139,6 +138,7 @@ class LudoGameController extends MarquisGameController {
               if (buildContext != null && buildContext!.mounted) {
                 await showDialog(
                   context: buildContext!,
+                  useRootNavigator: false,
                   barrierDismissible: false,
                   builder: (context) => Center(
                     child: Stack(
@@ -288,12 +288,12 @@ class LudoGameController extends MarquisGameController {
           }
           if (_currentPlayer == _userIndex) {
             if (_sessionData!.playMoveFailed ?? false) {
-              diceContainer.currentDice.state = DiceState.active;
+              diceContainer!.currentDice.state = DiceState.active;
             } else {
-              diceContainer.currentDice.state = DiceState.preparing;
+              diceContainer!.currentDice.state = DiceState.preparing;
             }
           } else {
-            diceContainer.currentDice.state = DiceState.inactive;
+            diceContainer!.currentDice.state = DiceState.inactive;
           }
           final movePinsCompleter = Completer<void>();
           for (final player in _sessionData!.sessionUserStatus) {
@@ -335,9 +335,9 @@ class LudoGameController extends MarquisGameController {
             }
           }
           movePinsCompleter.complete();
-          if (_currentPlayer == _userIndex && diceContainer.currentDice.state == DiceState.preparing) {
+          if (_currentPlayer == _userIndex && diceContainer!.currentDice.state == DiceState.preparing) {
             Future.delayed(const Duration(seconds: 8), () {
-              diceContainer.currentDice.state = DiceState.active;
+              diceContainer!.currentDice.state = DiceState.active;
             });
           }
         } catch (e) {
@@ -374,7 +374,7 @@ class LudoGameController extends MarquisGameController {
     }
 
     destination = Destination();
-    await add(destination);
+    await add(destination!);
 
     await createAndSetCurrentPlayerDice();
 
@@ -417,7 +417,7 @@ class LudoGameController extends MarquisGameController {
           // playerHome.removePin(i);
           final pin = playerHome.removePin(i);
           // await pin.removed;
-          destination.addPin(pin);
+          destination!.addPin(pin);
         } else if (pinLocation != 0 || player.playerTokensCircled?[i] == true) {
           final pin = playerHome.removePin(i);
           //  pin.removed;
@@ -494,6 +494,7 @@ class LudoGameController extends MarquisGameController {
       showDialog(
         context: buildContext!,
         barrierDismissible: false,
+        useRootNavigator: false,
         builder: (context) => Dialog(
           backgroundColor: Colors.transparent,
           child: SizedBox(width: 120, height: 120, child: DiceAnimationWidget()),
@@ -502,18 +503,20 @@ class LudoGameController extends MarquisGameController {
     }
 
     if (kDebugMode) print("Rolling dice...");
-    await diceContainer.currentDice.roll();
+    await diceContainer!.currentDice.roll();
     Navigator.of(buildContext!).pop();
-    // // playState = PlayState.finished;
-    await showDialog(
-      context: buildContext!,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: SizedBox(width: 120, height: 120, child: DiceAnimationWidget(dieFace: diceContainer.currentDice.value)),
-      ),
-    );
-    if (kDebugMode) print("Dice rolled, value: ${diceContainer.currentDice.value}");
+    if (kDebugMode) print("Dice rolled, value: ${diceContainer!.currentDice.value}");
+    if (diceContainer!.currentDice.value > 0 && diceContainer!.currentDice.value < 7) {
+      await showDialog(
+        context: buildContext!,
+        barrierDismissible: false,
+        useRootNavigator: false,
+        builder: (context) => Dialog(
+          backgroundColor: Colors.transparent,
+          child: SizedBox(width: 120, height: 120, child: DiceAnimationWidget(dieFace: diceContainer!.currentDice.value)),
+        ),
+      );
+    }
 
     List<PlayerPin> listOfPlayerPin = board!.getPlayerPinsOnBoard(_userIndex);
     List<PlayerPin> movablePins = [];
@@ -527,7 +530,7 @@ class LudoGameController extends MarquisGameController {
     // If there are no movable pins and the dice value is less than 6, show a snackbar
     if (movablePins.isEmpty) {
       final pinsAtHome = playerHomes[_userIndex].pinsAtHome;
-      if (diceContainer.currentDice.value < 6) {
+      if (diceContainer!.currentDice.value < 6) {
         if (pinsAtHome.isNotEmpty) {
           showGameMessage(message: "Can not move from Basement, try to get a 6!!");
           // If there are pins at home, play the first one (dummy move)
@@ -556,8 +559,8 @@ class LudoGameController extends MarquisGameController {
       }
     }
 
-    if ((movablePins.length == 1 && diceContainer.currentDice.value < 6) ||
-        (movablePins.length == 1 && diceContainer.currentDice.value > 6 && playerHomes[_userIndex].pinsAtHome.isEmpty)) {
+    if ((movablePins.length == 1 && diceContainer!.currentDice.value < 6) ||
+        (movablePins.length == 1 && diceContainer!.currentDice.value > 6 && playerHomes[_userIndex].pinsAtHome.isEmpty)) {
       // Automatically play move on the only movable pin
       await playMove(movablePins[0].homeIndex);
       return;
@@ -592,7 +595,7 @@ class LudoGameController extends MarquisGameController {
       size: Vector2(200, 80),
       dice: newDice,
     );
-    await add(diceContainer);
+    await add(diceContainer!);
   }
 
   Future<void> prepareNextPlayerDice(int playerIndex, int diceValue) async {
@@ -600,28 +603,31 @@ class LudoGameController extends MarquisGameController {
     await playerHome.setDiceValue(diceValue);
   }
 
-  Future<void> showDiceDialog() async {
-    if (!buildContext!.mounted) return;
+  //Unused Method
 
-    showDialog(
-      context: buildContext!,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: SizedBox(width: 120, height: 120, child: GameWidget(game: this)),
-        );
-      },
-    );
+  // Future<void> showDiceDialog() async {
+  //   if (!buildContext!.mounted) return;
 
-    // Roll the dice
-    await rollDice();
+  //   showDialog(
+  //     context: buildContext!,
+  //     barrierDismissible: false,
+  //     useRootNavigator: false,
+  //     builder: (BuildContext context) {
+  //       return Dialog(
+  //         backgroundColor: Colors.transparent,
+  //         child: SizedBox(width: 120, height: 120, child: GameWidget(game: this)),
+  //       );
+  //     },
+  //   );
 
-    // Close dialog after roll animation
-    if (buildContext!.mounted) {
-      Navigator.of(buildContext!).pop();
-    }
-  }
+  //   // Roll the dice
+  //   await rollDice();
+
+  //   // Close dialog after roll animation
+  //   if (buildContext!.mounted) {
+  //     Navigator.of(buildContext!).pop();
+  //   }
+  // }
 
   Future<void> showGameMessage({
     required String message,
@@ -717,10 +723,7 @@ class _DiceAnimationWidgetState extends State<DiceAnimationWidget> with SingleTi
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
 
     _controller.addListener(() {
       // Change dice face every ~166ms (1000ms / 6 faces)

@@ -42,7 +42,7 @@ class _AnimatedSnackbarState extends State<AnimatedSnackbar> with TickerProvider
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 3),
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 18.0),
-            color: Colors.grey,
+            color: Colors.white,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

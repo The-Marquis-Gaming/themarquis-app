@@ -26,7 +26,7 @@ Future<LudoSessionData?> getLudoSessionFromId(String id) async {
       'Content-Type': 'application/json',
     },
   );
-  if (response.statusCode != 200) {
+  if (response.statusCode >= 300 || response.statusCode < 200) {
     if (!kReleaseMode) throw HttpException('${jsonDecode(utf8.decode(response.bodyBytes))["message"]}');
     throw HttpException('Request error with status code ${response.statusCode}.\nResponse: ${utf8.decode(response.bodyBytes)}');
   }
@@ -77,7 +77,7 @@ Future<List<Map>> getTransactions(String id) async {
       'Content-Type': 'application/json',
     },
   );
-  if (response.statusCode != 200) {
+  if (response.statusCode >= 300 || response.statusCode < 200) {
     throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
   }
   final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as List<dynamic>;
@@ -149,7 +149,7 @@ class LudoSession extends _$LudoSession {
         },
       );
     } catch (e) {
-      if(kDebugMode) print('WS Connection Error $e');
+      if (kDebugMode) print('WS Connection Error $e');
       Future.delayed(const Duration(seconds: 1), () {
         _connectWebSocket();
       });
@@ -169,7 +169,7 @@ class LudoSession extends _$LudoSession {
         'Authorization': ref.read(appStateProvider).bearerToken,
       },
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
@@ -218,7 +218,7 @@ class LudoSession extends _$LudoSession {
       url,
       headers: {'Content-Type': 'application/json'},
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as List<dynamic>;
@@ -272,7 +272,7 @@ class LudoSession extends _$LudoSession {
         'Authorization': ref.read(appStateProvider).bearerToken,
       },
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as List<dynamic>;
@@ -288,7 +288,7 @@ class LudoSession extends _$LudoSession {
         'Authorization': ref.read(appStateProvider).bearerToken,
       },
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
   }
@@ -321,11 +321,11 @@ class LudoSession extends _$LudoSession {
         'Authorization': ref.read(appStateProvider).bearerToken,
       },
     );
-    if (response.statusCode != 201) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-    if(kDebugMode) print(decodedResponse);
+    if (kDebugMode) print(decodedResponse);
     _id = decodedResponse['id'];
     await getLudoSession();
     await ref.read(userProvider.notifier).getUser();
@@ -344,11 +344,11 @@ class LudoSession extends _$LudoSession {
         'Authorization': ref.read(appStateProvider).bearerToken,
       },
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-    if(kDebugMode) print(decodedResponse);
+    if (kDebugMode) print(decodedResponse);
     _id = sessionId;
     await getLudoSession();
     await ref.read(userProvider.notifier).getUser();
@@ -361,11 +361,11 @@ class LudoSession extends _$LudoSession {
       body: jsonEncode({'session_id': _id}),
       headers: {'Content-Type': 'application/json'},
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-    if(kDebugMode) print(decodedResponse);
+    if (kDebugMode) print(decodedResponse);
     await ref.read(userProvider.notifier).getUser();
   }
 
@@ -383,11 +383,11 @@ class LudoSession extends _$LudoSession {
         'Authorization': ref.read(appStateProvider).bearerToken,
       },
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode >= 300 || response.statusCode < 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-    if(kDebugMode) print(decodedResponse);
+    if (kDebugMode) print(decodedResponse);
     _id = null;
     state = null;
     await ref.read(userProvider.notifier).getUser();

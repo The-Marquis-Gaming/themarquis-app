@@ -63,6 +63,7 @@ class _CheckersGameAppState extends ConsumerState<CheckersGameApp> {
                           onTap: () {
                             showDialog(
                               context: context,
+                              useRootNavigator: false,
                               builder: (BuildContext context) {
                                 return CheckersGameOutcomeDialog(_game, didUserWin: false);
                               },

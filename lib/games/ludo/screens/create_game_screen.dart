@@ -536,7 +536,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                             selectedPinColor: _playerColor,
                                             onTap: _selectPinColor,
                                           ),
-                                          SizedBox(width: scaledHeight(12)),
+                                          const SizedBox(width: 8),
                                           PinColorOption(
                                             gradient: const LinearGradient(
                                               begin: Alignment.topCenter,

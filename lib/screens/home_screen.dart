@@ -81,7 +81,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               child: IconButton(
                                 onPressed: () {
                                   if (!ref.read(appStateProvider).isAuth) {
-                                    showDialog(context: context, builder: (ctx) => const AuthDialog());
+                                    showDialog(context: context,useRootNavigator: false, builder: (ctx) => const AuthDialog());
                                     return;
                                   }
                                   ref.read(appStateProvider.notifier).selectGame("ludo");

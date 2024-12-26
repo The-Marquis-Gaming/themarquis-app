@@ -36,6 +36,7 @@ class _CheckersGameScreenState extends ConsumerState<CheckersGameScreen> {
           //                   child: GestureDetector(
           //                     onTap: () => showDialog(
           //                       context: context,
+          //                       useRootNavigator: false,
           //                       builder: (BuildContext context) {
           //                         return CheckersGameOutcomeDialog(widget._game, didUserWin: false);
           //                       },

@@ -52,7 +52,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   ),
                   onPressed: () async {
-                    showDialog(context: context, builder: (ctx) => const AuthDialog());
+                    showDialog(context: context,useRootNavigator: false, builder: (ctx) => const AuthDialog());
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
@@ -148,6 +148,7 @@ class ProfileScreen extends ConsumerWidget {
                         onTap: () {
                           showDialog(
                             context: context,
+                            useRootNavigator: false,
                             builder: (context) => InviteFriendDialog(user: user),
                           );
                         }),
@@ -158,6 +159,7 @@ class ProfileScreen extends ConsumerWidget {
                       onTap: () {
                         showDialog(
                           context: context,
+                          useRootNavigator: false,
                           builder: (context) => const AlertDialog(
                             title: Text('Help and Support'),
                             content: Column(
@@ -344,6 +346,7 @@ class _InviteFriendDialogState extends State<InviteFriendDialog> {
                             final image = await rootBundle.load('assets/images/share_banner.png');
                             // showDialog(
                             //     context: context,
+                            //     useRootNavigator: false,
                             //     builder: (context) => AlertDialog(
                             //         content: Image.memory(snapshot.data!)));
                             // final image = snapshot.data!;

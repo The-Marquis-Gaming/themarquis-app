@@ -155,9 +155,7 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
                           },
                           child: Text(
                             _isSignUp ? "Back to Login" : "Sign Up",
-                            style: const TextStyle(
-                              fontSize: 12,
-                            ),
+                            style: const TextStyle(fontSize: 12),
                           ),
                         ),
                       ],
