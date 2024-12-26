@@ -109,6 +109,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                                   label: 'Resume Game',
                                   onTap: () async {
                                     try {
+                                      widget.game.displayLoader();
                                       ref.read(appStateProvider.notifier).selectGameSessionId("ludo", user.sessionId);
                                       var session = ref.read(ludoSessionProvider);
                                       if (session == null) {
@@ -124,6 +125,8 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                                     } catch (e) {
                                       if (!context.mounted) return;
                                       showErrorDialog(e.toString(), context);
+                                    } finally {
+                                      widget.game.hideLoader();
                                     }
                                   }),
                             ),
@@ -167,11 +170,14 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
 
                                       // If user doesn't confirm, return early
                                       if (!confirmExit) return;
+                                      widget.game.displayLoader();
                                       await ref.read(ludoSessionProvider.notifier).exitSession();
                                       setState(() {});
                                     } catch (e) {
                                       if (!context.mounted) return;
                                       showErrorDialog(e.toString(), context);
+                                    } finally {
+                                      widget.game.hideLoader();
                                     }
                                   }),
                             ),
@@ -244,6 +250,21 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
               ),
             ),
           ),
+        ValueListenableBuilder(
+          valueListenable: widget.game.loadingNotifier,
+          builder: (context, value, child) {
+            return Offstage(
+              offstage: !value,
+              child: SizedBox(height: widget.game.height, width: widget.game.width, child: ModalBarrier(color: Colors.black.withOpacity(0.6))),
+            );
+          },
+        ),
+        ValueListenableBuilder(
+          valueListenable: widget.game.loadingNotifier,
+          builder: (context, value, child) {
+            return Offstage(offstage: !value, child: CircularProgressIndicator());
+          },
+        ),
       ],
     );
   }
