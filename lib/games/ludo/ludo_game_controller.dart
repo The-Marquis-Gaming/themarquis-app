@@ -490,25 +490,29 @@ class LudoGameController extends MarquisGameController {
     if (playerCanMove) return;
 
     // Show animated dice dialog
-    if (buildContext != null && buildContext!.mounted) {
-      await showDialog(
+    if (buildContext?.mounted == true) {
+      showDialog(
         context: buildContext!,
         barrierDismissible: false,
         builder: (context) => Dialog(
           backgroundColor: Colors.transparent,
-          child: SizedBox(
-            width: 120,
-            height: 120,
-            child: DiceAnimationWidget(),
-          ),
+          child: SizedBox(width: 120, height: 120, child: DiceAnimationWidget()),
         ),
       );
     }
 
     if (kDebugMode) print("Rolling dice...");
     await diceContainer.currentDice.roll();
+    Navigator.of(buildContext!).pop();
     // // playState = PlayState.finished;
-
+    await showDialog(
+      context: buildContext!,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: SizedBox(width: 120, height: 120, child: DiceAnimationWidget(dieFace: diceContainer.currentDice.value)),
+      ),
+    );
     if (kDebugMode) print("Dice rolled, value: ${diceContainer.currentDice.value}");
 
     List<PlayerPin> listOfPlayerPin = board!.getPlayerPinsOnBoard(_userIndex);
@@ -647,11 +651,7 @@ class LudoGameController extends MarquisGameController {
           position: Vector2(130, 25),
           anchor: Anchor.centerLeft,
           textRenderer: TextPaint(
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
           ),
         ),
       ],
@@ -681,19 +681,11 @@ class CustomRectangleComponent extends PositionComponent {
     required this.borderRadius,
     Anchor anchor = Anchor.topLeft,
     List<Component>? children,
-  }) : super(
-          position: position,
-          size: size,
-          anchor: anchor,
-          children: children,
-        );
+  }) : super(position: position, size: size, anchor: anchor, children: children);
 
   @override
   void render(Canvas canvas) {
-    final rrect = RRect.fromRectAndRadius(
-      size.toRect(),
-      Radius.circular(borderRadius),
-    );
+    final rrect = RRect.fromRectAndRadius(size.toRect(), Radius.circular(borderRadius));
     canvas.drawRRect(
       rrect,
       Paint()..color = color,
@@ -702,17 +694,24 @@ class CustomRectangleComponent extends PositionComponent {
   }
 }
 
-// Add this new widget class
 class DiceAnimationWidget extends StatefulWidget {
-  const DiceAnimationWidget({super.key});
+  final bool _playInfinitely;
+  final int? _dieFace;
 
+  const DiceAnimationWidget(
+      {super.key,
+
+      /// If `dieFace` is provided, the dice will call `Navigator.pop()` after 2 seconds
+      int? dieFace})
+      : _dieFace = dieFace,
+        _playInfinitely = dieFace == null ? true : false;
   @override
   State<DiceAnimationWidget> createState() => _DiceAnimationWidgetState();
 }
 
 class _DiceAnimationWidgetState extends State<DiceAnimationWidget> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late int currentDiceFace = 1;
+  late int currentDiceFace = widget._dieFace ?? 1;
   final List<int> diceSequence = [1, 2, 3, 4, 5, 6];
 
   @override
@@ -725,17 +724,23 @@ class _DiceAnimationWidgetState extends State<DiceAnimationWidget> with SingleTi
 
     _controller.addListener(() {
       // Change dice face every ~166ms (1000ms / 6 faces)
-      setState(() {
-        currentDiceFace = diceSequence[(_controller.value * 6).floor() % 6];
-      });
+      currentDiceFace = diceSequence[(_controller.value * 6).floor() % 6];
+      // setState(() {});
     });
 
-    // Start animation and close dialog when done
-    _controller.repeat();
-    Future.delayed(const Duration(seconds: 2), () {
-      _controller.stop();
-      if (mounted) Navigator.of(context).pop();
-    });
+    if (widget._playInfinitely) {
+      _controller.repeat();
+    } else if (widget._dieFace != null) {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) Navigator.of(context).pop();
+      });
+    } else {
+      _controller.repeat();
+      Future.delayed(const Duration(seconds: 2), () {
+        _controller.stop();
+        if (mounted) Navigator.of(context).pop();
+      });
+    }
   }
 
   @override
@@ -746,12 +751,13 @@ class _DiceAnimationWidgetState extends State<DiceAnimationWidget> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Image.asset(
-        'assets/images/dice_$currentDiceFace.png', // Adjust path based on your assets
-        width: 80,
-        height: 80,
-      ),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Center(
+          child: Image.asset('assets/images/dice_$currentDiceFace.png', width: 80, height: 80),
+        );
+      },
     );
   }
 }
