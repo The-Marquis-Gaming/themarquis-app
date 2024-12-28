@@ -1,8 +1,6 @@
 import 'dart:async' as dart_async;
 import 'dart:async';
 
-// ignore_for_file: unused_field
-
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter/foundation.dart';
@@ -72,32 +70,18 @@ class LudoGameController extends MarquisGameController {
       final res = await ref.read(ludoSessionProvider.notifier).generateMove();
       return res;
     } catch (e) {
-      showGameMessage(
-        message: e.toString(),
-        backgroundColor: Colors.red,
-      );
+      showGameMessage(message: e.toString(), backgroundColor: Colors.red);
       return [];
     }
   }
 
   Future<void> playMove(int index, {bool isAuto = false}) async {
     try {
-      if (!isAuto) {
-        diceContainer!.currentDice.state = DiceState.preparing;
-        await Future.delayed(const Duration(seconds: 8), () async {
-          diceContainer!.currentDice.state = DiceState.playingMove;
-          await ref.read(ludoSessionProvider.notifier).playMove(index.toString());
-        });
-      } else {
-        diceContainer!.currentDice.state = DiceState.playingMove;
-        await ref.read(ludoSessionProvider.notifier).playMove(index.toString());
-      }
+      diceContainer?.currentDice.state = DiceState.playingMove;
+      await ref.read(ludoSessionProvider.notifier).playMove(index.toString());
     } catch (e) {
       diceContainer!.currentDice.state = DiceState.rolledDice;
-      showGameMessage(
-        message: e.toString(),
-        backgroundColor: Colors.red,
-      );
+      showGameMessage(message: e.toString(), backgroundColor: Colors.red);
     }
   }
 
@@ -287,13 +271,9 @@ class LudoGameController extends MarquisGameController {
             await prepareNextPlayerDice(prevPlayer, diceValue);
           }
           if (_currentPlayer == _userIndex) {
-            if (_sessionData!.playMoveFailed ?? false) {
-              diceContainer!.currentDice.state = DiceState.active;
-            } else {
-              diceContainer!.currentDice.state = DiceState.preparing;
-            }
+            diceContainer?.currentDice.state = DiceState.active;
           } else {
-            diceContainer!.currentDice.state = DiceState.inactive;
+            diceContainer?.currentDice.state = DiceState.inactive;
           }
           final movePinsCompleter = Completer<void>();
           for (final player in _sessionData!.sessionUserStatus) {
@@ -335,11 +315,6 @@ class LudoGameController extends MarquisGameController {
             }
           }
           movePinsCompleter.complete();
-          if (_currentPlayer == _userIndex && diceContainer!.currentDice.state == DiceState.preparing) {
-            Future.delayed(const Duration(seconds: 8), () {
-              diceContainer!.currentDice.state = DiceState.active;
-            });
-          }
         } catch (e) {
           showGameMessage(message: e.toString(), backgroundColor: Colors.red);
         }

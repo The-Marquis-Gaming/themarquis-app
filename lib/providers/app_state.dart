@@ -60,7 +60,7 @@ class AppState extends _$AppState {
       body: jsonEncode({'email': email}),
       headers: {'Content-Type': 'application/json'},
     );
-    if (response.statusCode >= 300 || response.statusCode < 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
   }
@@ -72,7 +72,7 @@ class AppState extends _$AppState {
       body: jsonEncode({'email': email}),
       headers: {'Content-Type': 'application/json'},
     );
-    if (response.statusCode >= 300 || response.statusCode < 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
@@ -112,7 +112,7 @@ class AppState extends _$AppState {
       body: jsonEncode({'email': email, 'referral_code': referralCode}),
       headers: {'Content-Type': 'application/json'},
     );
-    if (response.statusCode >= 300 || response.statusCode < 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
   }
@@ -126,7 +126,7 @@ class AppState extends _$AppState {
       }),
       headers: {'Content-Type': 'application/json'},
     );
-    if (response.statusCode >= 300 || response.statusCode < 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
@@ -165,7 +165,7 @@ class AppState extends _$AppState {
         'Content-Type': 'application/json',
       },
     );
-    if (response.statusCode >= 300 || response.statusCode < 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
@@ -264,7 +264,7 @@ class AppState extends _$AppState {
           headers: {'Content-Type': 'application/json', 'Authorization': state.bearerToken},
         );
 
-        if (response.statusCode >= 300 || response.statusCode < 200) {
+        if (response.statusCode == 201 || response.statusCode == 200) {
           throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
         }
 

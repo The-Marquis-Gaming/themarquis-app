@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
 import 'package:marquis_v2/env.dart';
 import 'package:marquis_v2/models/user.dart';
 import 'package:marquis_v2/providers/app_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:http/http.dart' as http;
 
 part "user.g.dart";
 
@@ -30,7 +30,7 @@ class User extends _$User {
       url,
       headers: {'Content-Type': 'application/json', 'Authorization': ref.read(appStateProvider).bearerToken},
     );
-    if (response.statusCode >= 300 || response.statusCode < 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
@@ -95,7 +95,7 @@ class User extends _$User {
       url,
       headers: {'Content-Type': 'application/json', 'Authorization': ref.read(appStateProvider).bearerToken},
     );
-    if (response.statusCode >= 300 || response.statusCode < 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final List<Map<String, String>> results = [];
@@ -116,7 +116,7 @@ class User extends _$User {
       url,
       headers: {'Content-Type': 'application/json', 'Authorization': ref.read(appStateProvider).bearerToken},
     );
-    if (response.statusCode >= 300 || response.statusCode < 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
