@@ -18,7 +18,7 @@ class SnackbarService with ChangeNotifier {
     final time = DateTime.now().toIso8601String().hashCode ^ message.hashCode ^ _snackbars.length;
     final snackbar = AnimatedSnackbar(message: message + snackbars.length.toString(), timeStamp: time.toString(), key: ValueKey(time));
     _snackbars.insert(0, snackbar);
-    Timer(const Duration(seconds: 6), () => _removeSnackbar(time.toString()));
+    Timer(const Duration(seconds: 5), () => _removeSnackbar(time.toString()));
     notifyListeners();
   }
 
