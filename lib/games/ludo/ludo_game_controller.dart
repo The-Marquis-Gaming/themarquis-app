@@ -89,10 +89,22 @@ class LudoGameController extends MarquisGameController {
   set playState(PlayState value) {
     if (playStateNotifier.value == value) return;
     if (value != PlayState.playing) {
-      if (board != null) remove(board!);
-      if (diceContainer != null) remove(diceContainer!);
-      if (playerHomes.isNotEmpty) removeAll(playerHomes);
-      if (destination != null) remove(destination!);
+      if (board != null) {
+        add(board!);
+        Future.microtask(() => remove(board!));
+      }
+      if (diceContainer != null) {
+        add(diceContainer!);
+        Future.microtask(() => remove(diceContainer!));
+      }
+      if (playerHomes.isNotEmpty) {
+        addAll(playerHomes);
+        Future.microtask(() => removeAll(playerHomes));
+      }
+      if (destination != null) {
+        add(destination!);
+        Future.microtask(() => remove(destination!));
+      }
     }
     playStateNotifier.value = value;
 
@@ -249,8 +261,7 @@ class LudoGameController extends MarquisGameController {
         );
         if (_sessionData!.message!.startsWith("EXITED")) {
           await ref.read(ludoSessionProvider.notifier).clearData(refreshUser: true);
-          overlays.remove(PlayState.waiting.name);
-          overlays.remove(PlayState.finished.name);
+          overlays.clear();
           playState = PlayState.welcome;
           return;
         }

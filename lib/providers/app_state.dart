@@ -19,7 +19,7 @@ class AppState extends _$AppState {
   final Box<AppStateData> _hiveBox;
   Timer? _refreshTokenTimer;
   Timer? _logoutTimer;
-  final Client? _httpClient;
+  Client? _httpClient;
 
   AppState({Client? httpClient, Box<AppStateData>? hiveBox})
       : _httpClient = httpClient,
@@ -27,7 +27,7 @@ class AppState extends _$AppState {
 
   @override
   AppStateData build() {
-    // _hiveBox ??= Hive.box<AppStateData>("appState");
+    _httpClient ??= Client();
     return _hiveBox.get("appState", defaultValue: AppStateData())!;
   }
 
