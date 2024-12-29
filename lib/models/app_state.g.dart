@@ -27,7 +27,7 @@ class AppStateDataImplAdapter extends TypeAdapter<_$AppStateDataImpl> {
       accessTokenExpiry: fields[7] as DateTime?,
       refreshTokenExpiry: fields[8] as DateTime?,
       selectedGameSessionId: fields[9] as String?,
-      isBalanceVisible: (fields[10] as bool?) ?? false,
+      isBalanceVisible: fields[10] as bool,
     );
   }
 
@@ -63,5 +63,9 @@ class AppStateDataImplAdapter extends TypeAdapter<_$AppStateDataImpl> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is AppStateDataImplAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AppStateDataImplAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

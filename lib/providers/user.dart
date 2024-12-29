@@ -16,12 +16,13 @@ final baseUrl = environment['build'] == 'DEBUG' ? environment['apiUrlDebug'] : e
 @Riverpod(keepAlive: true)
 class User extends _$User {
   //Details Declaration
-  Box<UserData>? _hiveBox;
+  late final Box<UserData> _hiveBox;
+
+  User({Box<UserData>? hiveBox}) : _hiveBox = hiveBox ?? Hive.box<UserData>("user");
 
   @override
   UserData? build() {
-    _hiveBox ??= Hive.box<UserData>("user");
-    return _hiveBox!.get("user");
+    return _hiveBox.get("user");
   }
 
   Future<void> getUser() async {
@@ -50,12 +51,12 @@ class User extends _$User {
       accountAddress: decodedResponse['account_address'],
       sessionId: decodedResponse['session_id'],
     );
-    await _hiveBox!.put("user", user);
+    await _hiveBox.put("user", user);
     state = user;
   }
 
   Future<void> clearData() async {
-    await _hiveBox!.delete("user");
+    await _hiveBox.delete("user");
     // state = null;
     ref.invalidateSelf();
   }

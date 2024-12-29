@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:marquis_v2/env.dart';
 import 'package:marquis_v2/models/app_state.dart';
 import 'package:marquis_v2/providers/user.dart';
@@ -16,46 +16,51 @@ final baseUrl = environment['build'] == 'DEBUG' ? environment['apiUrlDebug'] : e
 
 @Riverpod(keepAlive: true)
 class AppState extends _$AppState {
-  Box<AppStateData>? _hiveBox;
+  final Box<AppStateData> _hiveBox;
   Timer? _refreshTokenTimer;
   Timer? _logoutTimer;
+  final Client? _httpClient;
+
+  AppState({Client? httpClient, Box<AppStateData>? hiveBox})
+      : _httpClient = httpClient,
+        _hiveBox = hiveBox ?? Hive.box<AppStateData>("appState");
 
   @override
   AppStateData build() {
-    _hiveBox ??= Hive.box<AppStateData>("appState");
-    return _hiveBox!.get("appState", defaultValue: AppStateData())!;
+    // _hiveBox ??= Hive.box<AppStateData>("appState");
+    return _hiveBox.get("appState", defaultValue: AppStateData())!;
   }
 
   void changeNavigatorIndex(int newIndex) {
     state = state.copyWith(navigatorIndex: newIndex);
-    _hiveBox!.put("appState", state);
+    _hiveBox.put("appState", state);
   }
 
   void changeTheme(String theme) {
     state = state.copyWith(theme: theme);
-    _hiveBox!.put("appState", state);
+    _hiveBox.put("appState", state);
   }
 
   void selectGame(String? id) {
     state = state.copyWith(
       selectedGame: id,
     );
-    _hiveBox!.put("appState", state);
+    _hiveBox.put("appState", state);
   }
 
   void selectGameSessionId(String? game, String? id) {
     state = state.copyWith(selectedGame: game, selectedGameSessionId: id);
-    _hiveBox!.put("appState", state);
+    _hiveBox.put("appState", state);
   }
 
   void toggleBalanceVisibility() {
     state = state.copyWith(isBalanceVisible: !state.isBalanceVisible);
-    _hiveBox!.put("isBalanceVisible", state);
+    _hiveBox.put("isBalanceVisible", state);
   }
 
   Future<void> login(String email) async {
     final url = Uri.parse('$baseUrl/auth/signin');
-    final response = await http.post(
+    final response = await _httpClient!.post(
       url,
       body: jsonEncode({'email': email}),
       headers: {'Content-Type': 'application/json'},
@@ -67,7 +72,7 @@ class AppState extends _$AppState {
 
   Future<void> loginSandbox(String email) async {
     final url = Uri.parse('$baseUrl/auth/signin-sandbox');
-    final response = await http.post(
+    final response = await _httpClient!.post(
       url,
       body: jsonEncode({'email': email}),
       headers: {'Content-Type': 'application/json'},
@@ -101,13 +106,13 @@ class AppState extends _$AppState {
         logout();
       },
     );
-    await _hiveBox!.put("appState", state);
+    await _hiveBox.put("appState", state);
     await ref.read(userProvider.notifier).getUser();
   }
 
   Future<void> signup(String email, String referralCode) async {
     final url = Uri.parse('$baseUrl/auth/signup');
-    final response = await http.post(
+    final response = await _httpClient!.post(
       url,
       body: jsonEncode({'email': email, 'referral_code': referralCode}),
       headers: {'Content-Type': 'application/json'},
@@ -119,7 +124,7 @@ class AppState extends _$AppState {
 
   Future<void> signupSandbox(String email) async {
     final url = Uri.parse('$baseUrl/auth/signup-sandbox');
-    final response = await http.post(
+    final response = await _httpClient!.post(
       url,
       body: jsonEncode({
         'email': email,
@@ -152,13 +157,13 @@ class AppState extends _$AppState {
         logout();
       },
     );
-    await _hiveBox!.put("appState", state);
+    await _hiveBox.put("appState", state);
     await ref.read(userProvider.notifier).getUser();
   }
 
   Future<void> verifyCode(String email, String code) async {
     final url = Uri.parse('$baseUrl/auth/verify-code');
-    final response = await http.post(
+    final response = await _httpClient!.post(
       url,
       body: jsonEncode({'email': email, 'code': code}),
       headers: {
@@ -191,7 +196,7 @@ class AppState extends _$AppState {
         logout();
       },
     );
-    await _hiveBox!.put("appState", state);
+    await _hiveBox.put("appState", state);
     await ref.read(userProvider.notifier).getUser();
   }
 
@@ -216,7 +221,7 @@ class AppState extends _$AppState {
     _logoutTimer?.cancel();
     _logoutTimer = null;
     ref.read(userProvider.notifier).clearData();
-    await _hiveBox!.put("appState", state);
+    await _hiveBox.put("appState", state);
   }
 
   Future<bool> tryAutoLogin() async {
@@ -258,7 +263,7 @@ class AppState extends _$AppState {
     while (tries <= maxRetries) {
       try {
         final url = Uri.parse('$baseUrl/auth/refresh');
-        final response = await http.post(
+        final response = await _httpClient!.post(
           url,
           body: jsonEncode({'refresh_token': state.refreshToken}),
           headers: {'Content-Type': 'application/json', 'Authorization': state.bearerToken},
@@ -289,7 +294,7 @@ class AppState extends _$AppState {
         if (_logoutTimer != null) _logoutTimer!.cancel();
         _logoutTimer = Timer(state.refreshTokenExpiry!.difference(DateTime.now()), logout);
 
-        await _hiveBox!.put("appState", state);
+        await _hiveBox.put("appState", state);
         await ref.read(userProvider.notifier).getUser();
         return;
       } catch (e) {
