@@ -71,16 +71,18 @@ class _CheckersGameAppState extends ConsumerState<CheckersGameApp> {
                           },
                           child: Image.asset('assets/images/Group 1171276336.png', fit: BoxFit.cover, height: 60, width: 60),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 80.0, right: 80),
-                          child: AspectRatio(
-                            aspectRatio: 7 / 20,
-                            child: FittedBox(
-                              fit: BoxFit.fitHeight,
-                              child: SizedBox(
-                                width: kCheckersGameWidth,
-                                height: kCheckersGameHeight,
-                                child: _buildRiverpodGameWidget(),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 80.0, right: 80),
+                            child: AspectRatio(
+                              aspectRatio: 7 / 20,
+                              child: FittedBox(
+                                fit: BoxFit.fitHeight,
+                                child: SizedBox(
+                                  width: kCheckersGameWidth,
+                                  height: kCheckersGameHeight,
+                                  child: _buildRiverpodGameWidget(),
+                                ),
                               ),
                             ),
                           ),
