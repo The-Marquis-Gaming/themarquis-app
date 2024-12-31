@@ -20,11 +20,18 @@ void main() async {
   Hive.registerAdapter(UserDataImplAdapter());
   Hive.registerAdapter(LudoSessionDataImplAdapter());
   Hive.registerAdapter(LudoSessionUserStatusImplAdapter());
-  await Hive.openBox<AppStateData>("appState");
-  await Hive.openBox<UserData>("user");
-  await Hive.openBox<LudoSessionData>("ludoSession");
+  await Future.wait([_loadAppStateBox(), Hive.openBox<UserData>("user"), Hive.openBox<LudoSessionData>("ludoSession")]);
   runApp(const ProviderScope(child: MyApp()));
   // Magic.instance = Magic("pk_live_D38AAC9114F908B0");
+}
+
+Future<void> _loadAppStateBox() async {
+  try {
+    await Hive.openBox<AppStateData>("appState");
+  } catch (e) {
+    await Hive.deleteBoxFromDisk("appState");
+    await Hive.openBox<AppStateData>("appState");
+  }
 }
 
 class MyApp extends ConsumerWidget {

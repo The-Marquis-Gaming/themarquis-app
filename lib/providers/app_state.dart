@@ -28,7 +28,7 @@ class AppState extends _$AppState {
   @override
   AppStateData build() {
     _httpClient ??= Client();
-    return _hiveBox.get("appState", defaultValue: AppStateData())!;
+    return _hiveBox.get("appState", defaultValue: AppStateData(autoLoginResult: null))!;
   }
 
   void changeNavigatorIndex(int newIndex) {
