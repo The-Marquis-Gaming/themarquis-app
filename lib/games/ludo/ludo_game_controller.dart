@@ -37,11 +37,13 @@ class LudoGameController extends MarquisGameController {
   bool playerCanMove = false;
   final int totalPlayers = 4;
   int? winnerIndex;
-  LudoSessionData? sessionData;
+  LudoSessionData? _sessionData;
   int pendingMoves = 0;
   bool isErrorMessage = false;
   dart_async.Timer? _messageTimer;
   Completer<void>? ludoSessionLoadingCompleter;
+
+  set sessionData(LudoSessionData value) => _sessionData = value;
 
   LudoGameController() : super(camera: CameraComponent.withFixedResolution(width: kLudoGameWidth, height: kLudoGameHeight));
 
@@ -51,7 +53,7 @@ class LudoGameController extends MarquisGameController {
   double get unitSize => size.x / 17;
 
   List<Color> get listOfColors =>
-      sessionData?.getListOfColors ??
+      _sessionData?.getListOfColors ??
       const [
         Color(0xffd04c2f),
         Color(0xff2fa9d0),
@@ -59,7 +61,7 @@ class LudoGameController extends MarquisGameController {
         Color(0xffb0d02f),
       ];
   int get userIndex => _userIndex;
-  List<String> get playerNames => sessionData!.sessionUserStatus.map((user) => user.email.split('@')[0]).toList();
+  List<String> get playerNames => _sessionData!.sessionUserStatus.map((user) => user.email.split('@')[0]).toList();
 
   Dice get currentDice => diceContainer!.currentDice;
   Dice? getPlayerDice(int playerIndex) => playerHomes[playerIndex].playerDice;
@@ -115,7 +117,7 @@ class LudoGameController extends MarquisGameController {
         break;
       case PlayState.playing:
         overlays.clear();
-        if (sessionData != null) await initGame();
+        if (_sessionData != null) await initGame();
         break;
       case PlayState.finished:
         overlays.clear();
@@ -230,7 +232,7 @@ class LudoGameController extends MarquisGameController {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    sessionData = ref.read(ludoSessionProvider);
+    _sessionData = ref.read(ludoSessionProvider);
     overlays.clear();
     overlays.add(PlayState.welcome.name);
     playStateNotifier.value = PlayState.welcome;
@@ -247,14 +249,14 @@ class LudoGameController extends MarquisGameController {
 
   Future<void> _handleLudoSessionUpdate(LudoSessionData? next) async {
     ludoSessionLoadingCompleter = Completer<void>();
-    sessionData = next;
-    if (sessionData != null) {
-      if (sessionData!.message != null) {
+    _sessionData = next;
+    if (_sessionData != null) {
+      if (_sessionData!.message != null) {
         await showGameMessage(
-          message: sessionData!.message!,
+          message: _sessionData!.message!,
           backgroundColor: Colors.red,
         );
-        if (sessionData!.message!.startsWith("EXITED")) {
+        if (_sessionData!.message!.startsWith("EXITED")) {
           await ref.read(ludoSessionProvider.notifier).clearData(refreshUser: true);
           overlays.clear();
           await updatePlayState(PlayState.welcome);
@@ -268,12 +270,12 @@ class LudoGameController extends MarquisGameController {
       if (playState == PlayState.playing && isInit) {
         try {
           final prevPlayer = _currentPlayer;
-          _currentPlayer = sessionData!.nextPlayerIndex;
+          _currentPlayer = _sessionData!.nextPlayerIndex;
           playerCanMove = false;
           updateTurnText();
 
-          if (sessionData!.currentDiceValue != null) {
-            int diceValue = sessionData!.currentDiceValue!;
+          if (_sessionData!.currentDiceValue != null) {
+            int diceValue = _sessionData!.currentDiceValue!;
             await prepareNextPlayerDice(prevPlayer, diceValue);
           }
           if (_currentPlayer == _userIndex) {
@@ -282,7 +284,7 @@ class LudoGameController extends MarquisGameController {
             diceContainer?.currentDice.state = DiceState.inactive;
           }
           final movePinsCompleter = Completer<void>();
-          for (final player in sessionData!.sessionUserStatus) {
+          for (final player in _sessionData!.sessionUserStatus) {
             final pinLocations = player.playerTokensPosition;
             final currentPinLocations = playerPinLocations[player.playerId];
             final playerHome = playerHomes[player.playerId];
@@ -343,8 +345,8 @@ class LudoGameController extends MarquisGameController {
       ]);
     }
     camera.viewfinder.anchor = Anchor.topLeft;
-    _userIndex = sessionData!.sessionUserStatus.indexWhere((user) => user.userId.toString() == ref.read(userProvider)?.id);
-    _currentPlayer = sessionData!.nextPlayerIndex;
+    _userIndex = _sessionData!.sessionUserStatus.indexWhere((user) => user.userId.toString() == ref.read(userProvider)?.id);
+    _currentPlayer = _sessionData!.nextPlayerIndex;
     board = Board();
     await add(board!);
     final positions = [
@@ -354,7 +356,7 @@ class LudoGameController extends MarquisGameController {
       Vector2(center.x - unitSize * 6.25, center.y + unitSize * 2.25), // Bottom-left corner (Player 4)
     ];
     for (int i = 0; i < positions.length; i++) {
-      playerHomes.add(PlayerHome(i, sessionData!.sessionUserStatus[i], positions[i]));
+      playerHomes.add(PlayerHome(i, _sessionData!.sessionUserStatus[i], positions[i]));
       await add(playerHomes.last);
     }
 
@@ -374,12 +376,12 @@ class LudoGameController extends MarquisGameController {
           color: Colors.white,
           shadows: [
             Shadow(
-              color: sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
+              color: _sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
               offset: const Offset(0, 0),
               blurRadius: 20,
             ),
             Shadow(
-              color: sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
+              color: _sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
               offset: const Offset(0, 0),
               blurRadius: 10,
             ),
@@ -391,7 +393,7 @@ class LudoGameController extends MarquisGameController {
 
     await mounted;
 
-    for (var player in sessionData!.sessionUserStatus) {
+    for (var player in _sessionData!.sessionUserStatus) {
       final pinLocations = player.playerTokensPosition;
       final playerHome = playerHomes[player.playerId];
       for (int i = 0; i < pinLocations.length; i++) {
@@ -461,7 +463,7 @@ class LudoGameController extends MarquisGameController {
             blurRadius: 10,
           ),
           Shadow(
-            color: sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
+            color: _sessionData!.getListOfColors[_currentPlayer].withOpacity(0.8),
             offset: const Offset(0, 0),
             blurRadius: 6,
           ),

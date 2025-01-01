@@ -188,7 +188,7 @@ void main() {
         (widgetTester) async {
           await widgetTester.pumpWidget(gameWidget);
 
-          ludoGameController.sessionData = ludoBox.get('ludoSession');
+          ludoGameController.sessionData = ludoBox.get('ludoSession')!;
           await ludoGameController.updatePlayState(PlayState.playing);
 
           expect(ludoGameController.isInit, true);
@@ -204,7 +204,7 @@ void main() {
       testWidgets('Playing move updates dice state', (widgetTester) async {
         when(mockClient.post(any, body: anyNamed('body'), headers: anyNamed('headers'))).thenAnswer((_) async => Response("", 200));
         await widgetTester.pumpWidget(gameWidget);
-        ludoGameController.sessionData = ludoBox.get("ludoSession");
+        ludoGameController.sessionData = ludoBox.get("ludoSession")!;
         await ludoGameController.updatePlayState(PlayState.playing);
         await ludoGameController.playMove(0);
         expect(ludoGameController.currentDice.state, DiceState.playingMove);
