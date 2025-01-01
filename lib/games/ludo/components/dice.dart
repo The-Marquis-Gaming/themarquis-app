@@ -20,7 +20,7 @@ enum DiceState {
 class Dice extends PositionComponent with TapCallbacks, HasGameReference<LudoGameController> {
   List<int> _values = [1];
   DiceState _state = DiceState.inactive;
-  late SpriteSheet diceSpriteSheet;
+  SpriteSheet? diceSpriteSheet;
   List<Sprite?> _currentSprites = [];
   double _emphasisAngle = 0;
   final int playerIndex;
@@ -35,7 +35,7 @@ class Dice extends PositionComponent with TapCallbacks, HasGameReference<LudoGam
   List<int> get values => _values;
   set values(List<int> newValues) {
     _values = newValues;
-    _currentSprites = values.map((value) => diceSpriteSheet.getSprite(0, min(value - 1, 5))).toList();
+    _currentSprites = values.map((value) => diceSpriteSheet!.getSprite(0, min(value - 1, 5))).toList();
     update(0);
   }
 
@@ -44,7 +44,7 @@ class Dice extends PositionComponent with TapCallbacks, HasGameReference<LudoGam
       ...List.filled(value ~/ 6, 6),
       if (value % 6 != 0) value % 6,
     ];
-    _currentSprites = _values.map((value) => diceSpriteSheet.getSprite(0, min(value - 1, 5))).toList();
+    _currentSprites = _values.map((value) => diceSpriteSheet!.getSprite(0, min(value - 1, 5))).toList();
     update(0);
   }
 
@@ -69,10 +69,10 @@ class Dice extends PositionComponent with TapCallbacks, HasGameReference<LudoGam
   Future<void> onLoad() async {
     super.onLoad();
     diceSpriteSheet = SpriteSheet(
-      image: await game.images.load('dice_interface.png'),
+      image: game.images.fromCache('dice_interface.png'),
       srcSize: Vector2(267, 267),
     );
-    _currentSprites = [diceSpriteSheet.getSprite(0, 0)];
+    _currentSprites = [diceSpriteSheet!.getSprite(0, 0)];
 
     rollActiveSprite = Sprite(Flame.images.fromCache('active_button.png'));
     rollInactiveSprite = Sprite(Flame.images.fromCache('play.png'));
@@ -133,7 +133,7 @@ class Dice extends PositionComponent with TapCallbacks, HasGameReference<LudoGam
         _renderLoadingIndicator(canvas);
         break;
       case DiceState.playingMove:
-      // case DiceState.preparing:
+        // case DiceState.preparing:
         // _renderDice(canvas); // Comment out dice rendering
         _renderLoadingIndicator(canvas);
         break;
@@ -168,7 +168,7 @@ class Dice extends PositionComponent with TapCallbacks, HasGameReference<LudoGam
         indicatorPaint.color = Colors.red;
         break;
       case DiceState.active:
-      // case DiceState.preparing:
+        // case DiceState.preparing:
         indicatorPaint.color = Colors.green;
         break;
       case DiceState.rollingDice:
@@ -190,7 +190,7 @@ class Dice extends PositionComponent with TapCallbacks, HasGameReference<LudoGam
     try {
       final moveResults = await game.generateMove();
       _values = moveResults;
-      _currentSprites = _values.map((value) => diceSpriteSheet.getSprite(0, min(value - 1, 5))).toList();
+      _currentSprites = _values.map((value) => diceSpriteSheet!.getSprite(0, min(value - 1, 5))).toList();
       state = DiceState.rolledDice;
     } catch (e) {
       if (kDebugMode) print(e);

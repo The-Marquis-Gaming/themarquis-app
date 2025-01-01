@@ -136,8 +136,8 @@ class Destination extends PositionComponent with HasGameReference<LudoGameContro
       game.showGameMessage(message: 'The Winner is ${game.playerNames[pin.playerIndex]}!', durationSeconds: 5);
 
       // Delay the game over screen
-      Future.delayed(const Duration(seconds: 5), () {
-        game.playState = PlayState.finished;
+      Future.delayed(const Duration(seconds: 5), () async {
+        await game.updatePlayState(PlayState.finished);
         game.winnerIndex = pin.playerIndex;
       });
     }

@@ -27,9 +27,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Defer back button dispatching to the child router
-    _backButtonDispatcher = Router.of(context)
-        .backButtonDispatcher!
-        .createChildBackButtonDispatcher();
+    _backButtonDispatcher = Router.of(context).backButtonDispatcher!.createChildBackButtonDispatcher();
   }
 
   @override
@@ -68,9 +66,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               ],
               currentIndex: appState.navigatorIndex,
               onTap: (newIndex) {
-                ref
-                    .read(appStateProvider.notifier)
-                    .changeNavigatorIndex(newIndex);
+                ref.read(appStateProvider.notifier).changeNavigatorIndex(newIndex);
               },
             ),
     );

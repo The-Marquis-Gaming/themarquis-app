@@ -201,7 +201,7 @@ class CheckersMatchResultScreen extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
-                  onPressed: () => _game.playState = PlayState.welcome,
+                  onPressed: () async => await _game.updatePlayState(PlayState.welcome),
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     foregroundColor: const Color(0xFFF3B46E),
@@ -214,7 +214,7 @@ class CheckersMatchResultScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 16.0, right: 16, bottom: 32, top: 8),
               child: GestureDetector(
-                onTap: () => _game.playState = PlayState.welcome,
+                onTap: () async => _game.updatePlayState(PlayState.welcome),
                 child: Container(
                   height: 43,
                   width: double.infinity,

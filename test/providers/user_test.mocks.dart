@@ -3,17 +3,14 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i7;
-import 'dart:convert' as _i8;
-import 'dart:typed_data' as _i9;
+import 'dart:async' as _i5;
+import 'dart:convert' as _i6;
+import 'dart:typed_data' as _i7;
 
-import 'package:hive/hive.dart' as _i5;
+import 'package:hive/hive.dart' as _i3;
 import 'package:http/http.dart' as _i2;
-import 'package:marquis_v2/models/app_state.dart' as _i4;
-import 'package:marquis_v2/providers/app_state.dart' as _i10;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i6;
-import 'package:riverpod_annotation/riverpod_annotation.dart' as _i3;
+import 'package:mockito/src/dummies.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -49,31 +46,10 @@ class _FakeStreamedResponse_1 extends _i1.SmartFake
         );
 }
 
-class _FakeNotifierProviderRef_2<T> extends _i1.SmartFake
-    implements _i3.NotifierProviderRef<T> {
-  _FakeNotifierProviderRef_2(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeAppStateData_3 extends _i1.SmartFake implements _i4.AppStateData {
-  _FakeAppStateData_3(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
 /// A class which mocks [Box].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBox<E> extends _i1.Mock implements _i5.Box<E> {
+class MockBox<E> extends _i1.Mock implements _i3.Box<E> {
   MockBox() {
     _i1.throwOnMissingStub(this);
   }
@@ -87,7 +63,7 @@ class MockBox<E> extends _i1.Mock implements _i5.Box<E> {
   @override
   String get name => (super.noSuchMethod(
         Invocation.getter(#name),
-        returnValue: _i6.dummyValue<String>(
+        returnValue: _i4.dummyValue<String>(
           this,
           Invocation.getter(#name),
         ),
@@ -168,14 +144,14 @@ class MockBox<E> extends _i1.Mock implements _i5.Box<E> {
       ));
 
   @override
-  _i7.Stream<_i5.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
+  _i5.Stream<_i3.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [],
           {#key: key},
         ),
-        returnValue: _i7.Stream<_i5.BoxEvent>.empty(),
-      ) as _i7.Stream<_i5.BoxEvent>);
+        returnValue: _i5.Stream<_i3.BoxEvent>.empty(),
+      ) as _i5.Stream<_i3.BoxEvent>);
 
   @override
   bool containsKey(dynamic key) => (super.noSuchMethod(
@@ -187,7 +163,7 @@ class MockBox<E> extends _i1.Mock implements _i5.Box<E> {
       ) as bool);
 
   @override
-  _i7.Future<void> put(
+  _i5.Future<void> put(
     dynamic key,
     E? value,
   ) =>
@@ -199,12 +175,12 @@ class MockBox<E> extends _i1.Mock implements _i5.Box<E> {
             value,
           ],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i7.Future<void> putAt(
+  _i5.Future<void> putAt(
     int? index,
     E? value,
   ) =>
@@ -216,116 +192,116 @@ class MockBox<E> extends _i1.Mock implements _i5.Box<E> {
             value,
           ],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i7.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
+  _i5.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
         Invocation.method(
           #putAll,
           [entries],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i7.Future<int> add(E? value) => (super.noSuchMethod(
+  _i5.Future<int> add(E? value) => (super.noSuchMethod(
         Invocation.method(
           #add,
           [value],
         ),
-        returnValue: _i7.Future<int>.value(0),
-      ) as _i7.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i7.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
+  _i5.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
         Invocation.method(
           #addAll,
           [values],
         ),
-        returnValue: _i7.Future<Iterable<int>>.value(<int>[]),
-      ) as _i7.Future<Iterable<int>>);
+        returnValue: _i5.Future<Iterable<int>>.value(<int>[]),
+      ) as _i5.Future<Iterable<int>>);
 
   @override
-  _i7.Future<void> delete(dynamic key) => (super.noSuchMethod(
+  _i5.Future<void> delete(dynamic key) => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [key],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i7.Future<void> deleteAt(int? index) => (super.noSuchMethod(
+  _i5.Future<void> deleteAt(int? index) => (super.noSuchMethod(
         Invocation.method(
           #deleteAt,
           [index],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i7.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
+  _i5.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
         Invocation.method(
           #deleteAll,
           [keys],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i7.Future<void> compact() => (super.noSuchMethod(
+  _i5.Future<void> compact() => (super.noSuchMethod(
         Invocation.method(
           #compact,
           [],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i7.Future<int> clear() => (super.noSuchMethod(
+  _i5.Future<int> clear() => (super.noSuchMethod(
         Invocation.method(
           #clear,
           [],
         ),
-        returnValue: _i7.Future<int>.value(0),
-      ) as _i7.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i7.Future<void> close() => (super.noSuchMethod(
+  _i5.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i7.Future<void> deleteFromDisk() => (super.noSuchMethod(
+  _i5.Future<void> deleteFromDisk() => (super.noSuchMethod(
         Invocation.method(
           #deleteFromDisk,
           [],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i7.Future<void> flush() => (super.noSuchMethod(
+  _i5.Future<void> flush() => (super.noSuchMethod(
         Invocation.method(
           #flush,
           [],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 }
 
 /// A class which mocks [Client].
@@ -337,7 +313,7 @@ class MockClient extends _i1.Mock implements _i2.Client {
   }
 
   @override
-  _i7.Future<_i2.Response> head(
+  _i5.Future<_i2.Response> head(
     Uri? url, {
     Map<String, String>? headers,
   }) =>
@@ -347,7 +323,7 @@ class MockClient extends _i1.Mock implements _i2.Client {
           [url],
           {#headers: headers},
         ),
-        returnValue: _i7.Future<_i2.Response>.value(_FakeResponse_0(
+        returnValue: _i5.Future<_i2.Response>.value(_FakeResponse_0(
           this,
           Invocation.method(
             #head,
@@ -355,10 +331,10 @@ class MockClient extends _i1.Mock implements _i2.Client {
             {#headers: headers},
           ),
         )),
-      ) as _i7.Future<_i2.Response>);
+      ) as _i5.Future<_i2.Response>);
 
   @override
-  _i7.Future<_i2.Response> get(
+  _i5.Future<_i2.Response> get(
     Uri? url, {
     Map<String, String>? headers,
   }) =>
@@ -368,7 +344,7 @@ class MockClient extends _i1.Mock implements _i2.Client {
           [url],
           {#headers: headers},
         ),
-        returnValue: _i7.Future<_i2.Response>.value(_FakeResponse_0(
+        returnValue: _i5.Future<_i2.Response>.value(_FakeResponse_0(
           this,
           Invocation.method(
             #get,
@@ -376,14 +352,14 @@ class MockClient extends _i1.Mock implements _i2.Client {
             {#headers: headers},
           ),
         )),
-      ) as _i7.Future<_i2.Response>);
+      ) as _i5.Future<_i2.Response>);
 
   @override
-  _i7.Future<_i2.Response> post(
+  _i5.Future<_i2.Response> post(
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i8.Encoding? encoding,
+    _i6.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -395,7 +371,7 @@ class MockClient extends _i1.Mock implements _i2.Client {
             #encoding: encoding,
           },
         ),
-        returnValue: _i7.Future<_i2.Response>.value(_FakeResponse_0(
+        returnValue: _i5.Future<_i2.Response>.value(_FakeResponse_0(
           this,
           Invocation.method(
             #post,
@@ -407,14 +383,14 @@ class MockClient extends _i1.Mock implements _i2.Client {
             },
           ),
         )),
-      ) as _i7.Future<_i2.Response>);
+      ) as _i5.Future<_i2.Response>);
 
   @override
-  _i7.Future<_i2.Response> put(
+  _i5.Future<_i2.Response> put(
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i8.Encoding? encoding,
+    _i6.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -426,7 +402,7 @@ class MockClient extends _i1.Mock implements _i2.Client {
             #encoding: encoding,
           },
         ),
-        returnValue: _i7.Future<_i2.Response>.value(_FakeResponse_0(
+        returnValue: _i5.Future<_i2.Response>.value(_FakeResponse_0(
           this,
           Invocation.method(
             #put,
@@ -438,14 +414,14 @@ class MockClient extends _i1.Mock implements _i2.Client {
             },
           ),
         )),
-      ) as _i7.Future<_i2.Response>);
+      ) as _i5.Future<_i2.Response>);
 
   @override
-  _i7.Future<_i2.Response> patch(
+  _i5.Future<_i2.Response> patch(
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i8.Encoding? encoding,
+    _i6.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -457,7 +433,7 @@ class MockClient extends _i1.Mock implements _i2.Client {
             #encoding: encoding,
           },
         ),
-        returnValue: _i7.Future<_i2.Response>.value(_FakeResponse_0(
+        returnValue: _i5.Future<_i2.Response>.value(_FakeResponse_0(
           this,
           Invocation.method(
             #patch,
@@ -469,14 +445,14 @@ class MockClient extends _i1.Mock implements _i2.Client {
             },
           ),
         )),
-      ) as _i7.Future<_i2.Response>);
+      ) as _i5.Future<_i2.Response>);
 
   @override
-  _i7.Future<_i2.Response> delete(
+  _i5.Future<_i2.Response> delete(
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i8.Encoding? encoding,
+    _i6.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -488,7 +464,7 @@ class MockClient extends _i1.Mock implements _i2.Client {
             #encoding: encoding,
           },
         ),
-        returnValue: _i7.Future<_i2.Response>.value(_FakeResponse_0(
+        returnValue: _i5.Future<_i2.Response>.value(_FakeResponse_0(
           this,
           Invocation.method(
             #delete,
@@ -500,10 +476,10 @@ class MockClient extends _i1.Mock implements _i2.Client {
             },
           ),
         )),
-      ) as _i7.Future<_i2.Response>);
+      ) as _i5.Future<_i2.Response>);
 
   @override
-  _i7.Future<String> read(
+  _i5.Future<String> read(
     Uri? url, {
     Map<String, String>? headers,
   }) =>
@@ -513,7 +489,7 @@ class MockClient extends _i1.Mock implements _i2.Client {
           [url],
           {#headers: headers},
         ),
-        returnValue: _i7.Future<String>.value(_i6.dummyValue<String>(
+        returnValue: _i5.Future<String>.value(_i4.dummyValue<String>(
           this,
           Invocation.method(
             #read,
@@ -521,10 +497,10 @@ class MockClient extends _i1.Mock implements _i2.Client {
             {#headers: headers},
           ),
         )),
-      ) as _i7.Future<String>);
+      ) as _i5.Future<String>);
 
   @override
-  _i7.Future<_i9.Uint8List> readBytes(
+  _i5.Future<_i7.Uint8List> readBytes(
     Uri? url, {
     Map<String, String>? headers,
   }) =>
@@ -534,25 +510,25 @@ class MockClient extends _i1.Mock implements _i2.Client {
           [url],
           {#headers: headers},
         ),
-        returnValue: _i7.Future<_i9.Uint8List>.value(_i9.Uint8List(0)),
-      ) as _i7.Future<_i9.Uint8List>);
+        returnValue: _i5.Future<_i7.Uint8List>.value(_i7.Uint8List(0)),
+      ) as _i5.Future<_i7.Uint8List>);
 
   @override
-  _i7.Future<_i2.StreamedResponse> send(_i2.BaseRequest? request) =>
+  _i5.Future<_i2.StreamedResponse> send(_i2.BaseRequest? request) =>
       (super.noSuchMethod(
         Invocation.method(
           #send,
           [request],
         ),
         returnValue:
-            _i7.Future<_i2.StreamedResponse>.value(_FakeStreamedResponse_1(
+            _i5.Future<_i2.StreamedResponse>.value(_FakeStreamedResponse_1(
           this,
           Invocation.method(
             #send,
             [request],
           ),
         )),
-      ) as _i7.Future<_i2.StreamedResponse>);
+      ) as _i5.Future<_i2.StreamedResponse>);
 
   @override
   void close() => super.noSuchMethod(
@@ -562,225 +538,4 @@ class MockClient extends _i1.Mock implements _i2.Client {
         ),
         returnValueForMissingStub: null,
       );
-}
-
-/// A class which mocks [AppState].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockAppState extends _i1.Mock implements _i10.AppState {
-  MockAppState() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i3.NotifierProviderRef<_i4.AppStateData> get ref => (super.noSuchMethod(
-        Invocation.getter(#ref),
-        returnValue: _FakeNotifierProviderRef_2<_i4.AppStateData>(
-          this,
-          Invocation.getter(#ref),
-        ),
-      ) as _i3.NotifierProviderRef<_i4.AppStateData>);
-
-  @override
-  _i4.AppStateData get state => (super.noSuchMethod(
-        Invocation.getter(#state),
-        returnValue: _FakeAppStateData_3(
-          this,
-          Invocation.getter(#state),
-        ),
-      ) as _i4.AppStateData);
-
-  @override
-  set state(_i4.AppStateData? value) => super.noSuchMethod(
-        Invocation.setter(
-          #state,
-          value,
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  _i4.AppStateData build() => (super.noSuchMethod(
-        Invocation.method(
-          #build,
-          [],
-        ),
-        returnValue: _FakeAppStateData_3(
-          this,
-          Invocation.method(
-            #build,
-            [],
-          ),
-        ),
-      ) as _i4.AppStateData);
-
-  @override
-  void changeNavigatorIndex(int? newIndex) => super.noSuchMethod(
-        Invocation.method(
-          #changeNavigatorIndex,
-          [newIndex],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void changeTheme(String? theme) => super.noSuchMethod(
-        Invocation.method(
-          #changeTheme,
-          [theme],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void selectGame(String? id) => super.noSuchMethod(
-        Invocation.method(
-          #selectGame,
-          [id],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void selectGameSessionId(
-    String? game,
-    String? id,
-  ) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #selectGameSessionId,
-          [
-            game,
-            id,
-          ],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void toggleBalanceVisibility() => super.noSuchMethod(
-        Invocation.method(
-          #toggleBalanceVisibility,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  _i7.Future<void> login(String? email) => (super.noSuchMethod(
-        Invocation.method(
-          #login,
-          [email],
-        ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
-
-  @override
-  _i7.Future<void> loginSandbox(String? email) => (super.noSuchMethod(
-        Invocation.method(
-          #loginSandbox,
-          [email],
-        ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
-
-  @override
-  _i7.Future<void> signup(
-    String? email,
-    String? referralCode,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #signup,
-          [
-            email,
-            referralCode,
-          ],
-        ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
-
-  @override
-  _i7.Future<void> signupSandbox(String? email) => (super.noSuchMethod(
-        Invocation.method(
-          #signupSandbox,
-          [email],
-        ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
-
-  @override
-  _i7.Future<void> verifyCode(
-    String? email,
-    String? code,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #verifyCode,
-          [
-            email,
-            code,
-          ],
-        ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
-
-  @override
-  _i7.Future<void> logout() => (super.noSuchMethod(
-        Invocation.method(
-          #logout,
-          [],
-        ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
-
-  @override
-  _i7.Future<bool> tryAutoLogin() => (super.noSuchMethod(
-        Invocation.method(
-          #tryAutoLogin,
-          [],
-        ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
-
-  @override
-  void setConnectivity(bool? val) => super.noSuchMethod(
-        Invocation.method(
-          #setConnectivity,
-          [val],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  _i7.Future<void> refreshToken([int? tries = 1]) => (super.noSuchMethod(
-        Invocation.method(
-          #refreshToken,
-          [tries],
-        ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
-
-  @override
-  bool updateShouldNotify(
-    _i4.AppStateData? previous,
-    _i4.AppStateData? next,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #updateShouldNotify,
-          [
-            previous,
-            next,
-          ],
-        ),
-        returnValue: false,
-      ) as bool);
 }

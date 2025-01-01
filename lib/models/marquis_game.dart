@@ -18,7 +18,7 @@ abstract class MarquisGameController extends FlameGame with TapCallbacks, Riverp
   bool get isTablet => width / height > 0.7;
   ValueNotifier<bool> get loadingNotifier => _loadingNotifier;
 
-  set playState(PlayState value) => playStateNotifier.value = value;
+  Future<void> updatePlayState(PlayState value) async => playStateNotifier.value = value;
 
   void displayLoader() => _loadingNotifier.value = true;
 

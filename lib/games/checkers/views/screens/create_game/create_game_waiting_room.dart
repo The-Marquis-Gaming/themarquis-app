@@ -188,8 +188,8 @@ class CheckersWaitingRoom extends StatelessWidget {
               foregroundColor: const Color(0xFF000000),
               textStyle: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w500),
             ),
-            onPressed: () {
-              _gameController.playState = PlayState.playing;
+            onPressed: () async {
+              await _gameController.updatePlayState(PlayState.playing);
             },
             child: Text('Invite Friend'),
           ),

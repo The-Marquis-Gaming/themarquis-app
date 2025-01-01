@@ -556,10 +556,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
     });
   }
 
-  void _switchToNextTab() {
+  void _switchToNextTab() async {
     if (_activeTab == _numberOfTabs - 1) {
       Navigator.of(context).pop();
-      widget._gameController.playState = PlayState.waiting;
+      await widget._gameController.updatePlayState(PlayState.waiting);
     }
     setState(() {
       _activeTab++;

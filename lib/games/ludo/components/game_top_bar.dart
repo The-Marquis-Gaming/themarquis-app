@@ -16,7 +16,7 @@ class GameTopBar extends StatelessWidget {
       height: kToolbarHeight,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: game.playState == PlayState.finished ? Colors.black.withOpacity(0.3) : Color.fromRGBO(48, 239, 253, 0.25),
+        color: game.updatePlayState == PlayState.finished ? Colors.black.withOpacity(0.3) : Color.fromRGBO(48, 239, 253, 0.25),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
@@ -28,11 +28,11 @@ class GameTopBar extends StatelessWidget {
           Transform.translate(
             offset: Offset(-5, 4),
             child: GestureDetector(
-              onTap: () {
-                if (game.playState == PlayState.waiting) {
+              onTap: () async {
+                if (game.updatePlayState == PlayState.waiting) {
                   Navigator.of(context).pushReplacementNamed('/');
-                } else if (game.playState == PlayState.finished) {
-                  game.playState = PlayState.welcome;
+                } else if (game.updatePlayState == PlayState.finished) {
+                  await game.updatePlayState(PlayState.welcome);
                 } else {
                   showDialog(
                     context: context,
@@ -46,9 +46,9 @@ class GameTopBar extends StatelessWidget {
                           child: Text('Cancel'),
                         ),
                         TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.pop(context);
-                            game.playState = PlayState.welcome;
+                            game.updatePlayState(PlayState.welcome);
                           },
                           child: Text('Leave'),
                         ),

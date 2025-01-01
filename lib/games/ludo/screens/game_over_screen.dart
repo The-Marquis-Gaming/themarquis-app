@@ -367,14 +367,15 @@ class MatchResultsScreen extends ConsumerWidget {
                                   onPressed: () async {
                                     final tweetText = 'Check out my results!\nRoom Id: ${session.id}';
                                     final url = 'https://themarquis.xyz/ludo?roomid=${session.id}';
-      
+
                                     // Use the Twitter app's URL scheme
-                                    final tweetUrl = Uri.encodeFull('twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
-      
+                                    final tweetUrl =
+                                        Uri.encodeFull('twitter://post?message=$tweetText\n$url\ndata:image/png;base64,${base64Encode(imageBytes)}');
+
                                     // Fallback to web URL if the app isn't installed
                                     final webTweetUrl = Uri.encodeFull(
                                         'https://x.com/intent/tweet?text=$tweetText&url=$url&via=themarquisxyz&image=data:image/png;base64,${base64Encode(imageBytes)}');
-      
+
                                     if (await canLaunchUrl(Uri.parse(tweetUrl))) {
                                       await launchUrl(Uri.parse(tweetUrl));
                                     } else {
@@ -447,7 +448,7 @@ class MatchResultsScreen extends ConsumerWidget {
       child: TextButton(
         onPressed: () async {
           // await ref.read(userProvider.notifier).getUser();
-          game.playState = PlayState.welcome;
+          await game.updatePlayState(PlayState.welcome);
           game.overlays.remove(PlayState.finished.name);
 
           await ref.read(ludoSessionProvider.notifier).clearData(refreshUser: true);

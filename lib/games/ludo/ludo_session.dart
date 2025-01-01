@@ -88,16 +88,20 @@ Future<List<Map>> getTransactions(String id) async {
 @riverpod
 class LudoSession extends _$LudoSession {
   //Details Declaration
-  Box<LudoSessionData>? _hiveBox;
   late WebSocketChannel _channel;
+  final Box<LudoSessionData>? _hiveBox;
+  final http.Client _httpClient;
   String? _id;
   int? _currentDiceValue;
   bool _playMoveFailed = false;
 
+  LudoSession({Box<LudoSessionData>? hiveBox, http.Client? httpClient})
+      : _hiveBox = hiveBox ?? Hive.box<LudoSessionData>("ludoSession"),
+        _httpClient = httpClient ?? http.Client();
+
   @override
   LudoSessionData? build() {
-    _hiveBox ??= Hive.box<LudoSessionData>("ludoSession");
-    _connectWebSocket();
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) _connectWebSocket();
     return null;
   }
 
@@ -162,7 +166,7 @@ class LudoSession extends _$LudoSession {
       if (_id == null) return;
     }
     final url = Uri.parse('$baseUrl/game/session/$_id');
-    final response = await http.get(
+    final response = await _httpClient.get(
       url,
       headers: {
         'Content-Type': 'application/json',
@@ -214,7 +218,7 @@ class LudoSession extends _$LudoSession {
 
   Future<List<LudoSessionData>> getOpenSessions() async {
     final url = Uri.parse('$baseUrl/session/get-open-sessions');
-    final response = await http.get(
+    final response = await _httpClient.get(
       url,
       headers: {'Content-Type': 'application/json'},
     );
@@ -265,12 +269,9 @@ class LudoSession extends _$LudoSession {
 
   Future<List<int>> generateMove() async {
     final url = Uri.parse('$baseUrl/game/session/$_id/generate-move');
-    final response = await http.post(
+    final response = await _httpClient.post(
       url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': ref.read(appStateProvider).bearerToken,
-      },
+      headers: {'Content-Type': 'application/json', 'Authorization': ref.read(appStateProvider).bearerToken},
     );
     if (response.statusCode != 201 && response.statusCode != 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
@@ -281,12 +282,9 @@ class LudoSession extends _$LudoSession {
 
   Future<void> playMove(String tokenId) async {
     final url = Uri.parse('$baseUrl/game/session/$_id/play-move/$tokenId');
-    final response = await http.post(
+    final response = await _httpClient.post(
       url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': ref.read(appStateProvider).bearerToken,
-      },
+      headers: {'Content-Type': 'application/json', 'Authorization': ref.read(appStateProvider).bearerToken},
     );
     if (response.statusCode != 201 && response.statusCode != 200) {
       throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
@@ -309,7 +307,7 @@ class LudoSession extends _$LudoSession {
       'user_creator_color': color,
       'token_address': tokenAddress,
     }));
-    final response = await http.post(
+    final response = await _httpClient.post(
       url,
       body: jsonEncode({
         'amount': amount,
@@ -333,7 +331,7 @@ class LudoSession extends _$LudoSession {
 
   Future<void> joinSession(String sessionId, String color) async {
     final url = Uri.parse('$baseUrl/session/join');
-    final response = await http.post(
+    final response = await _httpClient.post(
       url,
       body: jsonEncode({
         'session_id': sessionId,
@@ -356,7 +354,7 @@ class LudoSession extends _$LudoSession {
 
   Future<void> closeSession(String tokenId) async {
     final url = Uri.parse('$baseUrl/session/close');
-    final response = await http.post(
+    final response = await _httpClient.post(
       url,
       body: jsonEncode({'session_id': _id}),
       headers: {'Content-Type': 'application/json'},
@@ -375,7 +373,7 @@ class LudoSession extends _$LudoSession {
       if (_id == null) return;
     }
     final url = Uri.parse('$baseUrl/session/exit-game');
-    final response = await http.post(
+    final response = await _httpClient.post(
       url,
       body: jsonEncode({'session_id': _id}),
       headers: {

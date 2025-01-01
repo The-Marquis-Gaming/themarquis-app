@@ -69,7 +69,7 @@ class CheckersGameController extends MarquisGameController {
   }
 
   @override
-  set playState(PlayState value) {
+  Future<void> updatePlayState(PlayState value) async {
     overlays.clear();
     if (value == PlayState.playing) {
       initGame();

@@ -122,9 +122,9 @@ class RewardDetailsWidget extends StatelessWidget {
                 ),
                 verticalSpace(30),
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
-                    _game.playState = PlayState.finished;
+                    await _game.updatePlayState(PlayState.finished);
                   },
                   child: Container(
                     height: 43,
@@ -221,9 +221,9 @@ class WinnerDetailsWidget extends StatelessWidget {
         ),
         verticalSpace(10),
         GestureDetector(
-          onTap: () {
+          onTap: () async {
             Navigator.pop(context);
-            _game.playState = PlayState.finished;
+            await _game.updatePlayState(PlayState.finished);
           },
           child: Container(
             height: 43,
