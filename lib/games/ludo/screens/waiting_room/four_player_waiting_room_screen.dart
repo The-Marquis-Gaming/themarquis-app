@@ -351,7 +351,7 @@ class _FourPlayerWaitingRoomScreenState extends ConsumerState<FourPlayerWaitingR
       onTap: () async {
         final imageBytes = await _buildShareImage(session);
         final qrImageBytes = await _buildQrImage(session);
-        if (!context.mounted) return;
+        if (!mounted) return;
         showDialog(
           useRootNavigator: false,
           barrierColor: Colors.black.withAlpha(220),

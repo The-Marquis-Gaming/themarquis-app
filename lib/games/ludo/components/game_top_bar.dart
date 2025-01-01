@@ -16,7 +16,7 @@ class GameTopBar extends StatelessWidget {
       height: kToolbarHeight,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: game.updatePlayState == PlayState.finished ? Colors.black.withOpacity(0.3) : Color.fromRGBO(48, 239, 253, 0.25),
+        color: game.playState == PlayState.finished ? Colors.black.withOpacity(0.3) : Color.fromRGBO(48, 239, 253, 0.25),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
@@ -29,9 +29,9 @@ class GameTopBar extends StatelessWidget {
             offset: Offset(-5, 4),
             child: GestureDetector(
               onTap: () async {
-                if (game.updatePlayState == PlayState.waiting) {
+                if (game.playState == PlayState.waiting) {
                   Navigator.of(context).pushReplacementNamed('/');
-                } else if (game.updatePlayState == PlayState.finished) {
+                } else if (game.playState == PlayState.finished) {
                   await game.updatePlayState(PlayState.welcome);
                 } else {
                   showDialog(

@@ -111,7 +111,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       Navigator.of(context).pop();
       await game.updatePlayState( PlayState.waiting);
     } catch (e) {
-      if (!context.mounted) return;
+      if (!mounted) return;
       showErrorDialog(e.toString(), context);
     } finally {
       setState(() {

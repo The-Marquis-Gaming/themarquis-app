@@ -52,7 +52,7 @@ class MockImage extends Mock implements Image {
           #clone,
           [],
         ),
-        returnValue: _FakeImage_5(
+        returnValue: _FakeImage(
           this,
           Invocation.method(
             #clone,
@@ -71,8 +71,8 @@ class MockImage extends Mock implements Image {
       ) as bool);
 }
 
-class _FakeImage_5 extends SmartFake implements Image {
-  _FakeImage_5(
+class _FakeImage extends SmartFake implements Image {
+  _FakeImage(
     super.parent,
     super.parentInvocation,
   );
