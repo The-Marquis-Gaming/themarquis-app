@@ -70,7 +70,108 @@ class MatchResultsScreen extends ConsumerWidget {
                           SizedBox(
                             height: 10,
                           ),
-                          _buildTransactionsButton(context),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    useRootNavigator: false,
+                                    builder: (ctx) => Dialog(
+                                      backgroundColor: Colors.transparent,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF152A37),
+                                          border: Border.all(color: const Color(0xFF00ECFF), width: 1),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.all(16.0),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  const Text(
+                                                    'Transactions',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    icon: const Icon(Icons.close, color: Colors.white),
+                                                    onPressed: () => Navigator.of(context).pop(),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            FutureBuilder<List<Map>>(
+                                              future: () async {
+                                                return await ref.read(ludoSessionProvider.notifier).getTransactions(session.id);
+                                              }(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
+                                                return Visibility(
+                                                  visible: snapshot.data!.isNotEmpty,
+                                                  replacement: const Center(child: Text('No transactions available.')),
+                                                  child: Container(
+                                                    color: Colors.transparent,
+                                                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+                                                    child: ListView.builder(
+                                                      shrinkWrap: true,
+                                                      itemCount: snapshot.data!.length,
+                                                      itemBuilder: (context, index) {
+                                                        final tx = snapshot.data![index];
+                                                        return Padding(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                                          child: Row(
+                                                            children: [
+                                                              Container(
+                                                                width: 16,
+                                                                height: 16,
+                                                                decoration: BoxDecoration(
+                                                                  color: Color(0xFF00ECFF),
+                                                                  border: Border.all(color: const Color(0xFF00ECFF)),
+                                                                  borderRadius: BorderRadius.circular(4),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(width: 12),
+                                                              Expanded(
+                                                                child: Text(
+                                                                  _shortenHash(tx['transaction_hash']),
+                                                                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                                                                ),
+                                                              ),
+                                                              Text('2 mins ago', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                label: const Text('Transactions', style: TextStyle(color: Colors.black, fontSize: 12.0)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.cyan,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0),
+                                ),
+                              ),
+                            ),
+                          ),
                           Expanded(child: _buildResultsList(results, snapshot.data!)),
                           _buildShareButton(context, results, snapshot.data!),
                           _buildBackToMenuButton(ref),
@@ -107,120 +208,6 @@ class MatchResultsScreen extends ConsumerWidget {
               fit: BoxFit.cover,
             )),
       ],
-    );
-  }
-
-  Widget _buildTransactionsButton(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Padding(
-        padding: const EdgeInsets.only(right: 8.0),
-        child: ElevatedButton.icon(
-          onPressed: () {
-            showDialog(
-              context: context,
-              useRootNavigator: false,
-              builder: (ctx) => Dialog(
-                backgroundColor: Colors.transparent,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF152A37),
-                    border: Border.all(color: const Color(0xFF00ECFF), width: 1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Transactions',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      FutureBuilder<List<Map>>(
-                        future: () async {
-                          return await getTransactions(session.id);
-                        }(),
-                        builder: (context, snapshot) => snapshot.connectionState == ConnectionState.waiting
-                            ? const CircularProgressIndicator()
-                            : snapshot.data!.isEmpty
-                                ? const Center(child: Text('No transactions available.'))
-                                : Container(
-                                    color: Colors.transparent,
-                                    constraints: BoxConstraints(
-                                      maxHeight: MediaQuery.of(context).size.height * 0.6,
-                                    ),
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: snapshot.data!.length,
-                                      itemBuilder: (context, index) {
-                                        final tx = snapshot.data![index];
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                          child: Row(
-                                            children: [
-                                              Container(
-                                                width: 16,
-                                                height: 16,
-                                                decoration: BoxDecoration(
-                                                  color: Color(0xFF00ECFF),
-                                                  border: Border.all(color: const Color(0xFF00ECFF)),
-                                                  borderRadius: BorderRadius.circular(4),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Expanded(
-                                                child: Text(
-                                                  _shortenHash(tx['transaction_hash']),
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                '2 mins ago',
-                                                style: TextStyle(
-                                                  color: Colors.grey[400],
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-          label: const Text('Transactions', style: TextStyle(color: Colors.black, fontSize: 12.0)),
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.cyan,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0)),
-        ),
-      ),
     );
   }
 

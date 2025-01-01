@@ -39,7 +39,8 @@ class _FakeDateTime_0 extends _i1.SmartFake implements DateTime {
         );
 }
 
-class _Fake$LudoSessionDataCopyWith_1<$Res> extends _i1.SmartFake implements _i2.$LudoSessionDataCopyWith<$Res> {
+class _Fake$LudoSessionDataCopyWith_1<$Res> extends _i1.SmartFake
+    implements _i2.$LudoSessionDataCopyWith<$Res> {
   _Fake$LudoSessionDataCopyWith_1(
     Object parent,
     Invocation parentInvocation,
@@ -59,7 +60,8 @@ class _FakeResponse_2 extends _i1.SmartFake implements _i3.Response {
         );
 }
 
-class _FakeStreamedResponse_3 extends _i1.SmartFake implements _i3.StreamedResponse {
+class _FakeStreamedResponse_3 extends _i1.SmartFake
+    implements _i3.StreamedResponse {
   _FakeStreamedResponse_3(
     Object parent,
     Invocation parentInvocation,
@@ -473,7 +475,8 @@ class MockLudoSessionData extends _i1.Mock implements _i2.LudoSessionData {
       ) as DateTime);
 
   @override
-  _i2.$LudoSessionDataCopyWith<_i2.LudoSessionData> get copyWith => (super.noSuchMethod(
+  _i2.$LudoSessionDataCopyWith<_i2.LudoSessionData> get copyWith =>
+      (super.noSuchMethod(
         Invocation.getter(#copyWith),
         returnValue: _Fake$LudoSessionDataCopyWith_1<_i2.LudoSessionData>(
           this,
@@ -721,12 +724,14 @@ class MockClient extends _i1.Mock implements _i3.Client {
       ) as _i8.Future<_i10.Uint8List>);
 
   @override
-  _i8.Future<_i3.StreamedResponse> send(_i3.BaseRequest? request) => (super.noSuchMethod(
+  _i8.Future<_i3.StreamedResponse> send(_i3.BaseRequest? request) =>
+      (super.noSuchMethod(
         Invocation.method(
           #send,
           [request],
         ),
-        returnValue: _i8.Future<_i3.StreamedResponse>.value(_FakeStreamedResponse_3(
+        returnValue:
+            _i8.Future<_i3.StreamedResponse>.value(_FakeStreamedResponse_3(
           this,
           Invocation.method(
             #send,
@@ -902,7 +907,8 @@ class MockImages extends _i1.Mock implements _i11.Images {
       ) as _i8.Future<_i5.Image>);
 
   @override
-  _i8.Future<List<_i5.Image>> loadAll(List<String>? fileNames) => (super.noSuchMethod(
+  _i8.Future<List<_i5.Image>> loadAll(List<String>? fileNames) =>
+      (super.noSuchMethod(
         Invocation.method(
           #loadAll,
           [fileNames],
@@ -920,7 +926,8 @@ class MockImages extends _i1.Mock implements _i11.Images {
       ) as _i8.Future<List<_i5.Image>>);
 
   @override
-  _i8.Future<List<_i5.Image>> loadAllFromPattern(Pattern? pattern) => (super.noSuchMethod(
+  _i8.Future<List<_i5.Image>> loadAllFromPattern(Pattern? pattern) =>
+      (super.noSuchMethod(
         Invocation.method(
           #loadAllFromPattern,
           [pattern],
@@ -938,7 +945,8 @@ class MockImages extends _i1.Mock implements _i11.Images {
       ) as bool);
 
   @override
-  String? findKeyForImage(_i5.Image? image) => (super.noSuchMethod(Invocation.method(
+  String? findKeyForImage(_i5.Image? image) =>
+      (super.noSuchMethod(Invocation.method(
         #findKeyForImage,
         [image],
       )) as String?);

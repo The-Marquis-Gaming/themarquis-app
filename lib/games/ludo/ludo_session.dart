@@ -18,73 +18,6 @@ part "ludo_session.g.dart";
 final baseUrl = environment['build'] == 'DEBUG' ? environment['apiUrlDebug'] : environment['apiUrl'];
 final wsUrl = environment['build'] == 'DEBUG' ? environment['wsUrlDebug'] : environment['wsUrl'];
 
-Future<LudoSessionData?> getLudoSessionFromId(String id) async {
-  final url = Uri.parse('$baseUrl/game/session/$id');
-  final response = await http.get(
-    url,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  );
-  if (response.statusCode != 201 && response.statusCode != 200) {
-    if (!kReleaseMode) throw HttpException('${jsonDecode(utf8.decode(response.bodyBytes))["message"]}');
-    throw HttpException('Request error with status code ${response.statusCode}.\nResponse: ${utf8.decode(response.bodyBytes)}');
-  }
-  final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-  final ludoSession = LudoSessionData(
-    id: id,
-    status: decodedResponse['status'],
-    nextPlayer: decodedResponse['next_player'],
-    nonce: decodedResponse['nonce'],
-    color: decodedResponse['color'] ?? "0",
-    playAmount: decodedResponse['play_amount'],
-    playToken: decodedResponse['play_token'],
-    sessionUserStatus: [
-      ...decodedResponse['session_user_status'].map(
-        (e) {
-          final List<String> playerTokensPosition = (e['player_tokens_position'] as List<dynamic>).map((e) => e.toString()).toList();
-          final List<bool> playerWinningTokens = (e['player_winning_tokens'] as List<dynamic>).map((e) => e as bool).toList();
-          final List<bool> playerTokensCircled = (e['player_tokens_circled'] as List<dynamic>).map((e) => e as bool).toList();
-          return LudoSessionUserStatus(
-            playerId: e['player_id'],
-            playerTokensPosition: playerTokensPosition,
-            playerWinningTokens: playerWinningTokens,
-            playerTokensCircled: playerTokensCircled,
-            userId: e['user_id'],
-            email: e['email'],
-            role: e['role'],
-            status: e['status'],
-            points: e['points'],
-            color: e['color'],
-          );
-        },
-      ),
-    ],
-    nextPlayerId: decodedResponse['next_player_id'],
-    createdAt: DateTime.fromMillisecondsSinceEpoch(decodedResponse['created_at'] * 1000),
-    creator: "",
-    currentDiceValue: -1,
-    playMoveFailed: false,
-  );
-  return ludoSession;
-}
-
-Future<List<Map>> getTransactions(String id) async {
-  final url = Uri.parse('$baseUrl/game/session/$id/transactions');
-  final response = await http.get(
-    url,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  );
-  if (response.statusCode != 201 && response.statusCode != 200) {
-    throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
-  }
-  final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as List<dynamic>;
-  if (kDebugMode) print(decodedResponse);
-  return decodedResponse.map((e) => e as Map).toList();
-}
-
 @riverpod
 class LudoSession extends _$LudoSession {
   //Details Declaration
@@ -216,6 +149,55 @@ class LudoSession extends _$LudoSession {
     state = ludoSession;
   }
 
+  Future<LudoSessionData?> getLudoSessionFromId(String id) async {
+    final url = Uri.parse('$baseUrl/game/session/$id');
+    final response = await _httpClient.get(url, headers: {'Content-Type': 'application/json'});
+    debugPrint("${response.headers}");
+    debugPrint(response.body);
+    debugPrint("${response.statusCode}");
+    if (response.statusCode != 201 && response.statusCode != 200) {
+      if (!kReleaseMode) throw HttpException('${jsonDecode(utf8.decode(response.bodyBytes))["message"]}');
+      throw HttpException('Request error with status code ${response.statusCode}.\nResponse: ${utf8.decode(response.bodyBytes)}');
+    }
+    final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+    final ludoSession = LudoSessionData(
+      id: id,
+      status: decodedResponse['status'],
+      nextPlayer: decodedResponse['next_player'],
+      nonce: decodedResponse['nonce'],
+      color: decodedResponse['color'] ?? "0",
+      playAmount: decodedResponse['play_amount'],
+      playToken: decodedResponse['play_token'],
+      sessionUserStatus: [
+        ...decodedResponse['session_user_status'].map(
+          (e) {
+            final List<String> playerTokensPosition = (e['player_tokens_position'] as List<dynamic>).map((e) => e.toString()).toList();
+            final List<bool> playerWinningTokens = (e['player_winning_tokens'] as List<dynamic>).map((e) => e as bool).toList();
+            final List<bool> playerTokensCircled = (e['player_tokens_circled'] as List<dynamic>).map((e) => e as bool).toList();
+            return LudoSessionUserStatus(
+              playerId: e['player_id'],
+              playerTokensPosition: playerTokensPosition,
+              playerWinningTokens: playerWinningTokens,
+              playerTokensCircled: playerTokensCircled,
+              userId: e['user_id'],
+              email: e['email'],
+              role: e['role'],
+              status: e['status'],
+              points: e['points'],
+              color: e['color'],
+            );
+          },
+        ),
+      ],
+      nextPlayerId: decodedResponse['next_player_id'],
+      createdAt: DateTime.fromMillisecondsSinceEpoch(decodedResponse['created_at'] * 1000),
+      creator: "",
+      currentDiceValue: -1,
+      playMoveFailed: false,
+    );
+    return ludoSession;
+  }
+
   Future<List<LudoSessionData>> getOpenSessions() async {
     final url = Uri.parse('$baseUrl/session/get-open-sessions');
     final response = await _httpClient.get(
@@ -265,6 +247,17 @@ class LudoSession extends _$LudoSession {
           ),
         )
         .toList();
+  }
+
+  Future<List<Map>> getTransactions(String id) async {
+    final url = Uri.parse('$baseUrl/game/session/$id/transactions');
+    final response = await _httpClient.get(url, headers: {'Content-Type': 'application/json'});
+    if (response.statusCode != 201 && response.statusCode != 200) {
+      throw HttpException('Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+    }
+    final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as List<dynamic>;
+    if (kDebugMode) print(decodedResponse);
+    return decodedResponse.map((e) => e as Map).toList();
   }
 
   Future<List<int>> generateMove() async {

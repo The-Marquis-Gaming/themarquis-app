@@ -378,7 +378,7 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
     });
     try {
       FocusScope.of(context).unfocus();
-      final ludoSession = await getLudoSessionFromId(_roomIdController.text);
+      final ludoSession = await ref.read(ludoSessionProvider.notifier).getLudoSessionFromId(_roomIdController.text);
       if (ludoSession == null) {
         if (!mounted) return;
         showErrorDialog("Room not found", context);
