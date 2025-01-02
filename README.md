@@ -78,6 +78,17 @@ open ios/Runner.xcworkspace
 
 From Xcode, configure signing, then build and run the app.
 
+### 7. Run Tests
+
+To run all tests, use the command
+```bash
+flutter test
+```
+To run a specific test file, use
+```bash
+flutter test [PATH TO TEST FILE]
+```
+
 ## Additional Commands
 
 - **Cleaning the project**:  
@@ -91,6 +102,11 @@ From Xcode, configure signing, then build and run the app.
 
 If you encounter issues, try these common fixes:
 
+- Ensure Packages are up to date:
+
+  ```bash
+  flutter pub upgrade
+  ```
 - Ensure Flutter and Dart SDKs are up to date:
 
   ```bash
