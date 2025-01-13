@@ -16,23 +16,16 @@ class GameRepository {
 
   Future<BigInt> createLobby() async {
     try {
-      final response = await contract.execute(
+      final response = await contract.call(
         'create_lobby',
         [],
       );
 
-      print('Transaction Response: $response');
-      final hash = response.when(
-        result: (result) => result.transaction_hash,
-        error: (error) => throw Exception(error.message),
-      );
-      final receipt =
-          await account.provider.getTransactionReceipt(hash as Felt);
+      if (response.isEmpty) {
+        throw Exception('No response from contract');
+      }
 
-      return receipt.when(
-        result: (result) => BigInt.parse(result.events[0].data![0].toString()),
-        error: (error) => throw Exception(error.message),
-      );
+      return BigInt.parse(response[0].toString());
     } catch (e) {
       throw Exception('Failed to create lobby: $e');
     }
@@ -62,17 +55,21 @@ class GameRepository {
   }
 
   Future<bool> canChoosePiece(
-      Position position, Coordinates coords, BigInt sessionId) async {
+    Position position,
+    Coordinates coords,
+    BigInt sessionId,
+  ) async {
     try {
       final response = await contract.call(
         'can_choose_piece',
         [
-          Felt(position.value as BigInt),
-          Felt(coords.row as BigInt),
-          Felt(coords.col as BigInt),
+          Felt(BigInt.from(position.value)),
+          Felt(BigInt.from(coords.row)),
+          Felt(BigInt.from(coords.col)),
           Felt(sessionId),
         ],
       );
+
       return response[0].toBool();
     } catch (e) {
       throw Exception('Failed to check piece: $e');

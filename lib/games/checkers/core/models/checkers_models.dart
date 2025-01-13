@@ -1,4 +1,3 @@
-import 'package:starknet/starknet.dart';
 
 enum Position {
   none,
