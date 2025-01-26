@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:marquis_v2/env.dart';
 import 'package:marquis_v2/models/app_state.dart';
+import 'package:marquis_v2/providers/starknet.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -263,6 +264,7 @@ class AppState extends _$AppState {
     }
     try {
       // await ref.read(userProvider.notifier).getUser();
+      // await ref.read(starknetProvider.notifier).initAccount();
       await refreshToken();
       // state = state.copyWith(autoLoginResult: true);
       return true;

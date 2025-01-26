@@ -1,0 +1,881 @@
+schema {
+  query: World__Query
+  subscription: World__Subscription
+}
+
+"""
+Indicates that an Input Object is a OneOf Input Object (and thus requires
+                        exactly one of its field be provided)
+"""
+directive @oneOf on INPUT_OBJECT
+
+"""
+Provides a scalar specification URL for specifying the behavior of custom scalar types.
+"""
+directive @specifiedBy(
+  """URL that specifies the behavior of this scalar."""
+  url: String!
+) on SCALAR
+
+scalar bool
+
+type checkers_marq_Counter {
+  global_key: felt252
+  value: u64
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type checkers_marq_CounterConnection {
+  edges: [checkers_marq_CounterEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type checkers_marq_CounterEdge {
+  node: checkers_marq_Counter
+  cursor: Cursor
+}
+
+input checkers_marq_CounterOrder {
+  direction: OrderDirection!
+  field: checkers_marq_CounterOrderField!
+}
+
+enum checkers_marq_CounterOrderField {
+  GLOBAL_KEY
+  VALUE
+}
+
+input checkers_marq_CounterWhereInput {
+  global_key: felt252
+  global_keyGT: felt252
+  global_keyGTE: felt252
+  global_keyLT: felt252
+  global_keyLTE: felt252
+  global_keyNEQ: felt252
+  global_keyEQ: felt252
+  global_keyNOTIN: [felt252]
+  global_keyIN: [felt252]
+  global_keyNOTLIKE: felt252
+  global_keyLIKE: felt252
+  value: u64
+  valueGT: u64
+  valueGTE: u64
+  valueLT: u64
+  valueLTE: u64
+  valueNEQ: u64
+  valueEQ: u64
+  valueNOTIN: [u64]
+  valueIN: [u64]
+  valueNOTLIKE: u64
+  valueLIKE: u64
+}
+
+type checkers_marq_Killed {
+  session_id: u64
+  player: ContractAddress
+  row: u8
+  col: u8
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type checkers_marq_KilledConnection {
+  edges: [checkers_marq_KilledEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type checkers_marq_KilledEdge {
+  node: checkers_marq_Killed
+  cursor: Cursor
+}
+
+input checkers_marq_KilledOrder {
+  direction: OrderDirection!
+  field: checkers_marq_KilledOrderField!
+}
+
+enum checkers_marq_KilledOrderField {
+  SESSION_ID
+  PLAYER
+  ROW
+  COL
+}
+
+input checkers_marq_KilledWhereInput {
+  session_id: u64
+  session_idGT: u64
+  session_idGTE: u64
+  session_idLT: u64
+  session_idLTE: u64
+  session_idNEQ: u64
+  session_idEQ: u64
+  session_idNOTIN: [u64]
+  session_idIN: [u64]
+  session_idNOTLIKE: u64
+  session_idLIKE: u64
+  player: ContractAddress
+  playerGT: ContractAddress
+  playerGTE: ContractAddress
+  playerLT: ContractAddress
+  playerLTE: ContractAddress
+  playerNEQ: ContractAddress
+  playerEQ: ContractAddress
+  playerNOTIN: [ContractAddress]
+  playerIN: [ContractAddress]
+  playerNOTLIKE: ContractAddress
+  playerLIKE: ContractAddress
+  row: u8
+  rowGT: u8
+  rowGTE: u8
+  rowLT: u8
+  rowLTE: u8
+  rowNEQ: u8
+  rowEQ: u8
+  rowNOTIN: [u8]
+  rowIN: [u8]
+  rowNOTLIKE: u8
+  rowLIKE: u8
+  col: u8
+  colGT: u8
+  colGTE: u8
+  colLT: u8
+  colLTE: u8
+  colNEQ: u8
+  colEQ: u8
+  colNOTIN: [u8]
+  colIN: [u8]
+  colNOTLIKE: u8
+  colLIKE: u8
+}
+
+type checkers_marq_King {
+  session_id: u64
+  player: ContractAddress
+  row: u8
+  col: u8
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type checkers_marq_KingConnection {
+  edges: [checkers_marq_KingEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type checkers_marq_KingEdge {
+  node: checkers_marq_King
+  cursor: Cursor
+}
+
+input checkers_marq_KingOrder {
+  direction: OrderDirection!
+  field: checkers_marq_KingOrderField!
+}
+
+enum checkers_marq_KingOrderField {
+  SESSION_ID
+  PLAYER
+  ROW
+  COL
+}
+
+input checkers_marq_KingWhereInput {
+  session_id: u64
+  session_idGT: u64
+  session_idGTE: u64
+  session_idLT: u64
+  session_idLTE: u64
+  session_idNEQ: u64
+  session_idEQ: u64
+  session_idNOTIN: [u64]
+  session_idIN: [u64]
+  session_idNOTLIKE: u64
+  session_idLIKE: u64
+  player: ContractAddress
+  playerGT: ContractAddress
+  playerGTE: ContractAddress
+  playerLT: ContractAddress
+  playerLTE: ContractAddress
+  playerNEQ: ContractAddress
+  playerEQ: ContractAddress
+  playerNOTIN: [ContractAddress]
+  playerIN: [ContractAddress]
+  playerNOTLIKE: ContractAddress
+  playerLIKE: ContractAddress
+  row: u8
+  rowGT: u8
+  rowGTE: u8
+  rowLT: u8
+  rowLTE: u8
+  rowNEQ: u8
+  rowEQ: u8
+  rowNOTIN: [u8]
+  rowIN: [u8]
+  rowNOTLIKE: u8
+  rowLIKE: u8
+  col: u8
+  colGT: u8
+  colGTE: u8
+  colLT: u8
+  colLTE: u8
+  colNEQ: u8
+  colEQ: u8
+  colNOTIN: [u8]
+  colIN: [u8]
+  colNOTLIKE: u8
+  colLIKE: u8
+}
+
+type checkers_marq_Moved {
+  session_id: u64
+  player: ContractAddress
+  row: u8
+  col: u8
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type checkers_marq_MovedConnection {
+  edges: [checkers_marq_MovedEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type checkers_marq_MovedEdge {
+  node: checkers_marq_Moved
+  cursor: Cursor
+}
+
+input checkers_marq_MovedOrder {
+  direction: OrderDirection!
+  field: checkers_marq_MovedOrderField!
+}
+
+enum checkers_marq_MovedOrderField {
+  SESSION_ID
+  PLAYER
+  ROW
+  COL
+}
+
+input checkers_marq_MovedWhereInput {
+  session_id: u64
+  session_idGT: u64
+  session_idGTE: u64
+  session_idLT: u64
+  session_idLTE: u64
+  session_idNEQ: u64
+  session_idEQ: u64
+  session_idNOTIN: [u64]
+  session_idIN: [u64]
+  session_idNOTLIKE: u64
+  session_idLIKE: u64
+  player: ContractAddress
+  playerGT: ContractAddress
+  playerGTE: ContractAddress
+  playerLT: ContractAddress
+  playerLTE: ContractAddress
+  playerNEQ: ContractAddress
+  playerEQ: ContractAddress
+  playerNOTIN: [ContractAddress]
+  playerIN: [ContractAddress]
+  playerNOTLIKE: ContractAddress
+  playerLIKE: ContractAddress
+  row: u8
+  rowGT: u8
+  rowGTE: u8
+  rowLT: u8
+  rowLTE: u8
+  rowNEQ: u8
+  rowEQ: u8
+  rowNOTIN: [u8]
+  rowIN: [u8]
+  rowNOTLIKE: u8
+  rowLIKE: u8
+  col: u8
+  colGT: u8
+  colGTE: u8
+  colLT: u8
+  colLTE: u8
+  colNEQ: u8
+  colEQ: u8
+  colNOTIN: [u8]
+  colIN: [u8]
+  colNOTLIKE: u8
+  colLIKE: u8
+}
+
+type checkers_marq_Piece {
+  session_id: u64
+  row: u8
+  col: u8
+  player: ContractAddress
+  position: Enum
+  is_king: bool
+  is_alive: bool
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type checkers_marq_PieceConnection {
+  edges: [checkers_marq_PieceEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type checkers_marq_PieceEdge {
+  node: checkers_marq_Piece
+  cursor: Cursor
+}
+
+input checkers_marq_PieceOrder {
+  direction: OrderDirection!
+  field: checkers_marq_PieceOrderField!
+}
+
+enum checkers_marq_PieceOrderField {
+  SESSION_ID
+  ROW
+  COL
+  PLAYER
+  POSITION
+  IS_KING
+  IS_ALIVE
+}
+
+input checkers_marq_PieceWhereInput {
+  session_id: u64
+  session_idGT: u64
+  session_idGTE: u64
+  session_idLT: u64
+  session_idLTE: u64
+  session_idNEQ: u64
+  session_idEQ: u64
+  session_idNOTIN: [u64]
+  session_idIN: [u64]
+  session_idNOTLIKE: u64
+  session_idLIKE: u64
+  row: u8
+  rowGT: u8
+  rowGTE: u8
+  rowLT: u8
+  rowLTE: u8
+  rowNEQ: u8
+  rowEQ: u8
+  rowNOTIN: [u8]
+  rowIN: [u8]
+  rowNOTLIKE: u8
+  rowLIKE: u8
+  col: u8
+  colGT: u8
+  colGTE: u8
+  colLT: u8
+  colLTE: u8
+  colNEQ: u8
+  colEQ: u8
+  colNOTIN: [u8]
+  colIN: [u8]
+  colNOTLIKE: u8
+  colLIKE: u8
+  player: ContractAddress
+  playerGT: ContractAddress
+  playerGTE: ContractAddress
+  playerLT: ContractAddress
+  playerLTE: ContractAddress
+  playerNEQ: ContractAddress
+  playerEQ: ContractAddress
+  playerNOTIN: [ContractAddress]
+  playerIN: [ContractAddress]
+  playerNOTLIKE: ContractAddress
+  playerLIKE: ContractAddress
+  position: Enum
+  is_king: bool
+  is_alive: bool
+}
+
+type checkers_marq_Player {
+  player: ContractAddress
+  remaining_pieces: u8
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type checkers_marq_PlayerConnection {
+  edges: [checkers_marq_PlayerEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type checkers_marq_PlayerEdge {
+  node: checkers_marq_Player
+  cursor: Cursor
+}
+
+input checkers_marq_PlayerOrder {
+  direction: OrderDirection!
+  field: checkers_marq_PlayerOrderField!
+}
+
+enum checkers_marq_PlayerOrderField {
+  PLAYER
+  REMAINING_PIECES
+}
+
+input checkers_marq_PlayerWhereInput {
+  player: ContractAddress
+  playerGT: ContractAddress
+  playerGTE: ContractAddress
+  playerLT: ContractAddress
+  playerLTE: ContractAddress
+  playerNEQ: ContractAddress
+  playerEQ: ContractAddress
+  playerNOTIN: [ContractAddress]
+  playerIN: [ContractAddress]
+  playerNOTLIKE: ContractAddress
+  playerLIKE: ContractAddress
+  remaining_pieces: u8
+  remaining_piecesGT: u8
+  remaining_piecesGTE: u8
+  remaining_piecesLT: u8
+  remaining_piecesLTE: u8
+  remaining_piecesNEQ: u8
+  remaining_piecesEQ: u8
+  remaining_piecesNOTIN: [u8]
+  remaining_piecesIN: [u8]
+  remaining_piecesNOTLIKE: u8
+  remaining_piecesLIKE: u8
+}
+
+type checkers_marq_Session {
+  session_id: u64
+  player_1: ContractAddress
+  player_2: ContractAddress
+  turn: u8
+  winner: ContractAddress
+  state: u8
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type checkers_marq_SessionConnection {
+  edges: [checkers_marq_SessionEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type checkers_marq_SessionEdge {
+  node: checkers_marq_Session
+  cursor: Cursor
+}
+
+input checkers_marq_SessionOrder {
+  direction: OrderDirection!
+  field: checkers_marq_SessionOrderField!
+}
+
+enum checkers_marq_SessionOrderField {
+  SESSION_ID
+  PLAYER_1
+  PLAYER_2
+  TURN
+  WINNER
+  STATE
+}
+
+input checkers_marq_SessionWhereInput {
+  session_id: u64
+  session_idGT: u64
+  session_idGTE: u64
+  session_idLT: u64
+  session_idLTE: u64
+  session_idNEQ: u64
+  session_idEQ: u64
+  session_idNOTIN: [u64]
+  session_idIN: [u64]
+  session_idNOTLIKE: u64
+  session_idLIKE: u64
+  player_1: ContractAddress
+  player_1GT: ContractAddress
+  player_1GTE: ContractAddress
+  player_1LT: ContractAddress
+  player_1LTE: ContractAddress
+  player_1NEQ: ContractAddress
+  player_1EQ: ContractAddress
+  player_1NOTIN: [ContractAddress]
+  player_1IN: [ContractAddress]
+  player_1NOTLIKE: ContractAddress
+  player_1LIKE: ContractAddress
+  player_2: ContractAddress
+  player_2GT: ContractAddress
+  player_2GTE: ContractAddress
+  player_2LT: ContractAddress
+  player_2LTE: ContractAddress
+  player_2NEQ: ContractAddress
+  player_2EQ: ContractAddress
+  player_2NOTIN: [ContractAddress]
+  player_2IN: [ContractAddress]
+  player_2NOTLIKE: ContractAddress
+  player_2LIKE: ContractAddress
+  turn: u8
+  turnGT: u8
+  turnGTE: u8
+  turnLT: u8
+  turnLTE: u8
+  turnNEQ: u8
+  turnEQ: u8
+  turnNOTIN: [u8]
+  turnIN: [u8]
+  turnNOTLIKE: u8
+  turnLIKE: u8
+  winner: ContractAddress
+  winnerGT: ContractAddress
+  winnerGTE: ContractAddress
+  winnerLT: ContractAddress
+  winnerLTE: ContractAddress
+  winnerNEQ: ContractAddress
+  winnerEQ: ContractAddress
+  winnerNOTIN: [ContractAddress]
+  winnerIN: [ContractAddress]
+  winnerNOTLIKE: ContractAddress
+  winnerLIKE: ContractAddress
+  state: u8
+  stateGT: u8
+  stateGTE: u8
+  stateLT: u8
+  stateLTE: u8
+  stateNEQ: u8
+  stateEQ: u8
+  stateNOTIN: [u8]
+  stateIN: [u8]
+  stateNOTLIKE: u8
+  stateLIKE: u8
+}
+
+type checkers_marq_Winner {
+  session_id: u64
+  player: ContractAddress
+  position: Enum
+  entity: World__Entity
+  eventMessage: World__EventMessage
+}
+
+type checkers_marq_WinnerConnection {
+  edges: [checkers_marq_WinnerEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type checkers_marq_WinnerEdge {
+  node: checkers_marq_Winner
+  cursor: Cursor
+}
+
+input checkers_marq_WinnerOrder {
+  direction: OrderDirection!
+  field: checkers_marq_WinnerOrderField!
+}
+
+enum checkers_marq_WinnerOrderField {
+  SESSION_ID
+  PLAYER
+  POSITION
+}
+
+input checkers_marq_WinnerWhereInput {
+  session_id: u64
+  session_idGT: u64
+  session_idGTE: u64
+  session_idLT: u64
+  session_idLTE: u64
+  session_idNEQ: u64
+  session_idEQ: u64
+  session_idNOTIN: [u64]
+  session_idIN: [u64]
+  session_idNOTLIKE: u64
+  session_idLIKE: u64
+  player: ContractAddress
+  playerGT: ContractAddress
+  playerGTE: ContractAddress
+  playerLT: ContractAddress
+  playerLTE: ContractAddress
+  playerNEQ: ContractAddress
+  playerEQ: ContractAddress
+  playerNOTIN: [ContractAddress]
+  playerIN: [ContractAddress]
+  playerNOTLIKE: ContractAddress
+  playerLIKE: ContractAddress
+  position: Enum
+}
+
+scalar ContractAddress
+
+scalar Cursor
+
+scalar DateTime
+
+scalar Enum
+
+union ERC__Token = ERC20__Token | ERC721__Token
+
+type ERC20__Token {
+  name: String!
+  symbol: String!
+  decimals: Int!
+  contractAddress: String!
+  amount: String!
+}
+
+type ERC721__Token {
+  name: String!
+  symbol: String!
+  tokenId: String!
+  contractAddress: String!
+  metadata: String!
+  metadataName: String
+  metadataDescription: String
+  metadataAttributes: String
+  imagePath: String!
+}
+
+scalar felt252
+
+union ModelUnion = checkers_marq_Winner | checkers_marq_Counter | checkers_marq_Player | checkers_marq_Moved | checkers_marq_Killed | checkers_marq_Session | checkers_marq_Piece | checkers_marq_King
+
+enum OrderDirection {
+  ASC
+  DESC
+}
+
+type Token__Balance {
+  tokenMetadata: ERC__Token!
+}
+
+type Token__BalanceConnection {
+  edges: [Token__BalanceEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type Token__BalanceEdge {
+  node: Token__Balance
+  cursor: Cursor
+}
+
+type Token__Transfer {
+  from: String!
+  to: String!
+  executedAt: String!
+  tokenMetadata: ERC__Token!
+  transactionHash: String!
+}
+
+type Token__TransferConnection {
+  edges: [Token__TransferEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type Token__TransferEdge {
+  node: Token__Transfer
+  cursor: Cursor
+}
+
+scalar u64
+
+scalar u8
+
+type World__Content {
+  name: String
+  description: String
+  website: String
+  iconUri: String
+  coverUri: String
+  socials: [World__Social]
+}
+
+type World__Entity {
+  id: ID
+  keys: [String]
+  eventId: String
+  executedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+  models: [ModelUnion]
+}
+
+type World__EntityConnection {
+  edges: [World__EntityEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__EntityEdge {
+  node: World__Entity
+  cursor: Cursor
+}
+
+type World__Event {
+  id: ID
+  keys: [String]
+  data: [String]
+  executedAt: DateTime
+  createdAt: DateTime
+  transactionHash: String
+}
+
+type World__EventConnection {
+  edges: [World__EventEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__EventEdge {
+  node: World__Event
+  cursor: Cursor
+}
+
+type World__EventMessage {
+  id: ID
+  keys: [String]
+  eventId: String
+  executedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+  models: [ModelUnion]
+}
+
+type World__EventMessageConnection {
+  edges: [World__EventMessageEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__EventMessageEdge {
+  node: World__EventMessage
+  cursor: Cursor
+}
+
+type World__Metadata {
+  id: ID
+  uri: String
+  worldAddress: String!
+  content: World__Content
+  iconImg: String
+  coverImg: String
+  executedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type World__MetadataConnection {
+  edges: [World__MetadataEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__MetadataEdge {
+  node: World__Metadata
+  cursor: Cursor
+}
+
+type World__Model {
+  id: ID
+  name: String
+  namespace: String
+  classHash: felt252
+  contractAddress: felt252
+  transactionHash: felt252
+  executedAt: DateTime
+  createdAt: DateTime
+}
+
+type World__ModelConnection {
+  edges: [World__ModelEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__ModelEdge {
+  node: World__Model
+  cursor: Cursor
+}
+
+input World__ModelOrder {
+  direction: OrderDirection!
+  field: World__ModelOrderField!
+}
+
+enum World__ModelOrderField {
+  NAME
+  CLASS_HASH
+}
+
+type World__PageInfo {
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+  startCursor: Cursor
+  endCursor: Cursor
+}
+
+type World__Query {
+  entity(id: ID!): World__Entity!
+  entities(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, keys: [String]): World__EntityConnection
+  eventMessage(id: ID!): World__EventMessage!
+  eventMessages(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, keys: [String]): World__EventMessageConnection
+  events(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, keys: [String]): World__EventConnection
+  metadatas(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int): World__MetadataConnection
+  model(id: ID!): World__Model!
+  models(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, order: World__ModelOrder): World__ModelConnection
+  transaction(transactionHash: ID!): World__Transaction!
+  transactions(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int): World__TransactionConnection
+  tokenBalances(accountAddress: String!, first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int): Token__BalanceConnection
+  tokenTransfers(accountAddress: String!, first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int): Token__TransferConnection
+  checkersMarqWinnerModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: checkers_marq_WinnerWhereInput, order: checkers_marq_WinnerOrder): checkers_marq_WinnerConnection
+  checkersMarqCounterModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: checkers_marq_CounterWhereInput, order: checkers_marq_CounterOrder): checkers_marq_CounterConnection
+  checkersMarqPlayerModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: checkers_marq_PlayerWhereInput, order: checkers_marq_PlayerOrder): checkers_marq_PlayerConnection
+  checkersMarqMovedModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: checkers_marq_MovedWhereInput, order: checkers_marq_MovedOrder): checkers_marq_MovedConnection
+  checkersMarqKilledModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: checkers_marq_KilledWhereInput, order: checkers_marq_KilledOrder): checkers_marq_KilledConnection
+  checkersMarqSessionModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: checkers_marq_SessionWhereInput, order: checkers_marq_SessionOrder): checkers_marq_SessionConnection
+  checkersMarqPieceModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: checkers_marq_PieceWhereInput, order: checkers_marq_PieceOrder): checkers_marq_PieceConnection
+  checkersMarqKingModels(first: Int, last: Int, before: Cursor, after: Cursor, offset: Int, limit: Int, where: checkers_marq_KingWhereInput, order: checkers_marq_KingOrder): checkers_marq_KingConnection
+}
+
+type World__Social {
+  name: String
+  url: String
+}
+
+type World__Subscription {
+  entityUpdated(id: ID): World__Entity!
+  eventMessageUpdated(id: ID): World__EventMessage!
+  eventEmitted(keys: [String]): World__Event!
+  modelRegistered(id: ID): World__Model!
+}
+
+type World__Transaction {
+  id: ID
+  transactionHash: felt252
+  senderAddress: felt252
+  calldata: [felt252]
+  maxFee: felt252
+  signature: [felt252]
+  nonce: felt252
+  executedAt: DateTime
+  createdAt: DateTime
+}
+
+type World__TransactionConnection {
+  edges: [World__TransactionEdge]
+  totalCount: Int!
+  pageInfo: World__PageInfo!
+}
+
+type World__TransactionEdge {
+  node: World__Transaction
+  cursor: Cursor
+}
+

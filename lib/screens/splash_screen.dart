@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:marquis_v2/providers/app_state.dart';
+import 'package:marquis_v2/providers/starknet.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:upgrader/upgrader.dart';
 
@@ -33,6 +34,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           //   ref.read(appStateProvider.notifier).setConnectivity(true);
           // }
           if (ref.read(appStateProvider).autoLoginResult == null) {
+            await ref.read(starknetProvider.notifier).initAccount();
             await ref.read(appStateProvider.notifier).tryAutoLogin();
           }
           // if (ref.read(userProvider) != null) {

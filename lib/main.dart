@@ -7,6 +7,7 @@ import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/models/app_state.dart';
 import 'package:marquis_v2/models/user.dart';
 import 'package:marquis_v2/providers/app_state.dart';
+import 'package:marquis_v2/providers/starknet.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:marquis_v2/router/route_information_parser.dart';
 import 'package:marquis_v2/router/router_delegate.dart';
@@ -46,6 +47,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appState = ref.watch(appStateProvider);
     ref.watch(userProvider);
+    ref.watch(starknetProvider);
     return MaterialApp.router(
       debugShowCheckedModeBanner: appState.isSandbox,
       title: 'The Marquis',

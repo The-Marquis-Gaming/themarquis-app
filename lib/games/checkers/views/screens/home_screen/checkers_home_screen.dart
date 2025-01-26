@@ -6,6 +6,7 @@ import 'package:marquis_v2/games/checkers/views/screens/create_game/checkers_cre
 import 'package:marquis_v2/games/checkers/views/screens/find_game/find_game_dialogue.dart';
 import 'package:marquis_v2/games/checkers/views/screens/join_game/join_game_dialogue.dart';
 import 'package:marquis_v2/games/checkers/views/widgets/checkers_menu_button_widget.dart';
+import 'package:marquis_v2/providers/starknet.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:marquis_v2/widgets/balance_appbar.dart';
 
@@ -41,7 +42,8 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
     );
   }
 
-  Widget _checkerNavigationItems(double Function(double height) scaledHeight, BuildContext context) {
+  Widget _checkerNavigationItems(
+      double Function(double height) scaledHeight, BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: 69, right: 35, top: scaledHeight(15)),
       child: Column(
@@ -53,8 +55,10 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
               child: CheckersMenuButtonWidget(
                 icon: 'assets/svg/addIcon.svg',
                 label: 'Create Game',
-                onTap: () {
-                  _createRoomDialog(ctx: context);
+                onTap: () async {
+                  await ref.read(starknetProvider.notifier).createLobby();
+
+                  // _createRoomDialog(ctx: context);
                 },
               ),
             ),

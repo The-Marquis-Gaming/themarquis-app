@@ -133,7 +133,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           children: [
                             verticalSpace(8.0),
                             const LockedGameWidget(
-                              // showIconButton: true,
+                              showIconButton: true,
                               title: 'Checkers',
                               subTitle: 'Board Game',
                               image: 'assets/images/checkers.png',
