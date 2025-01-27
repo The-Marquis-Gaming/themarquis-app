@@ -6,7 +6,7 @@ part of 'starknet.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$starknetHash() => r'b80803da60fee7ad130a60a56ca06bc7f2466f9f';
+String _$starknetHash() => r'fa71fd43d4888e8ecf3b4ca6fbcbf8c5e3889b97';
 
 /// See also [Starknet].
 @ProviderFor(Starknet)

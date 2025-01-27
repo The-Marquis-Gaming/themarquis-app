@@ -123,7 +123,6 @@ class Starknet extends _$Starknet {
       }
       await Future.delayed(const Duration(seconds: 3));
     }
-    print(receipt.events.map((e) => e.data?.map((d) => d.toHexString())));
     state = state.copyWith(
         signerAccount: getAccount(
       accountAddress: Felt.fromHexString(accountAddress),
@@ -172,14 +171,6 @@ class Starknet extends _$Starknet {
       throw Exception("Signer account is not initialized");
     }
 
-    final nonce = (await state.provider.getNonce(
-            contractAddress: state.signerAccount!.accountAddress,
-            blockId: BlockId.latest))
-        .when(
-      result: (result) => result,
-      error: (error) => throw Exception("Failed to get nonce"),
-    );
-    print("nonce: $nonce");
     final res = await _executeTransaction(
       contractAddress: checkersContract,
       functionName: "create_lobby",
