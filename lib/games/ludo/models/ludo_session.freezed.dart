@@ -49,6 +49,10 @@ mixin _$LudoSessionData {
   bool? get playMoveFailed => throw _privateConstructorUsedError;
   @HiveField(14)
   String? get message => throw _privateConstructorUsedError;
+  @HiveField(15)
+  String get requiredPlayers => throw _privateConstructorUsedError;
+  @HiveField(16)
+  DateTime? get countdownStartTime => throw _privateConstructorUsedError;
 
   /// Serializes this LudoSessionData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -80,7 +84,9 @@ abstract class $LudoSessionDataCopyWith<$Res> {
       @HiveField(11) DateTime createdAt,
       @HiveField(12) int? currentDiceValue,
       @HiveField(13) bool? playMoveFailed,
-      @HiveField(14) String? message});
+      @HiveField(14) String? message,
+      @HiveField(15) String requiredPlayers,
+      @HiveField(16) DateTime? countdownStartTime});
 }
 
 /// @nodoc
@@ -112,6 +118,8 @@ class _$LudoSessionDataCopyWithImpl<$Res, $Val extends LudoSessionData>
     Object? currentDiceValue = freezed,
     Object? playMoveFailed = freezed,
     Object? message = freezed,
+    Object? requiredPlayers = null,
+    Object? countdownStartTime = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -170,6 +178,14 @@ class _$LudoSessionDataCopyWithImpl<$Res, $Val extends LudoSessionData>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String?,
+      requiredPlayers: null == requiredPlayers
+          ? _value.requiredPlayers
+          : requiredPlayers // ignore: cast_nullable_to_non_nullable
+              as String,
+      countdownStartTime: freezed == countdownStartTime
+          ? _value.countdownStartTime
+          : countdownStartTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -196,7 +212,9 @@ abstract class _$$LudoSessionDataImplCopyWith<$Res>
       @HiveField(11) DateTime createdAt,
       @HiveField(12) int? currentDiceValue,
       @HiveField(13) bool? playMoveFailed,
-      @HiveField(14) String? message});
+      @HiveField(14) String? message,
+      @HiveField(15) String requiredPlayers,
+      @HiveField(16) DateTime? countdownStartTime});
 }
 
 /// @nodoc
@@ -226,6 +244,8 @@ class __$$LudoSessionDataImplCopyWithImpl<$Res>
     Object? currentDiceValue = freezed,
     Object? playMoveFailed = freezed,
     Object? message = freezed,
+    Object? requiredPlayers = null,
+    Object? countdownStartTime = freezed,
   }) {
     return _then(_$LudoSessionDataImpl(
       id: null == id
@@ -284,6 +304,14 @@ class __$$LudoSessionDataImplCopyWithImpl<$Res>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String?,
+      requiredPlayers: null == requiredPlayers
+          ? _value.requiredPlayers
+          : requiredPlayers // ignore: cast_nullable_to_non_nullable
+              as String,
+      countdownStartTime: freezed == countdownStartTime
+          ? _value.countdownStartTime
+          : countdownStartTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -305,9 +333,11 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
       @HiveField(9) required this.nextPlayerId,
       @HiveField(10) required this.creator,
       @HiveField(11) required this.createdAt,
-      @HiveField(12) required this.currentDiceValue,
-      @HiveField(13) required this.playMoveFailed,
-      @HiveField(14) this.message})
+      @HiveField(12) this.currentDiceValue,
+      @HiveField(13) this.playMoveFailed,
+      @HiveField(14) this.message,
+      @HiveField(15) this.requiredPlayers = "4",
+      @HiveField(16) this.countdownStartTime})
       : _sessionUserStatus = sessionUserStatus,
         super._();
 
@@ -363,10 +393,17 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
   @override
   @HiveField(14)
   final String? message;
+  @override
+  @JsonKey()
+  @HiveField(15)
+  final String requiredPlayers;
+  @override
+  @HiveField(16)
+  final DateTime? countdownStartTime;
 
   @override
   String toString() {
-    return 'LudoSessionData(id: $id, status: $status, nextPlayer: $nextPlayer, nonce: $nonce, color: $color, playAmount: $playAmount, playToken: $playToken, sessionUserStatus: $sessionUserStatus, nextPlayerId: $nextPlayerId, creator: $creator, createdAt: $createdAt, currentDiceValue: $currentDiceValue, playMoveFailed: $playMoveFailed, message: $message)';
+    return 'LudoSessionData(id: $id, status: $status, nextPlayer: $nextPlayer, nonce: $nonce, color: $color, playAmount: $playAmount, playToken: $playToken, sessionUserStatus: $sessionUserStatus, nextPlayerId: $nextPlayerId, creator: $creator, createdAt: $createdAt, currentDiceValue: $currentDiceValue, playMoveFailed: $playMoveFailed, message: $message, requiredPlayers: $requiredPlayers, countdownStartTime: $countdownStartTime)';
   }
 
   @override
@@ -395,7 +432,11 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
                 other.currentDiceValue == currentDiceValue) &&
             (identical(other.playMoveFailed, playMoveFailed) ||
                 other.playMoveFailed == playMoveFailed) &&
-            (identical(other.message, message) || other.message == message));
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.requiredPlayers, requiredPlayers) ||
+                other.requiredPlayers == requiredPlayers) &&
+            (identical(other.countdownStartTime, countdownStartTime) ||
+                other.countdownStartTime == countdownStartTime));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -415,7 +456,9 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
       createdAt,
       currentDiceValue,
       playMoveFailed,
-      message);
+      message,
+      requiredPlayers,
+      countdownStartTime);
 
   /// Create a copy of LudoSessionData
   /// with the given fields replaced by the non-null parameter values.
@@ -436,21 +479,24 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
 
 abstract class _LudoSessionData extends LudoSessionData {
   factory _LudoSessionData(
-      {@HiveField(0) required final String id,
-      @HiveField(2) required final String status,
-      @HiveField(3) required final String nextPlayer,
-      @HiveField(4) required final String nonce,
-      @HiveField(5) required final String color,
-      @HiveField(6) required final String playAmount,
-      @HiveField(7) required final String playToken,
-      @HiveField(8)
-      required final List<LudoSessionUserStatus> sessionUserStatus,
-      @HiveField(9) required final int nextPlayerId,
-      @HiveField(10) required final String creator,
-      @HiveField(11) required final DateTime createdAt,
-      @HiveField(12) required final int? currentDiceValue,
-      @HiveField(13) required final bool? playMoveFailed,
-      @HiveField(14) final String? message}) = _$LudoSessionDataImpl;
+          {@HiveField(0) required final String id,
+          @HiveField(2) required final String status,
+          @HiveField(3) required final String nextPlayer,
+          @HiveField(4) required final String nonce,
+          @HiveField(5) required final String color,
+          @HiveField(6) required final String playAmount,
+          @HiveField(7) required final String playToken,
+          @HiveField(8)
+          required final List<LudoSessionUserStatus> sessionUserStatus,
+          @HiveField(9) required final int nextPlayerId,
+          @HiveField(10) required final String creator,
+          @HiveField(11) required final DateTime createdAt,
+          @HiveField(12) final int? currentDiceValue,
+          @HiveField(13) final bool? playMoveFailed,
+          @HiveField(14) final String? message,
+          @HiveField(15) final String requiredPlayers,
+          @HiveField(16) final DateTime? countdownStartTime}) =
+      _$LudoSessionDataImpl;
   _LudoSessionData._() : super._();
 
   factory _LudoSessionData.fromJson(Map<String, dynamic> json) =
@@ -498,6 +544,12 @@ abstract class _LudoSessionData extends LudoSessionData {
   @override
   @HiveField(14)
   String? get message;
+  @override
+  @HiveField(15)
+  String get requiredPlayers;
+  @override
+  @HiveField(16)
+  DateTime? get countdownStartTime;
 
   /// Create a copy of LudoSessionData
   /// with the given fields replaced by the non-null parameter values.

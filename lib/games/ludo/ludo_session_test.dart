@@ -54,6 +54,7 @@ class LudoSessionTest extends LudoSession {
     String amount,
     String color,
     String tokenAddress,
+    String requiredPlayers,
   ) async {
     state = LudoSessionData(
       id: "1203",
@@ -118,6 +119,7 @@ class LudoSessionTest extends LudoSession {
       createdAt: DateTime.now(),
       currentDiceValue: 0,
       playMoveFailed: false,
+      requiredPlayers: requiredPlayers,
     );
   }
 

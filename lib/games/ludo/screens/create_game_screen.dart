@@ -101,6 +101,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
         ModalRoute.of(context)!.settings.arguments as LudoGameController;
     final color =
         _playerColor!.split("/").last.split(".").first.split("_").first;
+    final requiredPlayers = _numberOfPlayers == NumberOfPlayers.two ? "2" : "4";
     try {
       setState(() {
         _isLoading = true;
@@ -109,6 +110,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
             _gameMode == GameMode.free ? '0' : '$_selectedTokenAmount',
             color,
             _selectedTokenAddress ?? "0",
+            requiredPlayers,
           );
       if (!mounted) return;
       Navigator.of(context).pop();

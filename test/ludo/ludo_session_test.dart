@@ -133,12 +133,25 @@ void main() {
       final amount = '100';
       final color = '1';
       final tokenAddress = 'token_address';
+      final requiredPlayers = '4';
       final response1 = Response(jsonEncode({'id': sessionId}), 201);
+      
       when(mockClient.post(Uri.parse('$baseUrl/session/create'),
-              body: jsonEncode({'amount': amount, 'user_creator_color': color, 'token_address': tokenAddress}), headers: anyNamed('headers')))
-          .thenAnswer((_) async => response1);
+          body: jsonEncode({
+            'amount': amount,
+            'user_creator_color': color,
+            'token_address': tokenAddress,
+            'required_players': requiredPlayers,
+          }), 
+          headers: anyNamed('headers')))
+        .thenAnswer((_) async => response1);
 
-      await container.read(ludoSessionProvider.notifier).createSession(amount, color, tokenAddress);
+      await container.read(ludoSessionProvider.notifier).createSession(
+        amount, 
+        color, 
+        tokenAddress,
+        requiredPlayers,
+      );
 
       verify(mockClient.post(any, body: anyNamed('body'), headers: anyNamed('headers'))).called(1);
       verify(mockClient.get(Uri.parse("$baseUrl/game/session/$sessionId"), headers: anyNamed('headers'))).called(1);

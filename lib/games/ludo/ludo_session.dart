@@ -56,11 +56,43 @@ class LudoSession extends _$LudoSession {
           ref.read(appStateProvider).isSandbox ? wsUrlDebug! : wsUrl!));
       _channel?.stream.listen(
         (data) async {
-          if (kDebugMode) print("WS: $data");
+          if (kDebugMode) print("WebSocket Event Received: $data");
           final decodedResponse = jsonDecode(data) as Map;
+          
+          // Log the event type
+          if (kDebugMode) print("Event Type: ${decodedResponse['event']}");
+          
           switch (decodedResponse['event']) {
-            case 'play_move':
+            case 'session_created':
+              if (kDebugMode) print("Session Created Event");
+              final dataStr = decodedResponse['data'] as String;
+              final data = jsonDecode(dataStr) as Map;
+              if (data["session_id"] != _id) return;
+              await getLudoSession();
+              break;
+            
             case 'player_joined':
+              if (kDebugMode) print("Player Joined Event");
+              final dataStr = decodedResponse['data'] as String;
+              final data = jsonDecode(dataStr) as Map;
+              if (data["session_id"] != _id) return;
+              await getLudoSession();
+              break;
+            
+            case 'session_full':
+              if (kDebugMode) print("Session Full Event");
+              final dataStr = decodedResponse['data'] as String;
+              final data = jsonDecode(dataStr) as Map;
+              if (data["session_id"] != _id) return;
+              await getLudoSession();
+              // Update session status to indicate it's ready to start
+              state = state?.copyWith(
+                status: "FULL",
+                message: "Session is full and ready to start!",
+              );
+              break;
+
+            case 'play_move':
             case 'play_move_failed':
             case 'session_finished':
               final dataStr = decodedResponse['data'] as String;
@@ -74,27 +106,28 @@ class LudoSession extends _$LudoSession {
               } else {
                 _playMoveFailed = false;
               }
-              if (kDebugMode) print('Data $data');
               await getLudoSession();
               break;
+            
             case 'player_exited':
               final dataStr = decodedResponse['data'] as String;
               final data = jsonDecode(dataStr) as Map;
               if (data["session_id"] != _id) return;
               state = state?.copyWith(
-                message:
-                    "EXITED: Player ${data['player_id']} has left the session, session ${data['session_id']} has finished.",
+                message: "EXITED: Player ${data['player_id']} has left the session.",
               );
+              await getLudoSession();
               break;
           }
         },
         onDone: () {
+          if (kDebugMode) print("WebSocket connection closed. Reconnecting...");
           Future.delayed(const Duration(seconds: 1), () {
             connectWebSocket();
           });
         },
         onError: (error) {
-          if (kDebugMode) print('WS Error $error');
+          if (kDebugMode) print('WebSocket Error: $error');
           Future.delayed(const Duration(seconds: 1), () {
             connectWebSocket();
           });
@@ -102,7 +135,7 @@ class LudoSession extends _$LudoSession {
         cancelOnError: false,
       );
     } catch (e) {
-      if (kDebugMode) print('WS Connection Error $e');
+      if (kDebugMode) print('WebSocket Connection Error: $e');
       Future.delayed(const Duration(seconds: 1), () {
         connectWebSocket();
       });
@@ -114,8 +147,12 @@ class LudoSession extends _$LudoSession {
       _id = ref.read(appStateProvider).selectedGameSessionId;
       if (_id == null) return;
     }
+    
+    if (kDebugMode) print("Fetching session data for ID: $_id");
+    
     final url = Uri.parse(
         '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/session/$_id');
+    
     final response = await _httpClient!.get(
       url,
       headers: {
@@ -123,6 +160,10 @@ class LudoSession extends _$LudoSession {
         'Authorization': ref.read(appStateProvider).bearerToken,
       },
     );
+
+    if (kDebugMode) print("Session Response Status: ${response.statusCode}");
+    if (kDebugMode) print("Session Response Body: ${utf8.decode(response.bodyBytes)}");
+
     if (response.statusCode != 201 && response.statusCode != 200) {
       throw HttpException(
           'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
@@ -172,6 +213,7 @@ class LudoSession extends _$LudoSession {
       creator: "",
       currentDiceValue: _currentDiceValue ?? -1,
       playMoveFailed: _playMoveFailed,
+      requiredPlayers: decodedResponse['required_players'] ?? "4",
     );
     await _hiveBox!.put(_id, ludoSession);
     state = ludoSession;
@@ -237,6 +279,7 @@ class LudoSession extends _$LudoSession {
       creator: "",
       currentDiceValue: -1,
       playMoveFailed: false,
+      requiredPlayers: decodedResponse['required_players'] ?? "4",
     );
     return ludoSession;
   }
@@ -300,6 +343,7 @@ class LudoSession extends _$LudoSession {
             creator: "",
             currentDiceValue: -1,
             playMoveFailed: false,
+            requiredPlayers: sessionData['required_players'] ?? "4",
           ),
         )
         .toList();
@@ -365,13 +409,17 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<void> createSession(
-      String amount, String color, String tokenAddress) async {
+      String amount,
+      String color,
+      String tokenAddress,
+      String requiredPlayers) async {
     final url = Uri.parse(
         '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/create');
     log(jsonEncode({
       'amount': amount,
       'user_creator_color': color,
       'token_address': tokenAddress,
+      'required_players': requiredPlayers,
     }));
     final response = await _httpClient!.post(
       url,
@@ -379,6 +427,7 @@ class LudoSession extends _$LudoSession {
         'amount': amount,
         'user_creator_color': color,
         'token_address': tokenAddress,
+        'required_players': requiredPlayers,
       }),
       headers: {
         'Content-Type': 'application/json',
