@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:marquis_v2/providers/app_state.dart';
@@ -21,7 +22,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: UpgradeAlert(
-        dialogStyle: Platform.isAndroid
+        dialogStyle: kIsWeb || Platform.isAndroid
             ? UpgradeDialogStyle.material
             : UpgradeDialogStyle.cupertino,
         child: FutureBuilder(future: () async {

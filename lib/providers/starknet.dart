@@ -129,6 +129,10 @@ class Starknet extends _$Starknet {
       accountAddress: Felt.fromHexString(accountAddress),
       privateKey: privateKey,
       nodeUri: Uri.parse('http://localhost:5050'),
+      chainId: Felt.fromHexString((await state.provider.chainId()).when(
+        result: (result) => result,
+        error: (error) => throw Exception("Failed to get chain ID"),
+      )),
     ));
     // Store credentials securely
     await _storage.write(
@@ -150,10 +154,6 @@ class Starknet extends _$Starknet {
   }
 
   bool get isAuthenticated => state.signerAccount != null;
-
-  void setSignerAccount(Account signerAccount) {
-    state = state.copyWith(signerAccount: signerAccount);
-  }
 
   Future<Uint256> getStrkBalance() async {
     if (state.signerAccount == null) {
