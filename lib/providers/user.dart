@@ -138,16 +138,13 @@ class User extends _$User {
 
   Future<BigInt> getTokenBalance(String tokenAddress) async {
     if (state == null) return BigInt.from(0);
-    // final url = Uri.parse(
-    //     '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/token/balance/$tokenAddress/${state!.accountAddress}');
     final rpc =
         Uri.parse(rpcUrl ?? "https://starknet-sepolia.public.blastapi.io");
 
     final provider = JsonRpcProvider(nodeUri: rpc);
 
     final accountAddress = Felt.fromHexString(state!.accountAddress);
-    // // final accountAddress = Felt.fromHexString(
-    // //     '0x04c1d9da136846ab084ae18cf6ce7a652df7793b666a16ce46b1bf5850cc739d');
+
     final ethContractAddress = Felt.fromHexString(tokenAddress);
 
     try {
