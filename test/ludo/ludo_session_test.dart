@@ -95,7 +95,7 @@ void main() {
           status: "status",
           nextPlayer: "nextPlayer",
           nonce: "nonce",
-          color: "color",
+          //color: "color",
           playAmount: "playAmount",
           playToken: "playToken",
           sessionUserStatus: [],

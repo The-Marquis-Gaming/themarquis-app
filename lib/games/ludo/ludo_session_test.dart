@@ -52,7 +52,7 @@ class LudoSessionTest extends LudoSession {
   @override
   Future<void> createSession(
     String amount,
-    String color,
+    //String color,
     String tokenAddress,
     String requiredPlayers,
   ) async {
@@ -61,7 +61,7 @@ class LudoSessionTest extends LudoSession {
       status: "status",
       nextPlayer: "nextPlayer",
       nonce: "nonce",
-      color: color,
+      //color: color,
       playAmount: amount,
       playToken: tokenAddress,
       sessionUserStatus: [
@@ -75,7 +75,7 @@ class LudoSessionTest extends LudoSession {
           status: "ACTIVE",
           points: 0,
           playerTokensCircled: [false, false, false, false],
-          color: "red",
+          //color: "red",
         ),
         LudoSessionUserStatus(
           playerId: 1,
@@ -87,7 +87,7 @@ class LudoSessionTest extends LudoSession {
           status: "ACTIVE",
           points: 0,
           playerTokensCircled: [false, false, false, false],
-          color: "blue",
+          //color: "blue",
         ),
         LudoSessionUserStatus(
           playerId: 2,
@@ -99,7 +99,7 @@ class LudoSessionTest extends LudoSession {
           status: "ACTIVE",
           points: 0,
           playerTokensCircled: [false, false, false, false],
-          color: "green",
+          //color: "green",
         ),
         LudoSessionUserStatus(
           playerId: 3,
@@ -111,7 +111,7 @@ class LudoSessionTest extends LudoSession {
           status: "ACTIVE",
           points: 0,
           playerTokensCircled: [false, false, false, false],
-          color: "yellow",
+          //color: "yellow",
         )
       ],
       nextPlayerId: 1,

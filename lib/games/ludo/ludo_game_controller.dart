@@ -609,7 +609,7 @@ class LudoGameController extends MarquisGameController {
       borderRadius: 12,
       children: [
         SpriteComponent(
-          sprite: Sprite(Flame.images.fromCache('dice_icon.png')),
+          sprite: Sprite(Flame.images.fromCache('dice_interface.png')),
           position: Vector2(100, 25),
           size: Vector2(24, 24),
           anchor: Anchor.center,

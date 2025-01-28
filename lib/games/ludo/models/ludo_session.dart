@@ -23,7 +23,6 @@ class LudoSessionData extends HiveObject with _$LudoSessionData {
     @HiveField(2) required String status,
     @HiveField(3) required String nextPlayer,
     @HiveField(4) required String nonce,
-    @HiveField(5) required String color,
     @HiveField(6) required String playAmount,
     @HiveField(7) required String playToken,
     @HiveField(8) required List<LudoSessionUserStatus> sessionUserStatus,
@@ -37,7 +36,7 @@ class LudoSessionData extends HiveObject with _$LudoSessionData {
   }) = _LudoSessionData;
 
   List<Color> get getListOfColors => sessionUserStatus
-      .map((user) => playerColors[user.color] ?? Colors.grey)
+      .map((user) => /*playerColors[user.color] ??*/ Colors.grey)
       .toList();
 //find index of that color
 //sub list, [0, target][target, 3]
@@ -48,7 +47,7 @@ class LudoSessionData extends HiveObject with _$LudoSessionData {
   List<String> get notAvailableColors => sessionUserStatus
       .where((pl) => pl.status == "ACTIVE")
       .toList()
-      .map((e) => e.color!)
+      .map((e) => 'red')
       .toList();
 
   factory LudoSessionData.fromJson(Map<String, dynamic> json) =>
@@ -71,7 +70,6 @@ class LudoSessionUserStatus extends HiveObject with _$LudoSessionUserStatus {
     @HiveField(7) String? profileImageUrl,
     @HiveField(8) required int points,
     @HiveField(9) required List<bool>? playerTokensCircled,
-    @HiveField(10) required String? color,
   }) = _LudoSessionUserStatus;
 
   factory LudoSessionUserStatus.fromJson(Map<String, dynamic> json) =>

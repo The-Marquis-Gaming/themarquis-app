@@ -31,7 +31,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   GameMode? _gameMode;
   String? _selectedTokenAddress;
   double? _selectedTokenAmount;
-  String? _playerColor;
+  //String? _playerColor;
   bool _isLoading = false;
   bool _shouldRetrieveBalance = false;
 
@@ -49,11 +49,11 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
     });
   }
 
-  void _selectPinColor(String pinColor) {
+  /*void _selectPinColor(String pinColor) {
     setState(() {
       _playerColor = pinColor;
     });
-  }
+  }*/
 
   void _selectTokenAddress(String tokenAddress) {
     setState(() {
@@ -88,19 +88,16 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
     if (_activeTab == 1) return _numberOfPlayers != null;
     if (_activeTab == 2 && _gameMode == GameMode.token)
       return _selectedTokenAddress != null && _selectedTokenAmount != null;
-    if (_activeTab == 2 && _gameMode == GameMode.free)
-      return _playerColor != null;
-    if (_activeTab == 3) return _playerColor != null;
+    if (_activeTab == 3) return true;
     return false;
   }
 
-  int get _numberOfTabs => _gameMode == GameMode.token ? 4 : 3;
+  int get _numberOfTabs => _gameMode == GameMode.token ? 3 : 2;
 
   Future<void> _createGame() async {
     final game =
         ModalRoute.of(context)!.settings.arguments as LudoGameController;
-    final color =
-        _playerColor!.split("/").last.split(".").first.split("_").first;
+    //final color = _playerColor!.split("/").last.split(".").first.split("_").first;
     final requiredPlayers = _numberOfPlayers == NumberOfPlayers.two ? "2" : "4";
     try {
       setState(() {
@@ -108,7 +105,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       });
       await ref.read(ludoSessionProvider.notifier).createSession(
             _gameMode == GameMode.free ? '0' : '$_selectedTokenAmount',
-            color,
+            //color,
             _selectedTokenAddress ?? "0",
             requiredPlayers,
           );
@@ -818,7 +815,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                       },
                                     ),
                                   ),
-                                if (((_activeTab == 2 &&
+                                /*if (((_activeTab == 2 &&
                                         _gameMode == GameMode.free) ||
                                     _activeTab == 3))
                                   Column(
@@ -898,13 +895,13 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                         ],
                                       ),
                                     ],
-                                  ),
+                                  ),*/
                               ],
                             ),
                           ),
                         ),
                       ],
-                      if (_activeTab == _numberOfTabs && _playerColor != null)
+                      if (_activeTab == _numberOfTabs)
                         SizedBox(
                           width: constraints.maxWidth - 24,
                           height: scaledHeight(462),
@@ -1047,33 +1044,15 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
                                           colors: [
-                                            if (_playerColor ==
-                                                'assets/svg/chess-and-bg/yellow_chess.svg') ...[
-                                              const Color(0xC7DBD200),
-                                              const Color(0x73595214),
-                                              const Color(0x9EDBD200),
-                                            ],
-                                            if (_playerColor ==
-                                                'assets/svg/chess-and-bg/red_chess.svg') ...[
-                                              const Color(0xC7DB0000),
-                                              const Color(0x73591414),
-                                              const Color(0x9EDB0000),
-                                            ],
-                                            if (_playerColor ==
-                                                'assets/svg/chess-and-bg/blue_chess.svg') ...[
-                                              const Color(0xC700CEDB),
-                                              const Color(0x73145559),
-                                              const Color(0x9E00CEDB),
-                                            ],
-                                            if (_playerColor ==
-                                                'assets/svg/chess-and-bg/green_chess.svg') ...[
+
+                                            ...[
                                               const Color(0xFF005C30),
                                               const Color(0x730C3823),
                                               const Color(0xFF005C30),
                                             ],
                                           ],
                                         ),
-                                        svgPath: _playerColor!,
+                                        svgPath: 'assets/svg/chess-and-bg/green_chess.svg',
                                         selectedPinColor: "",
                                         onTap: (_) {},
                                       ),
@@ -1136,8 +1115,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                   : null,
                           child: _isLoading
                               ? const CircularProgressIndicator()
-                              : Text(_activeTab == _numberOfTabs &&
-                                      _playerColor != null
+                              : Text(_activeTab == _numberOfTabs
                                   ? 'Create Game'
                                   : 'Next'),
                         ),

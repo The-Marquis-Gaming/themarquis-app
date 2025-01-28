@@ -75,7 +75,7 @@ class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoo
                 const SizedBox(height: 32),
                 _players(),
                 const SizedBox(height: 20),
-                _playesrDetailsList(session),
+                _playersDetailsList(session),
                 const Spacer(),
                 _bottom(session),
                 const SizedBox(height: 62),
@@ -101,7 +101,7 @@ class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoo
     );
   }
 
-  Widget _playesrDetailsList(LudoSessionData session) {
+  Widget _playersDetailsList(LudoSessionData session) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(

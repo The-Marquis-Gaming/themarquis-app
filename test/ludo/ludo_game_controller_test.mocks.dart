@@ -418,15 +418,6 @@ class MockLudoSessionData extends _i1.Mock implements _i2.LudoSessionData {
       ) as String);
 
   @override
-  String get color => (super.noSuchMethod(
-        Invocation.getter(#color),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#color),
-        ),
-      ) as String);
-
-  @override
   String get playAmount => (super.noSuchMethod(
         Invocation.getter(#playAmount),
         returnValue: _i7.dummyValue<String>(

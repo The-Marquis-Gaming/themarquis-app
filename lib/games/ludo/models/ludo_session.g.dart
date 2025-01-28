@@ -21,7 +21,6 @@ class LudoSessionDataImplAdapter extends TypeAdapter<_$LudoSessionDataImpl> {
       status: fields[2] as String,
       nextPlayer: fields[3] as String,
       nonce: fields[4] as String,
-      color: fields[5] as String,
       playAmount: fields[6] as String,
       playToken: fields[7] as String,
       sessionUserStatus: (fields[8] as List).cast<LudoSessionUserStatus>(),
@@ -32,14 +31,13 @@ class LudoSessionDataImplAdapter extends TypeAdapter<_$LudoSessionDataImpl> {
       playMoveFailed: fields[13] as bool?,
       message: fields[14] as String?,
       requiredPlayers: fields[15] as String,
-      countdownStartTime: fields[16] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, _$LudoSessionDataImpl obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(2)
@@ -48,8 +46,6 @@ class LudoSessionDataImplAdapter extends TypeAdapter<_$LudoSessionDataImpl> {
       ..write(obj.nextPlayer)
       ..writeByte(4)
       ..write(obj.nonce)
-      ..writeByte(5)
-      ..write(obj.color)
       ..writeByte(6)
       ..write(obj.playAmount)
       ..writeByte(7)
@@ -68,8 +64,6 @@ class LudoSessionDataImplAdapter extends TypeAdapter<_$LudoSessionDataImpl> {
       ..write(obj.message)
       ..writeByte(15)
       ..write(obj.requiredPlayers)
-      ..writeByte(16)
-      ..write(obj.countdownStartTime)
       ..writeByte(8)
       ..write(obj.sessionUserStatus);
   }
@@ -107,14 +101,13 @@ class LudoSessionUserStatusImplAdapter
       profileImageUrl: fields[7] as String?,
       points: fields[8] as int,
       playerTokensCircled: (fields[9] as List?)?.cast<bool>(),
-      color: fields[10] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, _$LudoSessionUserStatusImpl obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.playerId)
       ..writeByte(3)
@@ -129,8 +122,6 @@ class LudoSessionUserStatusImplAdapter
       ..write(obj.profileImageUrl)
       ..writeByte(8)
       ..write(obj.points)
-      ..writeByte(10)
-      ..write(obj.color)
       ..writeByte(1)
       ..write(obj.playerTokensPosition)
       ..writeByte(2)
@@ -161,7 +152,6 @@ _$LudoSessionDataImpl _$$LudoSessionDataImplFromJson(
       status: json['status'] as String,
       nextPlayer: json['nextPlayer'] as String,
       nonce: json['nonce'] as String,
-      color: json['color'] as String,
       playAmount: json['playAmount'] as String,
       playToken: json['playToken'] as String,
       sessionUserStatus: (json['sessionUserStatus'] as List<dynamic>)
@@ -174,9 +164,6 @@ _$LudoSessionDataImpl _$$LudoSessionDataImplFromJson(
       playMoveFailed: json['playMoveFailed'] as bool?,
       message: json['message'] as String?,
       requiredPlayers: json['requiredPlayers'] as String? ?? "4",
-      countdownStartTime: json['countdownStartTime'] == null
-          ? null
-          : DateTime.parse(json['countdownStartTime'] as String),
     );
 
 Map<String, dynamic> _$$LudoSessionDataImplToJson(
@@ -186,7 +173,6 @@ Map<String, dynamic> _$$LudoSessionDataImplToJson(
       'status': instance.status,
       'nextPlayer': instance.nextPlayer,
       'nonce': instance.nonce,
-      'color': instance.color,
       'playAmount': instance.playAmount,
       'playToken': instance.playToken,
       'sessionUserStatus': instance.sessionUserStatus,
@@ -197,7 +183,6 @@ Map<String, dynamic> _$$LudoSessionDataImplToJson(
       'playMoveFailed': instance.playMoveFailed,
       'message': instance.message,
       'requiredPlayers': instance.requiredPlayers,
-      'countdownStartTime': instance.countdownStartTime?.toIso8601String(),
     };
 
 _$LudoSessionUserStatusImpl _$$LudoSessionUserStatusImplFromJson(
@@ -219,7 +204,6 @@ _$LudoSessionUserStatusImpl _$$LudoSessionUserStatusImplFromJson(
       playerTokensCircled: (json['playerTokensCircled'] as List<dynamic>?)
           ?.map((e) => e as bool)
           .toList(),
-      color: json['color'] as String?,
     );
 
 Map<String, dynamic> _$$LudoSessionUserStatusImplToJson(
@@ -235,5 +219,4 @@ Map<String, dynamic> _$$LudoSessionUserStatusImplToJson(
       'profileImageUrl': instance.profileImageUrl,
       'points': instance.points,
       'playerTokensCircled': instance.playerTokensCircled,
-      'color': instance.color,
     };

@@ -111,7 +111,7 @@ void main() {
           status: "status",
           nextPlayer: "nextPlayer",
           nonce: "nonce",
-          color: "red",
+          //color: "red",
           playAmount: "playAmount",
           playToken: "playToken",
           sessionUserStatus: List.generate(4, (index) {
@@ -125,7 +125,7 @@ void main() {
               status: "status",
               points: 0,
               playerTokensCircled: [false, false, false, false],
-              color: "red",
+              //color: "red",
             );
           }),
           nextPlayerId: 1,

@@ -174,7 +174,7 @@ class LudoSession extends _$LudoSession {
       status: decodedResponse['status'],
       nextPlayer: decodedResponse['next_player'],
       nonce: decodedResponse['nonce'],
-      color: decodedResponse['color'] ?? "0",
+      //color: decodedResponse['color'] ?? "0",
       playAmount: decodedResponse['play_amount'],
       playToken: decodedResponse['play_token'],
       sessionUserStatus: [
@@ -202,7 +202,7 @@ class LudoSession extends _$LudoSession {
               role: e['role'],
               status: e['status'],
               points: e['points'],
-              color: e['color'],
+              //color: e['color'],
             );
           },
         ),
@@ -240,7 +240,7 @@ class LudoSession extends _$LudoSession {
       status: decodedResponse['status'],
       nextPlayer: decodedResponse['next_player'],
       nonce: decodedResponse['nonce'],
-      color: decodedResponse['color'] ?? "0",
+      //color: decodedResponse['color'] ?? "0",
       playAmount: decodedResponse['play_amount'],
       playToken: decodedResponse['play_token'],
       sessionUserStatus: [
@@ -268,7 +268,7 @@ class LudoSession extends _$LudoSession {
               role: e['role'],
               status: e['status'],
               points: e['points'],
-              color: e['color'],
+              //color: e['color'],
             );
           },
         ),
@@ -304,7 +304,7 @@ class LudoSession extends _$LudoSession {
             status: sessionData['status'],
             nextPlayer: sessionData['next_player'],
             nonce: sessionData['nonce'],
-            color: sessionData['color'] ?? "0",
+            //color: sessionData['color'] ?? "0",
             playAmount: sessionData['play_amount'],
             playToken: sessionData['play_token'],
             sessionUserStatus: [
@@ -332,7 +332,7 @@ class LudoSession extends _$LudoSession {
                     role: e['role'],
                     status: e['status'],
                     points: e['points'],
-                    color: e['color'],
+                    //color: e['color'],
                   );
                 },
               ),
@@ -410,14 +410,12 @@ class LudoSession extends _$LudoSession {
 
   Future<void> createSession(
       String amount,
-      String color,
       String tokenAddress,
       String requiredPlayers) async {
     final url = Uri.parse(
         '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/create');
     log(jsonEncode({
       'amount': amount,
-      'user_creator_color': color,
       'token_address': tokenAddress,
       'required_players': requiredPlayers,
     }));
@@ -425,7 +423,6 @@ class LudoSession extends _$LudoSession {
       url,
       body: jsonEncode({
         'amount': amount,
-        'user_creator_color': color,
         'token_address': tokenAddress,
         'required_players': requiredPlayers,
       }),
