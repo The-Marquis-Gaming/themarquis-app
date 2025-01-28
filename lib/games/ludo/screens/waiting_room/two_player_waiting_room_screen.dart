@@ -682,7 +682,7 @@ class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoo
         Padding(
           padding: const EdgeInsets.only(left: 24),
           child: const Text(
-            "wAITING ROOM",
+            "WAITING ROOM",
             style: TextStyle(
               fontSize: 15,
               color: Colors.white,

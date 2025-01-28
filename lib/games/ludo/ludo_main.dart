@@ -1,4 +1,5 @@
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marquis_v2/games/ludo/components/game_top_bar.dart';
@@ -7,6 +8,7 @@ import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/screens/game_over_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/waiting_room/four_player_waiting_room_screen.dart';
+import 'package:marquis_v2/games/ludo/screens/waiting_room/two_player_waiting_room_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/welcome_screen.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/router/route_path.dart';
@@ -46,43 +48,48 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
         ),
         child: SafeArea(
           child: ValueListenableBuilder(
-            valueListenable: _game.playStateNotifier,
-            builder: (context, playState, child) {
-              if (playState == PlayState.playing) {
-                return Column(
-                  children: [
-                    GameTopBar(game: _game),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+            valueListenable: _game.numberOfPlayersNotifier,
+            builder: (BuildContext context, numberOfPlayerState, child)  {
+              return ValueListenableBuilder(
+                valueListenable: _game.playStateNotifier,
+                builder: (context, playState, child) {
+                  if (playState == PlayState.playing) {
+                    return Column(
+                      children: [
+                        GameTopBar(game: _game),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                            child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: SizedBox(
+                                  width: kLudoGameWidth,
+                                  height: kLudoGameHeight,
+                                  child: _buildRiverpodGameWidget(numberOfPlayerState)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  if (playState == PlayState.finished) {
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 80.0, right: 80),
+                      child: AspectRatio(
+                        aspectRatio: 7 / 20,
                         child: FittedBox(
-                          fit: BoxFit.contain,
+                          fit: BoxFit.fitHeight,
                           child: SizedBox(
                               width: kLudoGameWidth,
                               height: kLudoGameHeight,
-                              child: _buildRiverpodGameWidget()),
+                              child: _buildRiverpodGameWidget(numberOfPlayerState)),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              }
-              if (playState == PlayState.finished) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 80.0, right: 80),
-                  child: AspectRatio(
-                    aspectRatio: 7 / 20,
-                    child: FittedBox(
-                      fit: BoxFit.fitHeight,
-                      child: SizedBox(
-                          width: kLudoGameWidth,
-                          height: kLudoGameHeight,
-                          child: _buildRiverpodGameWidget()),
-                    ),
-                  ),
-                );
-              }
-              return _buildRiverpodGameWidget();
+                    );
+                  }
+                  return _buildRiverpodGameWidget(numberOfPlayerState);
+                },
+              );
             },
           ),
         ),
@@ -90,7 +97,7 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
     );
   }
 
-  Widget _buildRiverpodGameWidget() {
+  Widget _buildRiverpodGameWidget(NumberOfPlayers numOfPlayers) {
     return RiverpodAwareGameWidget<LudoGameController>(
       key: _gameWidgetKey,
       game: _game,
@@ -98,7 +105,8 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
         PlayState.welcome.name: (context, game) =>
             LudoWelcomeScreen(game: game),
         PlayState.waiting.name: (context, game) =>
-            FourPlayerWaitingRoomScreen(game: game),
+          numOfPlayers == NumberOfPlayers.two ?
+            TwoPlayerWaitingRoomScreen(game: game) : FourPlayerWaitingRoomScreen(game: game),
         PlayState.finished.name: (context, game) => MatchResultsScreen(
             game: game, session: ref.read(ludoSessionProvider)!),
       },

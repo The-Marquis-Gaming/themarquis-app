@@ -101,7 +101,7 @@ void main() {
         devices: testDevices,
       );
 
-      ludoSessionTest.createSession("0", "red", "0");
+      ludoSessionTest.createSession("0", "red", "0", "2");
       userTest.setSessionId("testSessionId");
 
       await multiScreenGolden(

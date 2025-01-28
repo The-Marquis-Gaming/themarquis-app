@@ -92,6 +92,11 @@ class LudoGameController extends MarquisGameController {
     }
   }
 
+
+  Future<void> setNumberOfPlayers(NumberOfPlayers players) async {
+    numberOfPlayersNotifier.value = players;
+  }
+
   @override
   Future<void> updatePlayState(PlayState value) async {
     if (playStateNotifier.value == value) return;

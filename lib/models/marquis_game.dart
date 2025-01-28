@@ -9,7 +9,9 @@ abstract class MarquisGameController extends FlameGame with TapCallbacks, Riverp
 
   final playStateNotifier = ValueNotifier(PlayState.welcome);
   final _loadingNotifier = ValueNotifier(false);
+  final numberOfPlayersNotifier = ValueNotifier(NumberOfPlayers.two);
 
+  NumberOfPlayers get numOfPlayers => numberOfPlayersNotifier.value;
   PlayState get playState => playStateNotifier.value;
   double get width => size.x;
   double get height => size.y;
