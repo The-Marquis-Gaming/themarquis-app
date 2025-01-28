@@ -634,10 +634,11 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
   void _switchToNextTab() async {
     if (_activeTab == _numberOfTabs - 1) {
       await _createGame();
+    } else {
+      setState(() {
+        _activeTab++;
+      });
     }
-    setState(() {
-      _activeTab++;
-    });
   }
 
   void _switchToPreviousTab() {

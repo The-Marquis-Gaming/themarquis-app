@@ -8,29 +8,48 @@ import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/models/marquis_game.dart';
 import 'package:marquis_v2/games/checkers/components/checkers_board.dart';
 import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marquis_v2/providers/user.dart';
 
 class CheckersGameController extends MarquisGameController {
+  // Private fields
+
+  bool _isBlackTurn = false;
+  int _orangeScore = 12;
+  int _blackScore = 12;
+  int? _winnerIndex;
+
+  // Public fields
   bool isInit = false;
   CheckersBoard? board;
   UserStatsComponent? userStats;
   int currentPlayer = 0;
   int userIndex = -1;
   bool playerCanMove = false;
-  int winnerIndex = -1;
   bool isErrorMessage = false;
 
-  // Update getters to use null-safe access
-  bool get isBlackTurn =>
-      ref.watch(checkersSessionProvider)?.isBlackTurn ?? true;
-  int get blackScore => ref.watch(checkersSessionProvider)?.blackScore ?? 12;
-  int get whiteScore => ref.watch(checkersSessionProvider)?.whiteScore ?? 12;
+  // Getters
 
-  // Add setter for isBlackTurn
+  bool get isBlackTurn =>
+      ref.watch(checkersSessionProvider)?.isBlackTurn ?? false;
+  int get orangeScore => _orangeScore;
+  int get blackScore => ref.watch(checkersSessionProvider)?.blackScore ?? 12;
+  int? get winnerIndex => _winnerIndex;
+
+  // Setters
   set isBlackTurn(bool value) {
+    _isBlackTurn = value;
     if (ref.read(checkersSessionProvider) != null) {
       ref.read(checkersSessionProvider.notifier).updateTurn(value);
     }
   }
+
+  set orangeScore(int value) => _orangeScore = value;
+  set blackScore(int value) => _blackScore = value;
+  set winnerIndex(int? value) => _winnerIndex = value;
+
+  // Update getters to use null-safe access
+  int get whiteScore => ref.watch(checkersSessionProvider)?.whiteScore ?? 12;
 
   CheckersGameController()
       : super(
@@ -110,23 +129,71 @@ class CheckersGameController extends MarquisGameController {
     if (session != null) {
       board?.initializeFromSession(session);
     }
+
+    _isBlackTurn = false;
+    _orangeScore = 12;
+    _blackScore = 12;
+    _winnerIndex = null;
   }
 
   @override
   Future<void> updatePlayState(PlayState value) async {
-    overlays.clear();
-    if (value == PlayState.playing) {
-      await initGame();
-    } else if (board != null) {
-      if (userStats != null) {
-        remove(userStats!);
-        userStats = null;
+    if (playStateNotifier.value == value) return;
+
+    if (value != PlayState.playing) {
+      if (board != null) {
+        add(board!);
+        Future.microtask(() => remove(board!));
       }
-      remove(board!);
-      board = null;
+      if (userStats != null) {
+        add(userStats!);
+        Future.microtask(() => remove(userStats!));
+      }
     }
-    overlays.add(value.name);
     playStateNotifier.value = value;
+
+    switch (value) {
+      case PlayState.welcome:
+      case PlayState.waiting:
+        overlays.clear();
+        overlays.add(value.name);
+        break;
+
+      case PlayState.playing:
+        overlays.clear();
+        final session = ref.read(checkersSessionProvider);
+        if (session != null) await initGame();
+        break;
+
+      case PlayState.finished:
+        overlays.clear();
+        overlays.add(value.name);
+        Future.microtask(
+          () async {
+            if (buildContext != null && buildContext!.mounted) {
+              // Force rebuild of game over screen
+              (buildContext! as Element).markNeedsBuild();
+
+              if (playState == PlayState.finished) {
+                if (buildContext != null && buildContext!.mounted) {
+                  await showDialog(
+                    context: buildContext!,
+                    useRootNavigator: false,
+                    barrierDismissible: false,
+                    builder: (context) => GameOverDialog(
+                      isWinning: userIndex == winnerIndex,
+                      playerName: winnerIndex == 1 ? 'Orange' : 'Black',
+                      tokenAddress: '',
+                      tokenAmount: '0',
+                    ),
+                  );
+                }
+              }
+            }
+          },
+        );
+        break;
+    }
   }
 
   // Check if the game is over
@@ -160,5 +227,111 @@ class CheckersGameController extends MarquisGameController {
         if (kDebugMode) print("Error making move: $e");
       }
     }
+  }
+
+  void updateGameState({
+    required bool isBlackTurn,
+    required int orangeScore,
+    required int blackScore,
+  }) {
+    _isBlackTurn = isBlackTurn;
+    _orangeScore = orangeScore;
+    _blackScore = blackScore;
+  }
+}
+
+class GameOverDialog extends ConsumerStatefulWidget {
+  const GameOverDialog({
+    super.key,
+    required this.isWinning,
+    required this.tokenAddress,
+    required this.tokenAmount,
+    required this.playerName,
+  });
+
+  final bool isWinning;
+  final String playerName;
+  final String tokenAddress;
+  final String tokenAmount;
+
+  @override
+  ConsumerState<GameOverDialog> createState() => _GameOverDialogState();
+}
+
+class _GameOverDialogState extends ConsumerState<GameOverDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topCenter,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 40),
+            width: 180,
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(26, 32, 45, 1),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 60),
+                Text(
+                  widget.isWinning ? 'REWARD' : 'WINNER',
+                  style: const TextStyle(
+                    color: Color(0xFF00ECFF),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (!widget.isWinning)
+                      Column(
+                        children: [
+                          const CircleAvatar(radius: 20),
+                          Text(widget.playerName),
+                        ],
+                      ),
+                    Column(
+                      children: [
+                        if (widget.tokenAmount != '0')
+                          FutureBuilder(
+                            future: ref
+                                .read(userProvider.notifier)
+                                .getSupportedTokens(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Text("");
+                              }
+                              final roomStake =
+                                  "${(((double.tryParse(widget.tokenAmount)) ?? 0) / 1e18 * (widget.isWinning ? 4 : -1)).toStringAsFixed(7).replaceAll(RegExp(r'0*$'), '')} ${snapshot.data?.firstWhere((e) => e["tokenAddress"] == widget.tokenAddress)["tokenName"] ?? ''}";
+                              return Text(
+                                roomStake,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            },
+                          ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

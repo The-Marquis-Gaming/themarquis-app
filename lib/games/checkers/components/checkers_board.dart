@@ -423,33 +423,40 @@ class CheckersBoard extends RectangleComponent
   }
 
   void initializeFromSession(CheckersSessionData session) {
-    // Clear existing pieces
+    // Create a copy of the children list to avoid concurrent modification
+    final piecesToRemove = [...children.whereType<CheckersPin>()];
+
+    // Remove all existing pieces
+    removeAll(piecesToRemove);
+
+    // Clear pieces array
     pieces = List.generate(boardSize, (_) => List.filled(boardSize, null));
 
-    // Remove existing piece components
-    removeAll(children.whereType<CheckersPin>());
-
-    // Add pieces from session
+    // Add new pieces from session
     for (final piece in session.pieces) {
-      if (piece.isAlive) {
-        final newPiece = CheckersPin(
-          isBlack: piece.position == 2, // 2 = Down = Black
-          position: Vector2(piece.col * (size.x / boardSize),
-              piece.row * (size.y / boardSize)),
-          dimensions:
-              Vector2(size.x / boardSize * 0.8, size.y / boardSize * 0.8),
-          spritePath: piece.position == 2
-              ? 'assets/images/blackchecker.svg'
-              : 'assets/images/whitechecker.svg',
-        );
+      final newPiece = CheckersPin(
+        isBlack: piece.position == 2, // 2 = Down = Black
+        position: Vector2(
+            piece.col * (size.x / boardSize), piece.row * (size.y / boardSize)),
+        dimensions: Vector2(size.x / boardSize * 0.8, size.y / boardSize * 0.8),
+        spritePath: piece.position == 2
+            ? 'assets/images/blackchecker.svg'
+            : 'assets/images/whitechecker.svg',
+      );
 
-        pieces[piece.row][piece.col] = newPiece;
-        add(newPiece);
+      pieces[piece.row][piece.col] = newPiece;
+      add(newPiece);
 
-        if (piece.isKing) {
-          newPiece.promoteToKing();
-        }
+      if (piece.isKing) {
+        newPiece.promoteToKing();
       }
     }
+
+    // Update game controller state
+    game.updateGameState(
+      isBlackTurn: session.isBlackTurn,
+      orangeScore: session.orangeScore,
+      blackScore: session.blackScore,
+    );
   }
 }

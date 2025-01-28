@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -49,6 +51,10 @@ class Starknet extends _$Starknet {
           accountAddress: Felt.fromHexString(accountAddress),
           privateKey: Felt.fromHexString(privateKey),
           nodeUri: Uri.parse('http://localhost:5050'),
+          chainId: Felt.fromHexString((await state.provider.chainId()).when(
+            result: (result) => result,
+            error: (error) => throw Exception("Failed to get chain ID"),
+          )),
         );
 
         // Update state
@@ -177,8 +183,18 @@ class Starknet extends _$Starknet {
       functionName: "create_lobby",
       calldata: [],
     );
-    print("create lobby events: ${res.events}");
-    return res.events[0].data!.last.toHexString();
+
+    if (res.events.isEmpty ||
+        res.events.first.data == null ||
+        res.events.first.data!.isEmpty) {
+      throw Exception("No session ID returned from contract");
+    }
+
+    final sessionId = res.events.first.data!.last.toHexString();
+    if (kDebugMode) {
+      log("Session ID: $sessionId");
+    }
+    return sessionId;
   }
 
   // Returns transaction hash on success

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -51,7 +52,14 @@ class CheckersSession extends _$CheckersSession {
   Future<void> createLobby() async {
     try {
       final sessionId = await ref.read(starknetProvider.notifier).createLobby();
-      if (kDebugMode) print("Created lobby with session: $sessionId");
+      if (kDebugMode) {
+        log("Created lobby with session: $sessionId");
+        log("Session ID type: ${sessionId.runtimeType}");
+      }
+
+      if (sessionId == null) {
+        throw Exception('Failed to create game: No session ID returned');
+      }
 
       // Join the lobby we just created
       await joinLobby(int.parse(sessionId));
@@ -59,14 +67,24 @@ class CheckersSession extends _$CheckersSession {
       // Query for the specific session we created
       final sessionData = await findSession(int.parse(sessionId));
       if (sessionData != null) {
+        if (kDebugMode) {
+          log("Updated state with session data:");
+          log("ID: ${sessionData.id}");
+          log("Status: ${sessionData.status}");
+          log("Next Player: ${sessionData.nextPlayer}");
+          log("User Status: ${sessionData.sessionUserStatus}");
+        }
         state = sessionData;
         // Subscribe to session updates
         await subscribeToSession(sessionId);
       } else {
         throw Exception('Failed to create game: Could not find session data');
       }
-    } catch (e) {
-      if (kDebugMode) print("Error creating lobby: $e");
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        log("Error creating lobby: $e");
+        log("Stack trace: $stackTrace");
+      }
       if (e is OperationException) {
         final errors = e.graphqlErrors;
         if (errors.isNotEmpty) {
@@ -303,26 +321,31 @@ class CheckersSession extends _$CheckersSession {
         userId: node['player'], // Using player address as userId
         email: '', // Optional in checkers
         role: 'PLAYER',
-        status: 'ACTIVE',
+        status: 'PLAYING',
         points: node['remaining_pieces'],
-        position: node['position'] == 'UP' ? 'up' : 'down',
+        position: 'none', // We'll determine position from pieces data
       );
     }).toList();
   }
 
   // Calculate player score based on remaining pieces
   int _getPlayerScore(List<dynamic> playersData, Position position) {
-    final playerData = playersData.firstWhere(
-      (edge) {
-        final node = edge['node'];
-        return _parsePosition(node['position']) == position.index;
-      },
-      orElse: () => {
-        'node': {'remaining_pieces': 12}
-      },
-    );
+    for (final edge in playersData) {
+      final node = edge['node'];
+      final playerId = node['player'];
 
-    return playerData['node']['remaining_pieces'] as int;
+      // Find any piece belonging to this player to determine their position
+      final playerPieces =
+          state?.pieces.where((piece) => piece.player == playerId);
+      if (playerPieces != null && playerPieces.isNotEmpty) {
+        final playerPosition =
+            _parsePositionToEnum(playerPieces.first.position.toString());
+        if (playerPosition == position) {
+          return node['remaining_pieces'] as int? ?? 12;
+        }
+      }
+    }
+    return 12; // Default score if no matching player found
   }
 
   // Helper method to parse position string to enum
@@ -376,11 +399,17 @@ class CheckersSession extends _$CheckersSession {
 
   Future<CheckersSessionData?> findSession(int sessionId) async {
     try {
+      if (kDebugMode) log("Finding session with ID: $sessionId");
+
+      // Convert sessionId to hex string
+      final hexSessionId = "0x${sessionId.toRadixString(16)}";
+      if (kDebugMode) log("Hex session ID: $hexSessionId");
+
       // Query for session
       final result = await _graphQLClient?.query(
         QueryOptions(
           document: gql('''
-            query FindSession(\$sessionId: u64!) {
+            query FindSession(\$sessionId: String!) {
               checkersMarqSessionModels(where: { session_idEQ: \$sessionId }) {
                 edges {
                   node {
@@ -414,49 +443,86 @@ class CheckersSession extends _$CheckersSession {
               }
             }
           '''),
-          variables: {'sessionId': sessionId},
+          variables: {'sessionId': hexSessionId},
         ),
       );
 
-      if (result?.data != null) {
-        // Create and return a new CheckersSessionData
-        final sessionData =
-            result!.data!['checkersMarqSessionModels']['edges'][0]['node'];
-        final piecesData = result.data!['checkersMarqPieceModels']['edges'];
-        final playersData = result.data!['checkersMarqPlayerModels']['edges'];
+      if (kDebugMode) log("Query result: ${result?.data}");
 
-        final pieces = piecesData.map<CheckersPiece>((edge) {
-          final node = edge['node'];
-          return CheckersPiece(
-            sessionId: int.parse(sessionData['session_id']),
-            row: node['row'],
-            col: node['col'],
-            player: node['player'],
-            position: _parsePosition(node['position']),
-            isKing: node['is_king'],
-            isAlive: node['is_alive'],
-          );
-        }).toList();
-
-        return CheckersSessionData(
-          id: sessionData['session_id'].toString(),
-          status: _parseGameState(sessionData['state']),
-          nextPlayer: sessionData['turn'].toString(),
-          sessionUserStatus: _buildUserStatus(playersData),
-          nextPlayerId: sessionData['turn'].toString(),
-          createdAt: DateTime.now(),
-          pieces: pieces,
-          isGameOver: false,
-          orangeScore: _getPlayerScore(playersData, Position.Up),
-          blackScore: _getPlayerScore(playersData, Position.Down),
-          isBlackTurn: sessionData['turn'] == '2', // 2 = Down = Black's turn
-          message: null,
-        );
+      if (result?.hasException ?? false) {
+        final errors = result?.exception?.graphqlErrors ?? [];
+        if (errors.isNotEmpty) {
+          throw Exception(
+              'GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
+        } else if (result?.exception != null) {
+          throw Exception('Network Error: ${result?.exception.toString()}');
+        }
       }
+
+      if (result?.data == null) {
+        throw Exception('No data received from server');
+      }
+
+      final edges = result!.data!['checkersMarqSessionModels']['edges'] as List;
+      if (edges.isEmpty) {
+        if (kDebugMode) log("No session found with ID: $sessionId");
+        return null;
+      }
+
+      final sessionData = edges[0]['node'] as Map<String, dynamic>;
+      if (sessionData == null) {
+        throw Exception('Session data is null');
+      }
+
+      if (kDebugMode) {
+        log("Session data: $sessionData");
+      }
+
+      // Default values for required fields
+      final state = sessionData['state'] as int? ?? 0;
+      final turn = sessionData['turn']?.toString() ?? '1';
+
+      final piecesData =
+          result.data!['checkersMarqPieceModels']['edges'] as List;
+      final playersData =
+          result.data!['checkersMarqPlayerModels']['edges'] as List;
+
+      if (kDebugMode) {
+        log("Pieces data: $piecesData");
+        log("Players data: $playersData");
+      }
+
+      final pieces = piecesData.map<CheckersPiece>((edge) {
+        final node = edge['node'] as Map<String, dynamic>;
+        return CheckersPiece(
+          sessionId: sessionId,
+          row: node['row'] as int? ?? 0,
+          col: node['col'] as int? ?? 0,
+          player: node['player']?.toString() ?? '',
+          position: _parsePosition(node['position']?.toString() ?? ''),
+          isKing: node['is_king'] as bool? ?? false,
+          isAlive: node['is_alive'] as bool? ?? true,
+        );
+      }).toList();
+
+      return CheckersSessionData(
+        id: sessionId.toString(),
+        status: _parseGameState(state),
+        nextPlayer: turn,
+        sessionUserStatus: _buildUserStatus(playersData),
+        nextPlayerId: turn,
+        createdAt: DateTime.now(),
+        pieces: pieces,
+        isGameOver: false,
+        orangeScore: _getPlayerScore(playersData, Position.Up),
+        blackScore: _getPlayerScore(playersData, Position.Down),
+        isBlackTurn: turn == '2',
+        message: null,
+      );
     } catch (e) {
+      if (kDebugMode) log("Error in findSession: $e");
       throw Exception("Failed to find session: $e");
     }
-    return null;
   }
 
   Future<List<CheckersSessionData>> getAvailableSessions() async {
@@ -525,8 +591,8 @@ class CheckersSession extends _$CheckersSession {
           createdAt: DateTime.now(),
           pieces: [], // Initial empty board
           isGameOver: false,
-          orangeScore: 12,
-          blackScore: 12,
+          orangeScore: _getPlayerScore(playersData, Position.Up),
+          blackScore: _getPlayerScore(playersData, Position.Down),
           isBlackTurn: sessionData['turn'] == '2',
           message: null,
         ));
