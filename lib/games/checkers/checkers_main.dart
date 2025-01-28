@@ -9,8 +9,8 @@ import 'package:marquis_v2/games/checkers/views/screens/match_result/match_resul
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/router/route_path.dart';
 
-import 'core/game/checkers_game_controller.dart';
-import 'core/utils/constants.dart';
+import 'checkers_game_controller.dart';
+import 'utils/constants.dart';
 
 class CheckersGameAppPath extends AppRoutePath {
   final String? id;
@@ -30,7 +30,8 @@ class CheckersGameApp extends ConsumerStatefulWidget {
 
 class _CheckersGameAppState extends ConsumerState<CheckersGameApp> {
   final _game = CheckersGameController();
-  final _gameWidgetKey = GlobalKey<RiverpodAwareGameWidgetState<CheckersGameController>>();
+  final _gameWidgetKey =
+      GlobalKey<RiverpodAwareGameWidgetState<CheckersGameController>>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,15 +66,21 @@ class _CheckersGameAppState extends ConsumerState<CheckersGameApp> {
                               context: context,
                               useRootNavigator: false,
                               builder: (BuildContext context) {
-                                return CheckersGameOutcomeDialog(_game, didUserWin: false);
+                                return CheckersGameOutcomeDialog(_game,
+                                    didUserWin: false);
                               },
                             );
                           },
-                          child: Image.asset('assets/images/Group 1171276336.png', fit: BoxFit.cover, height: 60, width: 60),
+                          child: Image.asset(
+                              'assets/images/Group 1171276336.png',
+                              fit: BoxFit.cover,
+                              height: 60,
+                              width: 60),
                         ),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 80.0, right: 80),
+                            padding:
+                                const EdgeInsets.only(left: 80.0, right: 80),
                             child: AspectRatio(
                               aspectRatio: 7 / 20,
                               child: FittedBox(
@@ -106,9 +113,11 @@ class _CheckersGameAppState extends ConsumerState<CheckersGameApp> {
       game: _game,
       overlayBuilderMap: {
         PlayState.welcome.name: (context, game) => CheckersHomeScreen(game),
-        PlayState.waiting.name: (context, game) => CheckersWaitingRoom(game, gameMode: GameMode.free),
+        PlayState.waiting.name: (context, game) =>
+            CheckersWaitingRoom(game, gameMode: GameMode.free),
         PlayState.playing.name: (context, game) => CheckersGameScreen(game),
-        PlayState.finished.name: (context, game) => CheckersMatchResultScreen(game),
+        PlayState.finished.name: (context, game) =>
+            CheckersMatchResultScreen(game),
       },
     );
   }

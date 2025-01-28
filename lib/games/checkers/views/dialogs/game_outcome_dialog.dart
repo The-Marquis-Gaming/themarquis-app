@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:marquis_v2/games/checkers/core/game/checkers_game_controller.dart';
+import 'package:marquis_v2/games/checkers/checkers_game_controller.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/widgets/ui_widgets.dart';
 

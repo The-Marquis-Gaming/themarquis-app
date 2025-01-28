@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
+import 'package:marquis_v2/games/checkers/providers/checkers_provider.dart';
+import 'package:marquis_v2/widgets/error_dialog.dart';
 
 class CheckersJoinGameDialog extends ConsumerStatefulWidget {
   const CheckersJoinGameDialog({super.key});
@@ -12,6 +15,58 @@ class CheckersJoinGameDialog extends ConsumerStatefulWidget {
 
 class CheckersJoinGameDialogState
     extends ConsumerState<CheckersJoinGameDialog> {
+  bool isLoading = false;
+  List<CheckersSessionData>? availableSessions;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAvailableSessions();
+  }
+
+  Future<void> _fetchAvailableSessions() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final sessions = await ref
+          .read(checkersSessionProvider.notifier)
+          .getAvailableSessions();
+      setState(() {
+        availableSessions = sessions;
+      });
+    } catch (e) {
+      if (mounted) {
+        showErrorDialog(e.toString(), context);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _joinGame(String sessionId) async {
+    setState(() => isLoading = true);
+    try {
+      await ref
+          .read(checkersSessionProvider.notifier)
+          .joinLobby(int.parse(sessionId));
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) showErrorDialog(e.toString(), context);
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -27,32 +82,63 @@ class CheckersJoinGameDialogState
         clipBehavior: Clip.antiAlias,
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.80,
-          height: MediaQuery.of(context).size.height * 0.70,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _topBar(context),
+                Text(
+                  'Available Games',
+                  style: TextStyle(
+                    fontFamily: "Montserrat",
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 16),
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        _joinGameDetails(context),
-                        SizedBox(height: 10),
-                        _joinGameDetails(context),
-                        SizedBox(height: 10),
-                        _joinGameDetails(context),
-                        SizedBox(height: 10),
-                        _joinGameDetails(context),
-                        SizedBox(height: 10),
-                        _joinGameDetails(context),
-                      ],
+                if (isLoading)
+                  const CircularProgressIndicator()
+                else if (availableSessions?.isEmpty ?? true)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'No games available',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  )
+                else
+                  SizedBox(
+                    height: 300,
+                    child: ListView.builder(
+                      itemCount: availableSessions!.length,
+                      itemBuilder: (context, index) {
+                        final session = availableSessions![index];
+                        return _buildRoomItem(session);
+                      },
                     ),
                   ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFFF3B46E),
+                      ),
+                      child: Text('Cancel'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () => _fetchAvailableSessions(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF3B46E),
+                        foregroundColor: Colors.black,
+                      ),
+                      child: Text('Refresh'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -62,160 +148,46 @@ class CheckersJoinGameDialogState
     );
   }
 
-  Widget _topBar(BuildContext context) {
-    return Column(
-      children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: IconButton(
-            visualDensity: VisualDensity.compact,
-            padding: const EdgeInsets.all(0),
-            onPressed: Navigator.of(context).pop,
-            icon: const Icon(
-              Icons.cancel_outlined,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        Text(
-          'Join Game',
-          style: TextStyle(
-            fontFamily: "Montserrat",
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _joinGameDetails(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        textTheme: TextTheme(
-            bodyMedium: TextStyle(
-          fontFamily: "Orbitron",
-        )),
+  Widget _buildRoomItem(CheckersSessionData session) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xFFF3B46E)),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Container(
-        height: 95,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          color: const Color(0x94181B25),
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: Color(0xFF2E2E2E),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-          ),
-          child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _roomDetials(context),
-                  _joinMenu(),
-                ],
+              Text(
+                'Room ${session.id}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '1/2 Players',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
-        ),
+          ElevatedButton(
+            onPressed: () => _joinGame(session.id),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF3B46E),
+              foregroundColor: Colors.black,
+            ),
+            child: Text('Join'),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _joinMenu() {
-    return Column(
-      children: [
-        Text(
-          '1/2 Players',
-          style: TextStyle(
-            fontFamily: "Orbitron",
-            color: const Color(0xFF979797),
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        SizedBox(height: 15),
-        GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Container(
-            height: 33,
-            width: 94,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3B46E),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Center(
-              child: Text(
-                'Join',
-                style: TextStyle(
-                  fontFamily: "Orbitron",
-                  color: Colors.black,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _roomDetials(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'ROOM 0030',
-          style: TextStyle(
-            fontFamily: "Orbitron",
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: 8),
-        Row(
-          children: [
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2),
-                color: const Color(0xFFF3B46E),
-              ),
-              child: Center(
-                child: Image.asset('assets/images/male.png'),
-              ),
-            ),
-            SizedBox(width: 8),
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2),
-                border: Border.all(
-                  color: const Color(0xFF5D5D5D),
-                ),
-              ),
-              child: Center(
-                child: SvgPicture.asset('assets/svg/userCheckers.svg'),
-              ),
-            )
-          ],
-        ),
-      ],
     );
   }
 }

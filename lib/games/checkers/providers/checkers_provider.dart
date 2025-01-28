@@ -18,7 +18,7 @@ enum Position {
 class CheckersSession extends _$CheckersSession {
   Box<CheckersSessionData>? _hiveBox;
   String? _sessionId;
-  Piece? _selectedPiece;
+  CheckersPiece? _selectedPiece;
   GraphQLClient? _graphQLClient;
   StreamSubscription<QueryResult>? _subscription;
 
@@ -50,12 +50,34 @@ class CheckersSession extends _$CheckersSession {
   // Create a new game lobby
   Future<void> createLobby() async {
     try {
-      final txHash = await ref.read(starknetProvider.notifier).createLobby();
-      if (kDebugMode) print("Created lobby with tx: $txHash");
-      // The state will be updated automatically through GraphQL subscription
+      final sessionId = await ref.read(starknetProvider.notifier).createLobby();
+      if (kDebugMode) print("Created lobby with session: $sessionId");
+
+      // Join the lobby we just created
+      await joinLobby(int.parse(sessionId));
+
+      // Query for the specific session we created
+      final sessionData = await findSession(int.parse(sessionId));
+      if (sessionData != null) {
+        state = sessionData;
+        // Subscribe to session updates
+        await subscribeToSession(sessionId);
+      } else {
+        throw Exception('Failed to create game: Could not find session data');
+      }
     } catch (e) {
       if (kDebugMode) print("Error creating lobby: $e");
-      rethrow;
+      if (e is OperationException) {
+        final errors = e.graphqlErrors;
+        if (errors.isNotEmpty) {
+          throw Exception(
+              'GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
+        } else {
+          throw Exception(
+              'Network Error: ${e.linkException?.toString() ?? e.toString()}');
+        }
+      }
+      throw Exception("Failed to create lobby: $e");
     }
   }
 
@@ -66,11 +88,10 @@ class CheckersSession extends _$CheckersSession {
           await ref.read(starknetProvider.notifier).joinLobby(sessionId);
       if (kDebugMode) print("Joined lobby with tx: $txHash");
       _sessionId = sessionId.toString();
-      // Subscribe to session updates
       await subscribeToSession(_sessionId!);
     } catch (e) {
       if (kDebugMode) print("Error joining lobby: $e");
-      rethrow;
+      throw Exception("Failed to join lobby: $e");
     }
   }
 
@@ -87,15 +108,14 @@ class CheckersSession extends _$CheckersSession {
             sessionId: sessionId,
           );
       if (kDebugMode) print("Spawned piece with tx: $txHash");
-      // State will be updated through subscription
     } catch (e) {
       if (kDebugMode) print("Error spawning piece: $e");
-      rethrow;
+      throw Exception("Failed to spawn piece: $e");
     }
   }
 
   // Check if a piece can be selected
-  Future<bool> canChoosePiece(Piece piece) async {
+  Future<bool> canChoosePiece(CheckersPiece piece) async {
     try {
       return await ref.read(starknetProvider.notifier).canChoosePiece(
             position: piece.position,
@@ -111,7 +131,7 @@ class CheckersSession extends _$CheckersSession {
 
   // Move a piece on the board
   Future<void> movePiece({
-    required Piece piece,
+    required CheckersPiece piece,
     required int targetRow,
     required int targetCol,
   }) async {
@@ -122,15 +142,14 @@ class CheckersSession extends _$CheckersSession {
             targetCol: targetCol,
           );
       if (kDebugMode) print("Moved piece with tx: $txHash");
-      // State will be updated through subscription
     } catch (e) {
       if (kDebugMode) print("Error moving piece: $e");
-      rethrow;
+      throw Exception("Failed to move piece: $e");
     }
   }
 
   // Select a piece
-  Future<void> selectPiece(Piece piece) async {
+  Future<void> selectPiece(CheckersPiece piece) async {
     if (await canChoosePiece(piece)) {
       _selectedPiece = piece;
       state = state?.copyWith(message: "Piece selected");
@@ -147,15 +166,16 @@ class CheckersSession extends _$CheckersSession {
   }
 
   // Get selected piece
-  Piece? get selectedPiece => _selectedPiece;
+  CheckersPiece? get selectedPiece => _selectedPiece;
 
   // Subscribe to session updates
   Future<void> subscribeToSession(String sessionId) async {
     final subscriptionDocument = gql('''
-      subscription OnSessionUpdate(\$sessionId: u64!) {
-        checkersMarqSessionModels(where: { session_idEQ: \$sessionId }) {
-          edges {
-            node {
+      subscription OnSessionUpdate(\$sessionId: ID!) {
+        entityUpdated(id: \$sessionId) {
+          keys
+          models {
+            ... on checkers_marq_Session {
               session_id
               player_1
               player_2
@@ -163,11 +183,7 @@ class CheckersSession extends _$CheckersSession {
               winner
               state
             }
-          }
-        }
-        checkersMarqPieceModels(where: { session_idEQ: \$sessionId }) {
-          edges {
-            node {
+            ... on checkers_marq_Piece {
               row
               col
               player
@@ -175,11 +191,7 @@ class CheckersSession extends _$CheckersSession {
               is_king
               is_alive
             }
-          }
-        }
-        checkersMarqPlayerModels {
-          edges {
-            node {
+            ... on checkers_marq_Player {
               player
               remaining_pieces
             }
@@ -196,29 +208,62 @@ class CheckersSession extends _$CheckersSession {
         variables: {'sessionId': sessionId},
       ),
     )
-        .listen((result) {
-      if (result.hasException) {
-        if (kDebugMode) print('GraphQL Error: ${result.exception}');
-        return;
-      }
+        .listen(
+      (result) {
+        if (result.hasException) {
+          final errors = result.exception?.graphqlErrors ?? [];
+          if (errors.isNotEmpty) {
+            if (kDebugMode) {
+              print(
+                  'GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
+            }
+          } else {
+            if (kDebugMode) {
+              print('Subscription Error: ${result.exception.toString()}');
+            }
+          }
+          return;
+        }
 
-      if (result.data != null) {
-        _updateStateFromGraphQL(result.data!);
-      }
-    });
+        if (result.data != null) {
+          _updateStateFromGraphQL(result.data!);
+        }
+      },
+      onError: (error) {
+        if (kDebugMode) {
+          print('Subscription Error: $error');
+        }
+      },
+    );
   }
 
   // Update state from GraphQL data
   void _updateStateFromGraphQL(Map<String, dynamic> data) {
     try {
-      final sessionData = data['checkersMarqSessionModels']['edges'][0]['node'];
-      final piecesData = data['checkersMarqPieceModels']['edges'];
-      final playersData = data['checkersMarqPlayerModels']['edges'];
+      final entityData = data['entityUpdated'];
+      if (entityData == null) return;
 
-      final pieces = piecesData.map<Piece>((edge) {
-        final node = edge['node'];
-        return Piece(
-          sessionId: int.parse(sessionData['session_id']),
+      final models = entityData['models'] as List;
+      Map<String, dynamic>? sessionData;
+      List<Map<String, dynamic>> piecesData = [];
+      List<Map<String, dynamic>> playersData = [];
+
+      // Sort the models into their respective types
+      for (var model in models) {
+        if (model['session_id'] != null) {
+          sessionData = model;
+        } else if (model['row'] != null) {
+          piecesData.add(model);
+        } else if (model['remaining_pieces'] != null) {
+          playersData.add(model);
+        }
+      }
+
+      if (sessionData == null) return;
+
+      final pieces = piecesData.map<CheckersPiece>((node) {
+        return CheckersPiece(
+          sessionId: int.parse(sessionData!['session_id']),
           row: node['row'],
           col: node['col'],
           player: node['player'],
@@ -239,6 +284,8 @@ class CheckersSession extends _$CheckersSession {
         isGameOver: sessionData['winner'] != null,
         orangeScore: _getPlayerScore(playersData, Position.Up),
         blackScore: _getPlayerScore(playersData, Position.Down),
+        isBlackTurn: sessionData['turn'] == '2',
+        message: state?.message,
       );
 
       state = newState;
@@ -310,6 +357,185 @@ class CheckersSession extends _$CheckersSession {
         return 'FINISHED';
       default:
         return 'WAITING';
+    }
+  }
+
+  void updateTurn(bool isBlackTurn) {
+    if (state != null) {
+      try {
+        state = state!.copyWith(
+          isBlackTurn: isBlackTurn,
+          nextPlayer:
+              isBlackTurn ? "2" : "1", // Update nextPlayer based on turn
+        );
+      } catch (e) {
+        if (kDebugMode) print('Error updating turn: $e');
+      }
+    }
+  }
+
+  Future<CheckersSessionData?> findSession(int sessionId) async {
+    try {
+      // Query for session
+      final result = await _graphQLClient?.query(
+        QueryOptions(
+          document: gql('''
+            query FindSession(\$sessionId: u64!) {
+              checkersMarqSessionModels(where: { session_idEQ: \$sessionId }) {
+                edges {
+                  node {
+                    session_id
+                    player_1
+                    player_2
+                    turn
+                    state
+                  }
+                }
+              }
+              checkersMarqPieceModels(where: { session_idEQ: \$sessionId }) {
+                edges {
+                  node {
+                    row
+                    col
+                    player
+                    position
+                    is_king
+                    is_alive
+                  }
+                }
+              }
+              checkersMarqPlayerModels {
+                edges {
+                  node {
+                    player
+                    remaining_pieces
+                  }
+                }
+              }
+            }
+          '''),
+          variables: {'sessionId': sessionId},
+        ),
+      );
+
+      if (result?.data != null) {
+        // Create and return a new CheckersSessionData
+        final sessionData =
+            result!.data!['checkersMarqSessionModels']['edges'][0]['node'];
+        final piecesData = result.data!['checkersMarqPieceModels']['edges'];
+        final playersData = result.data!['checkersMarqPlayerModels']['edges'];
+
+        final pieces = piecesData.map<CheckersPiece>((edge) {
+          final node = edge['node'];
+          return CheckersPiece(
+            sessionId: int.parse(sessionData['session_id']),
+            row: node['row'],
+            col: node['col'],
+            player: node['player'],
+            position: _parsePosition(node['position']),
+            isKing: node['is_king'],
+            isAlive: node['is_alive'],
+          );
+        }).toList();
+
+        return CheckersSessionData(
+          id: sessionData['session_id'].toString(),
+          status: _parseGameState(sessionData['state']),
+          nextPlayer: sessionData['turn'].toString(),
+          sessionUserStatus: _buildUserStatus(playersData),
+          nextPlayerId: sessionData['turn'].toString(),
+          createdAt: DateTime.now(),
+          pieces: pieces,
+          isGameOver: false,
+          orangeScore: _getPlayerScore(playersData, Position.Up),
+          blackScore: _getPlayerScore(playersData, Position.Down),
+          isBlackTurn: sessionData['turn'] == '2', // 2 = Down = Black's turn
+          message: null,
+        );
+      }
+    } catch (e) {
+      throw Exception("Failed to find session: $e");
+    }
+    return null;
+  }
+
+  Future<List<CheckersSessionData>> getAvailableSessions() async {
+    try {
+      final result = await _graphQLClient?.query(
+        QueryOptions(
+          document: gql('''
+            query GetAvailableSessions {
+              checkersMarqSessionModels(
+                first: 10,
+                order: {direction: DESC, field: STATE},
+                where: {stateEQ: 0}  # 0 = WAITING state
+              ) {
+                edges {
+                  node {
+                    session_id
+                    player_1
+                    player_2
+                    turn
+                    state
+                  }
+                }
+              }
+              checkersMarqPlayerModels {
+                edges {
+                  node {
+                    player
+                    remaining_pieces
+                  }
+                }
+              }
+            }
+          '''),
+        ),
+      );
+
+      // Check for GraphQL errors
+      if (result?.hasException ?? false) {
+        final errors = result?.exception?.graphqlErrors ?? [];
+        if (errors.isNotEmpty) {
+          throw Exception(
+              'GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
+        } else if (result?.exception != null) {
+          throw Exception('Network Error: ${result?.exception.toString()}');
+        }
+      }
+
+      // Check for null data
+      if (result?.data == null) {
+        throw Exception('No data received from server');
+      }
+
+      final sessions = <CheckersSessionData>[];
+      final sessionEdges =
+          result!.data!['checkersMarqSessionModels']['edges'] as List;
+      final playersData = result.data!['checkersMarqPlayerModels']['edges'];
+
+      for (final edge in sessionEdges) {
+        final sessionData = edge['node'];
+        sessions.add(CheckersSessionData(
+          id: sessionData['session_id'].toString(),
+          status: _parseGameState(sessionData['state']),
+          nextPlayer: sessionData['turn'].toString(),
+          sessionUserStatus: _buildUserStatus(playersData),
+          nextPlayerId: sessionData['turn'].toString(),
+          createdAt: DateTime.now(),
+          pieces: [], // Initial empty board
+          isGameOver: false,
+          orangeScore: 12,
+          blackScore: 12,
+          isBlackTurn: sessionData['turn'] == '2',
+          message: null,
+        ));
+      }
+
+      return sessions;
+    } catch (e) {
+      if (kDebugMode) print('Error querying available sessions: $e');
+      throw Exception('Failed to query available sessions: $e');
     }
   }
 }

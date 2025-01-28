@@ -21,10 +21,13 @@ class CheckersSessionData extends HiveObject with _$CheckersSessionData {
     @HiveField(8) required int orangeScore,
     @HiveField(9) required int blackScore,
     @HiveField(10) String? message,
+    @HiveField(11) required bool isBlackTurn,
   }) = _CheckersSessionData;
 
   factory CheckersSessionData.fromJson(Map<String, dynamic> json) =>
       _$CheckersSessionDataFromJson(json);
+
+  int get whiteScore => orangeScore;
 }
 
 @freezed

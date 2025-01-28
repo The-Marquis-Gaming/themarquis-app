@@ -2,10 +2,11 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 
-import '../game/checkers_game_controller.dart';
+import '../checkers_game_controller.dart';
 import 'checkers_pin.dart';
 
-class CheckersState extends Component with HasGameReference<CheckersGameController> {
+class CheckersState extends Component
+    with HasGameReference<CheckersGameController> {
   CheckersPin? selectedPiece;
   List<Vector2> validMoves = [];
   bool isBlackTurn = true;
@@ -30,7 +31,9 @@ class CheckersState extends Component with HasGameReference<CheckersGameControll
     moves.add(position + Vector2(-1.0, direction.toDouble()));
     moves.add(position + Vector2(1.0, direction.toDouble()));
 
-    return moves.where((move) => move.x >= 0 && move.x < 8 && move.y >= 0 && move.y < 8).toList();
+    return moves
+        .where((move) => move.x >= 0 && move.x < 8 && move.y >= 0 && move.y < 8)
+        .toList();
   }
 
   void switchTurn() {

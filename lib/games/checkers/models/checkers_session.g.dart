@@ -29,13 +29,14 @@ class CheckersSessionDataImplAdapter
       orangeScore: fields[8] as int,
       blackScore: fields[9] as int,
       message: fields[10] as String?,
+      isBlackTurn: fields[11] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, _$CheckersSessionDataImpl obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -54,6 +55,8 @@ class CheckersSessionDataImplAdapter
       ..write(obj.blackScore)
       ..writeByte(10)
       ..write(obj.message)
+      ..writeByte(11)
+      ..write(obj.isBlackTurn)
       ..writeByte(3)
       ..write(obj.sessionUserStatus)
       ..writeByte(6)
@@ -199,6 +202,7 @@ _$CheckersSessionDataImpl _$$CheckersSessionDataImplFromJson(
       orangeScore: (json['orangeScore'] as num).toInt(),
       blackScore: (json['blackScore'] as num).toInt(),
       message: json['message'] as String?,
+      isBlackTurn: json['isBlackTurn'] as bool,
     );
 
 Map<String, dynamic> _$$CheckersSessionDataImplToJson(
@@ -215,6 +219,7 @@ Map<String, dynamic> _$$CheckersSessionDataImplToJson(
       'orangeScore': instance.orangeScore,
       'blackScore': instance.blackScore,
       'message': instance.message,
+      'isBlackTurn': instance.isBlackTurn,
     };
 
 _$CheckersSessionUserStatusImpl _$$CheckersSessionUserStatusImplFromJson(

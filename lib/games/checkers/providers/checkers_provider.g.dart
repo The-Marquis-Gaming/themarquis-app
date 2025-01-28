@@ -6,7 +6,7 @@ part of 'checkers_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$checkersSessionHash() => r'fe7ae8903e45c016d31f1b0412fc990d66c98219';
+String _$checkersSessionHash() => r'f7039f81e825815ff6ac363ed0f5a9628a405595';
 
 /// See also [CheckersSession].
 @ProviderFor(CheckersSession)

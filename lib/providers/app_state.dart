@@ -228,8 +228,7 @@ class AppState extends _$AppState {
 
   Future<void> logout() async {
     if (kDebugMode) print("logout");
-    await Future.delayed(
-      Duration.zero,
+    await Future.microtask(
       () {
         state = state.copyWith(
           navigatorIndex: 0,

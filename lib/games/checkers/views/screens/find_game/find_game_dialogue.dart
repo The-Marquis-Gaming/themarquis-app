@@ -1,6 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
+import 'package:marquis_v2/games/checkers/providers/checkers_provider.dart';
 import 'package:marquis_v2/games/checkers/views/screens/find_game/room_found_dialogue.dart';
+import 'package:marquis_v2/widgets/error_dialog.dart';
 
 class CheckersFindRoomDialog extends ConsumerStatefulWidget {
   const CheckersFindRoomDialog({super.key});
@@ -19,6 +23,27 @@ class CheckersFindRoomDialogState
   void initState() {
     super.initState();
     _roomIdController.text;
+  }
+
+  Future<void> _findGame() async {
+    if (_roomIdController.text.isEmpty) return;
+
+    setState(() => isLoading = true);
+    try {
+      final sessionId = int.parse(_roomIdController.text);
+      final session = await ref
+          .read(checkersSessionProvider.notifier)
+          .findSession(sessionId);
+
+      if (mounted && session != null) {
+        Navigator.pop(context);
+        _showRoomFoundDialog(context, session);
+      }
+    } catch (e) {
+      if (mounted) showErrorDialog(e.toString(), context);
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
   }
 
   @override
@@ -145,10 +170,7 @@ class CheckersFindRoomDialogState
         const SizedBox(width: 8),
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _roomFoundDialog(ctx: context);
-            },
+            onPressed: isLoading ? null : _findGame,
             style: OutlinedButton.styleFrom(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
@@ -156,7 +178,14 @@ class CheckersFindRoomDialogState
               backgroundColor: const Color(0xFFF3B46E),
             ),
             child: isLoading
-                ? const CircularProgressIndicator()
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.black,
+                    ),
+                  )
                 : Text(
                     'Confirm',
                     style: TextStyle(
@@ -172,12 +201,13 @@ class CheckersFindRoomDialogState
     );
   }
 
-  Future<void> _roomFoundDialog({required BuildContext ctx}) {
+  Future<void> _showRoomFoundDialog(
+      BuildContext context, CheckersSessionData session) {
     return showDialog(
-      context: ctx,
+      context: context,
       useRootNavigator: false,
       builder: (BuildContext context) {
-        return RoomFoundDialogue();
+        return RoomFoundDialogue(sessionId: session.id);
       },
     );
   }

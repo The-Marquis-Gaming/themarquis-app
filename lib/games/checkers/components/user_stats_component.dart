@@ -5,9 +5,10 @@ import 'package:flame/flame.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../core/game/checkers_game_controller.dart';
+import '../checkers_game_controller.dart';
 
-class UserStatsComponent extends PositionComponent with HasGameReference<CheckersGameController> {
+class UserStatsComponent extends PositionComponent
+    with HasGameReference<CheckersGameController> {
   late TextComponent player1Name;
   late TextComponent player2Name;
   late SpriteComponent player1Avatar;
@@ -124,7 +125,8 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
       await _createStatsContainer(
         text: "QUEENS",
         value: "0",
-        position: Vector2(isTablet ? game.width - 145 : game.width - 100, game.height - 187),
+        position: Vector2(
+            isTablet ? game.width - 145 : game.width - 100, game.height - 187),
         icon: queenComponentSprite,
         containerSize: baseSize,
       );
@@ -192,13 +194,17 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
   }) {
     if (playerIndex == 0) {
       // Update top player stats
-      if (lostPieces != null) _updateStatValue("LOST PIECES", lostPieces.toString(), false);
-      if (winPieces != null) _updateStatValue("WIN PIECES", winPieces.toString(), false);
+      if (lostPieces != null)
+        _updateStatValue("LOST PIECES", lostPieces.toString(), false);
+      if (winPieces != null)
+        _updateStatValue("WIN PIECES", winPieces.toString(), false);
       if (queens != null) _updateStatValue("QUEENS", queens.toString(), false);
     } else {
       // Update bottom player stats
-      if (lostPieces != null) _updateStatValue("LOST PIECES", lostPieces.toString(), true);
-      if (winPieces != null) _updateStatValue("WIN PIECES", winPieces.toString(), true);
+      if (lostPieces != null)
+        _updateStatValue("LOST PIECES", lostPieces.toString(), true);
+      if (winPieces != null)
+        _updateStatValue("WIN PIECES", winPieces.toString(), true);
       if (queens != null) _updateStatValue("QUEENS", queens.toString(), true);
     }
   }

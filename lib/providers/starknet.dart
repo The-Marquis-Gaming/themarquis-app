@@ -1,10 +1,12 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:starknet/starknet.dart';
 import 'package:starknet_provider/starknet_provider.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 part 'starknet.g.dart';
 part 'starknet.freezed.dart';
@@ -36,43 +38,42 @@ class Starknet extends _$Starknet {
   }
 
   Future<void> initAccount() async {
-    await generateAccount();
-    // try {
-    //   final privateKey = await _storage.read(key: _privateKeyStorageKey);
+    try {
+      final privateKey = await _storage.read(key: _privateKeyStorageKey);
 
-    //   if (privateKey != null) {
-    //     final accountAddress =
-    //         await computeAccountAddress(Felt.fromHexString(privateKey));
-    //     // Create signer account
-    //     final account = getAccount(
-    //       accountAddress: Felt.fromHexString(accountAddress),
-    //       privateKey: Felt.fromHexString(privateKey),
-    //       nodeUri: Uri.parse('http://localhost:5050'),
-    //     );
+      if (privateKey != null) {
+        final accountAddress =
+            await computeAccountAddress(Felt.fromHexString(privateKey));
+        // Create signer account
+        final account = getAccount(
+          accountAddress: Felt.fromHexString(accountAddress),
+          privateKey: Felt.fromHexString(privateKey),
+          nodeUri: Uri.parse('http://localhost:5050'),
+        );
 
-    //     // Update state
-    //     state = state.copyWith(signerAccount: account);
-    //     try {
-    //       (await state.provider.getClassHashAt(
-    //               contractAddress: Felt.fromHexString(accountAddress),
-    //               blockId: BlockId.latest))
-    //           .when(
-    //         result: (result) => result,
-    //         error: (error) =>
-    //             throw Exception("Failed to get account class hash"),
-    //       );
-    //     } catch (e) {
-    //       print("account not deployed, generating account");
-    //       await generateAccount();
-    //     }
-    //   } else {
-    //     print("account not found, generating account");
-    //     await generateAccount();
-    //   }
-    // } catch (e) {
-    //   // Handle initialization error
-    //   print('Failed to initialize Starknet provider: $e');
-    // }
+        // Update state
+        state = state.copyWith(signerAccount: account);
+        try {
+          (await state.provider.getClassHashAt(
+                  contractAddress: Felt.fromHexString(accountAddress),
+                  blockId: BlockId.latest))
+              .when(
+            result: (result) => result,
+            error: (error) =>
+                throw Exception("Failed to get account class hash"),
+          );
+        } catch (e) {
+          print("account not deployed, generating account");
+          await generateAccount();
+        }
+      } else {
+        print("account not found, generating account");
+        await generateAccount();
+      }
+    } catch (e) {
+      // Handle initialization error
+      print('Failed to initialize Starknet provider: $e');
+    }
   }
 
   Future<void> generateAccount() async {
@@ -176,7 +177,8 @@ class Starknet extends _$Starknet {
       functionName: "create_lobby",
       calldata: [],
     );
-    return res.transactionHash.toHexString();
+    print("create lobby events: ${res.events}");
+    return res.events[0].data!.last.toHexString();
   }
 
   // Returns transaction hash on success
@@ -194,7 +196,7 @@ class Starknet extends _$Starknet {
   }
 
   // Returns current session ID as uint256
-  Future<BigInt> getSessionId() async {
+  Future<BigInt?> getSessionId() async {
     if (state.signerAccount == null) {
       throw Exception("Signer account is not initialized");
     }
@@ -204,8 +206,14 @@ class Starknet extends _$Starknet {
       functionName: "get_session_id",
     );
 
+    print("get session id events: ${res.events}");
+
+    if (res.events.isEmpty) {
+      return null;
+    }
+
     // Parse the response to get session ID as BigInt
-    return res.events[0].data![0].toBigInt();
+    return res.events[0].data!.last.toBigInt();
   }
 
   // Returns transaction hash on success
@@ -258,7 +266,7 @@ class Starknet extends _$Starknet {
 
   // Returns transaction hash on success
   Future<String> movePiece({
-    required Piece currentPiece,
+    required CheckersPiece currentPiece,
     required int targetRow,
     required int targetCol,
   }) async {
@@ -373,20 +381,6 @@ class Starknet extends _$Starknet {
     }
     return receipt;
   }
-}
-
-// Add required data classes
-@freezed
-class Piece with _$Piece {
-  factory Piece({
-    required int sessionId,
-    required int row,
-    required int col,
-    required String player,
-    required int position, // 0 = None, 1 = Up, 2 = Down
-    required bool isKing,
-    required bool isAlive,
-  }) = _Piece;
 }
 
 // Constants

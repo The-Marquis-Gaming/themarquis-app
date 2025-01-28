@@ -43,6 +43,8 @@ mixin _$CheckersSessionData {
   int get blackScore => throw _privateConstructorUsedError;
   @HiveField(10)
   String? get message => throw _privateConstructorUsedError;
+  @HiveField(11)
+  bool get isBlackTurn => throw _privateConstructorUsedError;
 
   /// Serializes this CheckersSessionData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -71,7 +73,8 @@ abstract class $CheckersSessionDataCopyWith<$Res> {
       @HiveField(7) bool isGameOver,
       @HiveField(8) int orangeScore,
       @HiveField(9) int blackScore,
-      @HiveField(10) String? message});
+      @HiveField(10) String? message,
+      @HiveField(11) bool isBlackTurn});
 }
 
 /// @nodoc
@@ -100,6 +103,7 @@ class _$CheckersSessionDataCopyWithImpl<$Res, $Val extends CheckersSessionData>
     Object? orangeScore = null,
     Object? blackScore = null,
     Object? message = freezed,
+    Object? isBlackTurn = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -146,6 +150,10 @@ class _$CheckersSessionDataCopyWithImpl<$Res, $Val extends CheckersSessionData>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String?,
+      isBlackTurn: null == isBlackTurn
+          ? _value.isBlackTurn
+          : isBlackTurn // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -169,7 +177,8 @@ abstract class _$$CheckersSessionDataImplCopyWith<$Res>
       @HiveField(7) bool isGameOver,
       @HiveField(8) int orangeScore,
       @HiveField(9) int blackScore,
-      @HiveField(10) String? message});
+      @HiveField(10) String? message,
+      @HiveField(11) bool isBlackTurn});
 }
 
 /// @nodoc
@@ -196,6 +205,7 @@ class __$$CheckersSessionDataImplCopyWithImpl<$Res>
     Object? orangeScore = null,
     Object? blackScore = null,
     Object? message = freezed,
+    Object? isBlackTurn = null,
   }) {
     return _then(_$CheckersSessionDataImpl(
       id: null == id
@@ -242,6 +252,10 @@ class __$$CheckersSessionDataImplCopyWithImpl<$Res>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String?,
+      isBlackTurn: null == isBlackTurn
+          ? _value.isBlackTurn
+          : isBlackTurn // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -262,7 +276,8 @@ class _$CheckersSessionDataImpl extends _CheckersSessionData {
       @HiveField(7) required this.isGameOver,
       @HiveField(8) required this.orangeScore,
       @HiveField(9) required this.blackScore,
-      @HiveField(10) this.message})
+      @HiveField(10) this.message,
+      @HiveField(11) required this.isBlackTurn})
       : _sessionUserStatus = sessionUserStatus,
         _pieces = pieces,
         super._();
@@ -316,10 +331,13 @@ class _$CheckersSessionDataImpl extends _CheckersSessionData {
   @override
   @HiveField(10)
   final String? message;
+  @override
+  @HiveField(11)
+  final bool isBlackTurn;
 
   @override
   String toString() {
-    return 'CheckersSessionData(id: $id, status: $status, nextPlayer: $nextPlayer, sessionUserStatus: $sessionUserStatus, nextPlayerId: $nextPlayerId, createdAt: $createdAt, pieces: $pieces, isGameOver: $isGameOver, orangeScore: $orangeScore, blackScore: $blackScore, message: $message)';
+    return 'CheckersSessionData(id: $id, status: $status, nextPlayer: $nextPlayer, sessionUserStatus: $sessionUserStatus, nextPlayerId: $nextPlayerId, createdAt: $createdAt, pieces: $pieces, isGameOver: $isGameOver, orangeScore: $orangeScore, blackScore: $blackScore, message: $message, isBlackTurn: $isBlackTurn)';
   }
 
   @override
@@ -344,7 +362,9 @@ class _$CheckersSessionDataImpl extends _CheckersSessionData {
                 other.orangeScore == orangeScore) &&
             (identical(other.blackScore, blackScore) ||
                 other.blackScore == blackScore) &&
-            (identical(other.message, message) || other.message == message));
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.isBlackTurn, isBlackTurn) ||
+                other.isBlackTurn == isBlackTurn));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -361,7 +381,8 @@ class _$CheckersSessionDataImpl extends _CheckersSessionData {
       isGameOver,
       orangeScore,
       blackScore,
-      message);
+      message,
+      isBlackTurn);
 
   /// Create a copy of CheckersSessionData
   /// with the given fields replaced by the non-null parameter values.
@@ -382,18 +403,20 @@ class _$CheckersSessionDataImpl extends _CheckersSessionData {
 
 abstract class _CheckersSessionData extends CheckersSessionData {
   factory _CheckersSessionData(
-      {@HiveField(0) required final String id,
-      @HiveField(1) required final String status,
-      @HiveField(2) required final String nextPlayer,
-      @HiveField(3)
-      required final List<CheckersSessionUserStatus> sessionUserStatus,
-      @HiveField(4) required final String nextPlayerId,
-      @HiveField(5) required final DateTime createdAt,
-      @HiveField(6) required final List<CheckersPiece> pieces,
-      @HiveField(7) required final bool isGameOver,
-      @HiveField(8) required final int orangeScore,
-      @HiveField(9) required final int blackScore,
-      @HiveField(10) final String? message}) = _$CheckersSessionDataImpl;
+          {@HiveField(0) required final String id,
+          @HiveField(1) required final String status,
+          @HiveField(2) required final String nextPlayer,
+          @HiveField(3)
+          required final List<CheckersSessionUserStatus> sessionUserStatus,
+          @HiveField(4) required final String nextPlayerId,
+          @HiveField(5) required final DateTime createdAt,
+          @HiveField(6) required final List<CheckersPiece> pieces,
+          @HiveField(7) required final bool isGameOver,
+          @HiveField(8) required final int orangeScore,
+          @HiveField(9) required final int blackScore,
+          @HiveField(10) final String? message,
+          @HiveField(11) required final bool isBlackTurn}) =
+      _$CheckersSessionDataImpl;
   _CheckersSessionData._() : super._();
 
   factory _CheckersSessionData.fromJson(Map<String, dynamic> json) =
@@ -432,6 +455,9 @@ abstract class _CheckersSessionData extends CheckersSessionData {
   @override
   @HiveField(10)
   String? get message;
+  @override
+  @HiveField(11)
+  bool get isBlackTurn;
 
   /// Create a copy of CheckersSessionData
   /// with the given fields replaced by the non-null parameter values.

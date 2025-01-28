@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/models/app_state.dart';
 import 'package:marquis_v2/models/user.dart';
@@ -21,10 +22,13 @@ void main() async {
   Hive.registerAdapter(UserDataImplAdapter());
   Hive.registerAdapter(LudoSessionDataImplAdapter());
   Hive.registerAdapter(LudoSessionUserStatusImplAdapter());
+  Hive.registerAdapter(CheckersSessionDataImplAdapter());
+  Hive.registerAdapter(CheckersSessionUserStatusImplAdapter());
   await Future.wait([
     _loadAppStateBox(),
-    Hive.openBox<UserData>("user"),
-    Hive.openBox<LudoSessionData>("ludoSession")
+    _loadUserBox(),
+    _loadLudoSessionBox(),
+    _loadCheckersSessionBox()
   ]);
   runApp(const ProviderScope(child: MyApp()));
   // Magic.instance = Magic("pk_live_D38AAC9114F908B0");
@@ -36,6 +40,33 @@ Future<void> _loadAppStateBox() async {
   } catch (e) {
     await Hive.deleteBoxFromDisk("appState");
     await Hive.openBox<AppStateData>("appState");
+  }
+}
+
+Future<void> _loadUserBox() async {
+  try {
+    await Hive.openBox<UserData>("user");
+  } catch (e) {
+    await Hive.deleteBoxFromDisk("user");
+    await Hive.openBox<UserData>("user");
+  }
+}
+
+Future<void> _loadLudoSessionBox() async {
+  try {
+    await Hive.openBox<LudoSessionData>("ludoSession");
+  } catch (e) {
+    await Hive.deleteBoxFromDisk("ludoSession");
+    await Hive.openBox<LudoSessionData>("ludoSession");
+  }
+}
+
+Future<void> _loadCheckersSessionBox() async {
+  try {
+    await Hive.openBox<CheckersSessionData>("checkersSession");
+  } catch (e) {
+    await Hive.deleteBoxFromDisk("checkersSession");
+    await Hive.openBox<CheckersSessionData>("checkersSession");
   }
 }
 
@@ -63,7 +94,7 @@ class MyApp extends ConsumerWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       routeInformationParser: AppRouteInformationParser(),
-      routerDelegate: ref.read(routerDelegateProvider),
+      routerDelegate: ref.watch(routerDelegateProvider),
     );
   }
 }
