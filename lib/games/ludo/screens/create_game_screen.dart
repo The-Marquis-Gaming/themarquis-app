@@ -31,7 +31,6 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   GameMode? _gameMode;
   String? _selectedTokenAddress;
   double? _selectedTokenAmount;
-  //String? _playerColor;
   bool _isLoading = false;
   bool _shouldRetrieveBalance = false;
 
@@ -48,12 +47,6 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       _selectedTokenAmount = null;
     });
   }
-
-  /*void _selectPinColor(String pinColor) {
-    setState(() {
-      _playerColor = pinColor;
-    });
-  }*/
 
   void _selectTokenAddress(String tokenAddress) {
     setState(() {
@@ -97,7 +90,6 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   Future<void> _createGame() async {
     final game =
         ModalRoute.of(context)!.settings.arguments as LudoGameController;
-    //final color = _playerColor!.split("/").last.split(".").first.split("_").first;
     final requiredPlayers = _numberOfPlayers == NumberOfPlayers.two ? "2" : "4";
     try {
       setState(() {
@@ -105,7 +97,6 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       });
       await ref.read(ludoSessionProvider.notifier).createSession(
             _gameMode == GameMode.free ? '0' : '$_selectedTokenAmount',
-            //color,
             _selectedTokenAddress ?? "0",
             requiredPlayers,
           );
@@ -815,87 +806,6 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                       },
                                     ),
                                   ),
-                                /*if (((_activeTab == 2 &&
-                                        _gameMode == GameMode.free) ||
-                                    _activeTab == 3))
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Text('Pin Color',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600)),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          PinColorOption(
-                                            gradient: const LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Color(0xFF005C30),
-                                                Color(0x730C3823),
-                                                Color(0xFF005C30)
-                                              ],
-                                            ),
-                                            svgPath:
-                                                'assets/svg/chess-and-bg/green_chess.svg',
-                                            selectedPinColor: _playerColor,
-                                            onTap: _selectPinColor,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          PinColorOption(
-                                            gradient: const LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Color(0xC700CEDB),
-                                                Color(0x73145559),
-                                                Color(0x9E00CEDB)
-                                              ],
-                                            ),
-                                            svgPath:
-                                                'assets/svg/chess-and-bg/blue_chess.svg',
-                                            selectedPinColor: _playerColor,
-                                            onTap: _selectPinColor,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          PinColorOption(
-                                            gradient: const LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Color(0xC7DB0000),
-                                                Color(0x73591414),
-                                                Color(0x9EDB0000)
-                                              ],
-                                            ),
-                                            svgPath:
-                                                'assets/svg/chess-and-bg/red_chess.svg',
-                                            selectedPinColor: _playerColor,
-                                            onTap: _selectPinColor,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          PinColorOption(
-                                            gradient: const LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Color(0xC7DBD200),
-                                                Color(0x73595214),
-                                                Color(0x9EDBD200)
-                                              ],
-                                            ),
-                                            svgPath:
-                                                'assets/svg/chess-and-bg/yellow_chess.svg',
-                                            selectedPinColor: _playerColor,
-                                            onTap: _selectPinColor,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),*/
                               ],
                             ),
                           ),

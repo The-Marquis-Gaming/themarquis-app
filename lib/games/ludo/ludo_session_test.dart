@@ -124,7 +124,7 @@ class LudoSessionTest extends LudoSession {
   }
 
   @override
-  Future<void> joinSession(String sessionId, String color) async {
+  Future<void> joinSession(String sessionId) async {
     return;
   }
 
