@@ -190,7 +190,8 @@ class Starknet extends _$Starknet {
       throw Exception("No session ID returned from contract");
     }
 
-    final sessionId = res.events.first.data!.last.toHexString();
+    final sessionId =
+        '0x${(res.events.first.data!.last.toInt() - 1).toRadixString(16)}';
     if (kDebugMode) {
       log("Session ID: $sessionId");
     }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flame/components.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +99,6 @@ class CheckersGameController extends MarquisGameController {
   Future<void> initGame() async {
     camera.viewfinder.anchor = Anchor.center;
 
-    // Remove userStats initialization from here since it's done in onLoad
     if (userStats == null) {
       userStats = UserStatsComponent()..position = Vector2(0, 20);
       await add(userStats!);
@@ -110,24 +111,20 @@ class CheckersGameController extends MarquisGameController {
     final horizontalOffset = (width - boardSize) / 2 + tabletOffset;
     final verticalOffset = (height - boardSize) / 2;
 
-    board = CheckersBoard()
-      ..size = Vector2.all(boardSize)
-      ..position = Vector2(horizontalOffset, verticalOffset);
-
-    await add(board!);
-
-    // Subscribe to session updates
-    final sessionId = ref.read(checkersSessionProvider)?.id;
-    if (sessionId != null) {
-      await ref
-          .read(checkersSessionProvider.notifier)
-          .subscribeToSession(sessionId);
+    if (board == null) {
+      board = CheckersBoard()
+        ..size = Vector2.all(boardSize)
+        ..position = Vector2(horizontalOffset, verticalOffset);
+      await add(board!);
     }
 
     // Initialize board with provider state
     final session = ref.read(checkersSessionProvider);
     if (session != null) {
+      if (kDebugMode) log("Initializing board with session: ${session.id}");
       board?.initializeFromSession(session);
+    } else {
+      if (kDebugMode) log("No session data available for initialization");
     }
 
     _isBlackTurn = false;

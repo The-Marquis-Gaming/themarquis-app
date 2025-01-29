@@ -112,7 +112,9 @@ class _CheckersGameAppState extends ConsumerState<CheckersGameApp> {
       key: _gameWidgetKey,
       game: _game,
       overlayBuilderMap: {
-        PlayState.welcome.name: (context, game) => CheckersHomeScreen(game),
+        PlayState.welcome.name: (context, game) => CheckersHomeScreen(
+              gameController: game,
+            ),
         PlayState.waiting.name: (context, game) =>
             CheckersWaitingRoom(game, gameMode: GameMode.free),
         PlayState.playing.name: (context, game) => CheckersGameScreen(game),

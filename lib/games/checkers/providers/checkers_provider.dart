@@ -54,18 +54,20 @@ class CheckersSession extends _$CheckersSession {
       final sessionId = await ref.read(starknetProvider.notifier).createLobby();
       if (kDebugMode) {
         log("Created lobby with session: $sessionId");
-        log("Session ID type: ${sessionId.runtimeType}");
+        log("Raw session ID value: $sessionId");
       }
 
-      if (sessionId == null) {
-        throw Exception('Failed to create game: No session ID returned');
+      // Parse the session ID correctly
+      final parsedSessionId = sessionId.startsWith('0x')
+          ? int.parse(sessionId.substring(2), radix: 16)
+          : int.parse(sessionId);
+
+      if (kDebugMode) {
+        log("Parsed session ID: $parsedSessionId");
       }
 
-      // Join the lobby we just created
-      await joinLobby(int.parse(sessionId));
-
-      // Query for the specific session we created
-      final sessionData = await findSession(int.parse(sessionId));
+      // Query for the session we just created (with retries)
+      final sessionData = await findSession(parsedSessionId, retries: 3);
       if (sessionData != null) {
         if (kDebugMode) {
           log("Updated state with session data:");
@@ -75,8 +77,15 @@ class CheckersSession extends _$CheckersSession {
           log("User Status: ${sessionData.sessionUserStatus}");
         }
         state = sessionData;
+
         // Subscribe to session updates
         await subscribeToSession(sessionId);
+
+        // Join the lobby after subscribing
+        await ref
+            .read(starknetProvider.notifier)
+            .joinLobby(int.parse(sessionId));
+        if (kDebugMode) log("Joined created lobby");
       } else {
         throw Exception('Failed to create game: Could not find session data');
       }
@@ -102,13 +111,34 @@ class CheckersSession extends _$CheckersSession {
   // Join an existing game lobby
   Future<void> joinLobby(int sessionId) async {
     try {
+      if (kDebugMode) log("Joining lobby with session ID: $sessionId");
+
+      // Join the lobby
       final txHash =
           await ref.read(starknetProvider.notifier).joinLobby(sessionId);
-      if (kDebugMode) print("Joined lobby with tx: $txHash");
-      _sessionId = sessionId.toString();
-      await subscribeToSession(_sessionId!);
-    } catch (e) {
-      if (kDebugMode) print("Error joining lobby: $e");
+      if (kDebugMode) log("Joined lobby with tx: $txHash");
+
+      // Query for the session we just joined
+      final sessionData = await findSession(sessionId);
+      if (sessionData != null) {
+        if (kDebugMode) {
+          log("Updated state with session data:");
+          log("ID: ${sessionData.id}");
+          log("Status: ${sessionData.status}");
+          log("Next Player: ${sessionData.nextPlayer}");
+          log("User Status: ${sessionData.sessionUserStatus}");
+        }
+        state = sessionData;
+        // Subscribe to session updates
+        await subscribeToSession(sessionId.toString());
+      } else {
+        throw Exception('Failed to join game: Could not find session data');
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        log("Error joining lobby: $e");
+        log("Stack trace: $stackTrace");
+      }
       throw Exception("Failed to join lobby: $e");
     }
   }
@@ -397,20 +427,23 @@ class CheckersSession extends _$CheckersSession {
     }
   }
 
-  Future<CheckersSessionData?> findSession(int sessionId) async {
+  Future<CheckersSessionData?> findSession(int sessionId,
+      {int retries = 3}) async {
     try {
-      if (kDebugMode) log("Finding session with ID: $sessionId");
+      if (kDebugMode) {
+        log("Finding session with ID: $sessionId (Attempt ${4 - retries}/3)");
+      }
 
-      // Convert sessionId to hex string
       final hexSessionId = "0x${sessionId.toRadixString(16)}";
-      if (kDebugMode) log("Hex session ID: $hexSessionId");
 
-      // Query for session
+      // Updated query to match the schema structure
       final result = await _graphQLClient?.query(
         QueryOptions(
           document: gql('''
             query FindSession(\$sessionId: String!) {
-              checkersMarqSessionModels(where: { session_idEQ: \$sessionId }) {
+              checkersMarqSessionModels(
+                where: {session_id: \$sessionId}
+              ) {
                 edges {
                   node {
                     session_id
@@ -418,10 +451,13 @@ class CheckersSession extends _$CheckersSession {
                     player_2
                     turn
                     state
+                    winner
                   }
                 }
               }
-              checkersMarqPieceModels(where: { session_idEQ: \$sessionId }) {
+              checkersMarqPieceModels(
+                where: {session_id: \$sessionId}
+              ) {
                 edges {
                   node {
                     row
@@ -433,6 +469,7 @@ class CheckersSession extends _$CheckersSession {
                   }
                 }
               }
+              # Removed session_id filter for players since it's not in the schema
               checkersMarqPlayerModels {
                 edges {
                   node {
@@ -444,10 +481,25 @@ class CheckersSession extends _$CheckersSession {
             }
           '''),
           variables: {'sessionId': hexSessionId},
+          fetchPolicy: FetchPolicy.networkOnly,
         ),
       );
 
-      if (kDebugMode) log("Query result: ${result?.data}");
+      if (kDebugMode) {
+        log("Query variables: {'sessionId': $hexSessionId}");
+        log("Raw query result: ${result?.data}");
+      }
+
+      // If no session found and we have retries left, wait and try again
+      final edges =
+          result?.data?['checkersMarqSessionModels']['edges'] as List?;
+      if ((edges?.isEmpty ?? true) && retries > 1) {
+        if (kDebugMode) {
+          log("Session not found, retrying in 1 second... (${retries - 1} retries left)");
+        }
+        await Future.delayed(const Duration(seconds: 1));
+        return findSession(sessionId, retries: retries - 1);
+      }
 
       if (result?.hasException ?? false) {
         final errors = result?.exception?.graphqlErrors ?? [];
@@ -459,39 +511,19 @@ class CheckersSession extends _$CheckersSession {
         }
       }
 
-      if (result?.data == null) {
-        throw Exception('No data received from server');
-      }
-
-      final edges = result!.data!['checkersMarqSessionModels']['edges'] as List;
-      if (edges.isEmpty) {
-        if (kDebugMode) log("No session found with ID: $sessionId");
+      if (edges?.isEmpty ?? true) {
+        if (kDebugMode)
+          log("No session found with ID: $sessionId after all retries");
         return null;
       }
 
-      final sessionData = edges[0]['node'] as Map<String, dynamic>;
-      if (sessionData == null) {
-        throw Exception('Session data is null');
-      }
-
-      if (kDebugMode) {
-        log("Session data: $sessionData");
-      }
-
-      // Default values for required fields
-      final state = sessionData['state'] as int? ?? 0;
-      final turn = sessionData['turn']?.toString() ?? '1';
-
+      final sessionData = edges![0]['node'] as Map<String, dynamic>;
       final piecesData =
-          result.data!['checkersMarqPieceModels']['edges'] as List;
+          result!.data!['checkersMarqPieceModels']['edges'] as List;
       final playersData =
           result.data!['checkersMarqPlayerModels']['edges'] as List;
 
-      if (kDebugMode) {
-        log("Pieces data: $piecesData");
-        log("Players data: $playersData");
-      }
-
+      // Create pieces list from the pieces data
       final pieces = piecesData.map<CheckersPiece>((edge) {
         final node = edge['node'] as Map<String, dynamic>;
         return CheckersPiece(
@@ -507,16 +539,16 @@ class CheckersSession extends _$CheckersSession {
 
       return CheckersSessionData(
         id: sessionId.toString(),
-        status: _parseGameState(state),
-        nextPlayer: turn,
+        status: _parseGameState(sessionData['state'] as int? ?? 0),
+        nextPlayer: sessionData['turn']?.toString() ?? '1',
         sessionUserStatus: _buildUserStatus(playersData),
-        nextPlayerId: turn,
+        nextPlayerId: sessionData['turn']?.toString() ?? '1',
         createdAt: DateTime.now(),
         pieces: pieces,
-        isGameOver: false,
+        isGameOver: sessionData['winner'] != null,
         orangeScore: _getPlayerScore(playersData, Position.Up),
         blackScore: _getPlayerScore(playersData, Position.Down),
-        isBlackTurn: turn == '2',
+        isBlackTurn: sessionData['turn'] == '2',
         message: null,
       );
     } catch (e) {

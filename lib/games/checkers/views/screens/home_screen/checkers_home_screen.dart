@@ -16,8 +16,12 @@ import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/starknet.dart';
 
 class CheckersHomeScreen extends ConsumerStatefulWidget {
-  final CheckersGameController _game;
-  const CheckersHomeScreen(this._game, {super.key});
+  const CheckersHomeScreen({
+    super.key,
+    required this.gameController,
+  });
+
+  final CheckersGameController gameController;
 
   @override
   ConsumerState<CheckersHomeScreen> createState() => CheckersHomeScreenState();
@@ -181,7 +185,7 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
               child: CheckersMenuButtonWidget(
                 icon: 'assets/svg/megCoin.svg',
                 label: 'Join Game',
-                onTap: () => _joinGameDialog(ctx: context),
+                onTap: () => _showJoinGameDialog(),
               ),
             ),
           ),
@@ -211,31 +215,34 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
 
     if (playersJoined >= 2) {
       // If session is full, go to game
-      await widget._game.updatePlayState(PlayState.playing);
+      await widget.gameController.updatePlayState(PlayState.playing);
     } else {
       // If session is not full, go to waiting room
-      await widget._game.updatePlayState(PlayState.waiting);
+      await widget.gameController.updatePlayState(PlayState.waiting);
     }
   }
 
   void _showCreateGame(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => CheckersCreateGame(widget._game),
+      builder: (context) => CheckersCreateGame(widget.gameController),
     );
   }
 
-  void _showJoinGame(BuildContext context) {
+  void _showJoinGameDialog() {
     showDialog(
       context: context,
-      builder: (context) => const CheckersJoinGameDialog(),
+      builder: (context) => CheckersJoinGameDialog(
+        gameController: widget.gameController,
+      ),
     );
   }
 
   Future<void> _createRoomDialog({required BuildContext ctx}) {
     return showDialog(
       context: ctx,
-      builder: (BuildContext context) => CheckersCreateGame(widget._game),
+      builder: (BuildContext context) =>
+          CheckersCreateGame(widget.gameController),
     );
   }
 
@@ -245,16 +252,6 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
       useRootNavigator: false,
       builder: (BuildContext context) {
         return CheckersFindRoomDialog();
-      },
-    );
-  }
-
-  Future<void> _joinGameDialog({required BuildContext ctx}) {
-    return showDialog(
-      context: ctx,
-      useRootNavigator: false,
-      builder: (BuildContext context) {
-        return CheckersJoinGameDialog();
       },
     );
   }

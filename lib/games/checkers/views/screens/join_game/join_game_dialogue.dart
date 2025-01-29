@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marquis_v2/games/checkers/checkers_game_controller.dart';
 import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
 import 'package:marquis_v2/games/checkers/providers/checkers_provider.dart';
+import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/widgets/error_dialog.dart';
 
 class CheckersJoinGameDialog extends ConsumerStatefulWidget {
-  const CheckersJoinGameDialog({super.key});
+  const CheckersJoinGameDialog({
+    super.key,
+    required this.gameController,
+  });
+
+  final CheckersGameController gameController;
 
   @override
   ConsumerState<CheckersJoinGameDialog> createState() =>
@@ -17,11 +24,19 @@ class CheckersJoinGameDialogState
     extends ConsumerState<CheckersJoinGameDialog> {
   bool isLoading = false;
   List<CheckersSessionData>? availableSessions;
+  bool _isJoining = false;
+  final TextEditingController _sessionIdController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchAvailableSessions();
+  }
+
+  @override
+  void dispose() {
+    _sessionIdController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchAvailableSessions() async {
@@ -50,19 +65,30 @@ class CheckersJoinGameDialogState
   }
 
   Future<void> _joinGame(String sessionId) async {
-    setState(() => isLoading = true);
+    if (_isJoining) return;
+
+    setState(() {
+      _isJoining = true;
+    });
+
     try {
       await ref
           .read(checkersSessionProvider.notifier)
           .joinLobby(int.parse(sessionId));
+
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.of(context).pop();
+        await widget.gameController.updatePlayState(PlayState.playing);
       }
     } catch (e) {
-      if (mounted) showErrorDialog(e.toString(), context);
+      if (mounted) {
+        showErrorDialog(e.toString(), context);
+      }
     } finally {
       if (mounted) {
-        setState(() => isLoading = false);
+        setState(() {
+          _isJoining = false;
+        });
       }
     }
   }
@@ -164,12 +190,12 @@ class CheckersJoinGameDialogState
             children: [
               Text(
                 'Room ${session.id}',
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
+              const Text(
                 '1/2 Players',
                 style: TextStyle(
                   color: Colors.grey,
@@ -184,7 +210,7 @@ class CheckersJoinGameDialogState
               backgroundColor: const Color(0xFFF3B46E),
               foregroundColor: Colors.black,
             ),
-            child: Text('Join'),
+            child: const Text('Join'),
           ),
         ],
       ),
