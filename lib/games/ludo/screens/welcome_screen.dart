@@ -489,6 +489,10 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
     }
   }
 
+  /*Future<void> setNumberOfPlayers(NumberOfPlayers players) async {
+    numberOfPlayersNotifier.value = players;
+  }*/
+
   Future<void> joinGame(String roomId) async {
     try {
       await ref

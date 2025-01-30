@@ -44,7 +44,8 @@ class PlayerPin extends SpriteComponent
       Flame.images.fromCache('spritesheet.png'),
       srcPosition: Vector2(
           spriteLocationMap[game.listOfColors[playerIndex]]![0],
-          spriteLocationMap[game.listOfColors[playerIndex]]![1]),
+          spriteLocationMap[game.listOfColors[playerIndex]]![1]
+      ),
       srcSize: Vector2(spriteLocationMap[game.listOfColors[playerIndex]]![2],
           spriteLocationMap[game.listOfColors[playerIndex]]![3]),
     );

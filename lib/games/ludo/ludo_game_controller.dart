@@ -57,7 +57,7 @@ class LudoGameController extends MarquisGameController {
   double get unitSize => size.x / 17;
 
   List<Color> get listOfColors =>
-      _sessionData?.getListOfColors ??
+
       const [
         Color(0xffd04c2f),
         Color(0xff2fa9d0),

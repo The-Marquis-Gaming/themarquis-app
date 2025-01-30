@@ -761,7 +761,7 @@ class _FourPlayerWaitingRoomScreenState
       return true;
     }
     
-    final requiredPlayers = int.tryParse(session.requiredPlayers ?? "4") ?? 4;
+    final requiredPlayers = int.tryParse(session.requiredPlayers)! - 1;
     final activePlayers = session.sessionUserStatus.where((e) => e.status == "ACTIVE").length;
     
     if (kDebugMode) {
