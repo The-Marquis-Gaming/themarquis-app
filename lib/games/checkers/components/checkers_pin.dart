@@ -23,25 +23,44 @@ class CheckersPin extends PositionComponent {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    final ByteData data = await rootBundle.load(spritePath);
-    final String svgString = String.fromCharCodes(data.buffer.asUint8List());
-    checkerSprite = await vg.loadPicture(SvgStringLoader(svgString), null);
+
+    try {
+      // Load the appropriate sprite based on the piece color
+      final ByteData data = await rootBundle.load(spritePath);
+      final String svgString = String.fromCharCodes(data.buffer.asUint8List());
+      checkerSprite = await vg.loadPicture(SvgStringLoader(svgString), null);
+
+      // Debug log
+      debugPrint(
+          'Loaded ${isBlack ? "black" : "white"} piece sprite from $spritePath at position $position');
+    } catch (e) {
+      debugPrint('Error loading sprite: $e');
+    }
   }
 
   @override
   void render(Canvas canvas) {
-    canvas.save();
-    canvas.translate(position.x, position.y);
-    canvas.scale(
-      size.x / checkerSprite.size.width,
-      size.y / checkerSprite.size.height,
-    );
-    canvas.translate(
-      -checkerSprite.size.width / 2,
-      -checkerSprite.size.height / 2,
-    );
-    canvas.drawPicture(checkerSprite.picture);
-    canvas.restore();
+    try {
+      canvas.save();
+
+      // Scale the sprite to fit the piece size while maintaining aspect ratio
+      final scale = size.x / checkerSprite.size.width;
+
+      // Center the piece
+      canvas.translate(position.x, position.y);
+      canvas.scale(scale);
+
+      // Center the sprite within the piece
+      canvas.translate(
+        -checkerSprite.size.width / 2,
+        -checkerSprite.size.height / 2,
+      );
+
+      canvas.drawPicture(checkerSprite.picture);
+      canvas.restore();
+    } catch (e) {
+      debugPrint('Error rendering piece: $e');
+    }
   }
 
   void promoteToKing() {

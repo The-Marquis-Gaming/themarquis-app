@@ -171,46 +171,6 @@ class CheckersBoard extends RectangleComponent
       }
     }
 
-    // Draw pieces from the pieces array
-    for (int row = 0; row < boardSize; row++) {
-      for (int col = 0; col < boardSize; col++) {
-        if (pieces[row][col] != null) {
-          canvas.save();
-          canvas.translate(
-            pieces[row][col]!.position.x,
-            pieces[row][col]!.position.y,
-          );
-
-          canvas.scale(
-            pinSize /
-                (pieces[row][col]!.isBlack ? blackPinSprite : whitePinSprite)
-                    .size
-                    .width,
-            pinSize /
-                (pieces[row][col]!.isBlack ? blackPinSprite : whitePinSprite)
-                    .size
-                    .height,
-          );
-
-          canvas.translate(
-            -(pieces[row][col]!.isBlack ? blackPinSprite : whitePinSprite)
-                    .size
-                    .width /
-                2,
-            -(pieces[row][col]!.isBlack ? blackPinSprite : whitePinSprite)
-                    .size
-                    .height /
-                2,
-          );
-
-          canvas.drawPicture(
-              (pieces[row][col]!.isBlack ? blackPinSprite : whitePinSprite)
-                  .picture);
-          canvas.restore();
-        }
-      }
-    }
-
     // Highlight valid moves if a piece is selected
     if (selectedPiece != null) {
       for (final move in gameState.validMoves) {
@@ -441,35 +401,63 @@ class CheckersBoard extends RectangleComponent
     for (int row = 0; row < boardSize; row++) {
       for (int col = 0; col < boardSize; col++) {
         if (pieces[row][col] != null) {
-          pieces[row][col]!.removeFromParent();
+          remove(pieces[row][col]!);
           pieces[row][col] = null;
         }
       }
     }
 
-    // Place pieces from session data
-    for (final piece in session.pieces) {
-      if (piece.isAlive) {
-        final isBlack = piece.position == 2; // 2 for black, 1 for white
-        final newPiece = CheckersPin(
-          isBlack: isBlack,
-          position: Vector2(
-            piece.col * (size.x / boardSize),
-            piece.row * (size.y / boardSize),
-          ),
-          dimensions:
-              Vector2(size.x / boardSize * 0.8, size.y / boardSize * 0.8),
-          spritePath: isBlack
-              ? 'assets/images/blackchecker.svg'
-              : 'assets/images/whitechecker.svg',
-        );
+    // Calculate square size and piece size
+    final squareSize = size.x / boardSize;
+    final pieceSize = squareSize * 0.8; // Pieces are 80% of square size
 
-        if (piece.isKing) {
-          newPiece.promoteToKing();
+    if (kDebugMode) {
+      print("Initializing board with ${session.pieces.length} pieces");
+      print("Session data: ${session.toString()}");
+    }
+
+    // Initialize standard checkers setup
+    // Black pieces on top (rows 0-2), White pieces on bottom (rows 5-7)
+    // Only on dark squares (where row + col is odd)
+    for (int row = 0; row < boardSize; row++) {
+      for (int col = 0; col < boardSize; col++) {
+        if ((row + col) % 2 == 1) {
+          // Only place pieces on dark squares
+          bool shouldPlacePiece = false;
+          bool isBlack = false;
+
+          if (row < 3) {
+            // Top three rows
+            shouldPlacePiece = true;
+            isBlack = true;
+          } else if (row > 4) {
+            // Bottom three rows
+            shouldPlacePiece = true;
+            isBlack = false;
+          }
+
+          if (shouldPlacePiece) {
+            if (kDebugMode) {
+              print(
+                  "Creating ${isBlack ? 'black' : 'white'} piece at row: $row, col: $col");
+            }
+
+            final newPiece = CheckersPin(
+              isBlack: isBlack,
+              position: Vector2(
+                col * squareSize + (squareSize / 2), // Center horizontally
+                row * squareSize + (squareSize / 2), // Center vertically
+              ),
+              dimensions: Vector2.all(pieceSize),
+              spritePath: isBlack
+                  ? 'assets/images/blackchecker.svg'
+                  : 'assets/images/whitechecker.svg',
+            );
+
+            pieces[row][col] = newPiece;
+            add(newPiece);
+          }
         }
-
-        pieces[piece.row][piece.col] = newPiece;
-        add(newPiece);
       }
     }
 
@@ -479,6 +467,21 @@ class CheckersBoard extends RectangleComponent
       orangeScore: session.orangeScore,
       blackScore: session.blackScore,
     );
+
+    if (kDebugMode) {
+      print("Board initialization complete");
+      print(
+          "Black score: ${session.blackScore}, Orange score: ${session.orangeScore}");
+      // Print final board state
+      for (int row = 0; row < boardSize; row++) {
+        for (int col = 0; col < boardSize; col++) {
+          if (pieces[row][col] != null) {
+            print(
+                "Piece at [$row,$col] is ${pieces[row][col]!.isBlack ? 'black' : 'white'}");
+          }
+        }
+      }
+    }
   }
 
   bool isValidMove(int fromRow, int fromCol, int toRow, int toCol) {

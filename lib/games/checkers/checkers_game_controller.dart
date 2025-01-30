@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:flame/components.dart';
 import 'package:flutter/foundation.dart';
@@ -105,11 +106,14 @@ class CheckersGameController extends MarquisGameController {
       await add(userStats!);
     }
 
-    final boardSizeMultiplier = isTablet ? 18 : 11;
-    final boardSize = unitSize * boardSizeMultiplier;
+    // Calculate board size based on the smaller screen dimension to maintain square aspect ratio
+    final minDimension = math.min(width, height);
+    final boardSizeMultiplier =
+        isTablet ? 0.8 : 0.6; // Use percentage of screen
+    final boardSize = minDimension * boardSizeMultiplier;
 
-    final tabletOffset = isTablet ? -width * 0.12 : 0.0;
-    final horizontalOffset = (width - boardSize) / 2 + tabletOffset;
+    // Center the board
+    final horizontalOffset = (width - boardSize) / 2;
     final verticalOffset = (height - boardSize) / 2;
 
     if (board == null) {
@@ -154,7 +158,7 @@ class CheckersGameController extends MarquisGameController {
         winPieces: currentPlayerStatus.position == "up"
             ? session.orangeScore
             : session.blackScore,
-        queens: 0, // Queens count not available in current data model
+        queens: 0,
       );
 
       // Update stats for opponent
@@ -167,7 +171,7 @@ class CheckersGameController extends MarquisGameController {
         winPieces: opponentStatus.position == "up"
             ? session.orangeScore
             : session.blackScore,
-        queens: 0, // Queens count not available in current data model
+        queens: 0,
       );
     } else {
       if (kDebugMode) log("No session data available for initialization");
