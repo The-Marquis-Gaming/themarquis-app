@@ -8,6 +8,7 @@ import 'package:marquis_v2/games/checkers/components/checkers_state.dart';
 import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:marquis_v2/models/enums.dart';
+import 'dart:math' as math;
 
 import '../checkers_game_controller.dart';
 
@@ -48,25 +49,16 @@ class CheckersBoard extends RectangleComponent
   Future<void> onLoad() async {
     await super.onLoad();
 
-    final isTablet = game.width / game.height > 0.7;
+    // Make the board square and fit within the screen
+    final screenMinDimension = math.min(game.width, game.height);
+    final boardSizeFloat = screenMinDimension *
+        0.8; // Board takes up 80% of the smaller screen dimension
 
-    // Calculate base board size
-    final baseBoardSize = game.unitSize * (isTablet ? 24 : 13);
+    // Set square size
+    size = Vector2(boardSizeFloat, boardSizeFloat);
 
-    // For tablets, make width larger while keeping height the same
-    final boardWidth =
-        isTablet ? baseBoardSize * 1.3 : baseBoardSize; // 30% wider on tablets
-    final boardHeight = baseBoardSize;
-
-    // Set non-square size for tablets
-    size = Vector2(boardWidth, boardHeight);
-
-    // Keep the same tablet offset
-    final tabletOffset = isTablet ? -game.width * 0.15 : 0.0;
-
-    // Center the board using game dimensions with tablet offset
-    position = Vector2(
-        (game.width - size.x) / 2 + tabletOffset, (game.height - size.y) / 2);
+    // Center the board on screen
+    position = Vector2((game.width - size.x) / 2, (game.height - size.y) / 2);
 
     // Initialize game state
     gameState = CheckersState();
@@ -85,10 +77,10 @@ class CheckersBoard extends RectangleComponent
       null,
     );
 
-    // Initialize the board state
+    // Initialize the board state with 8x8 grid
     pieces = List.generate(
-      boardSize,
-      (row) => List.generate(boardSize, (col) => null),
+      8, // Use constant boardSize (8) for the grid
+      (row) => List.generate(8, (col) => null),
     );
 
     // Set up initial piece positions
@@ -171,7 +163,28 @@ class CheckersBoard extends RectangleComponent
       }
     }
 
-    // Highlight valid moves if a piece is selected
+    // Highlight selected piece
+    if (selectedPiece != null && selectedPosition != null) {
+      final rect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(
+          selectedPosition!.x * squareSize,
+          selectedPosition!.y * squareSize,
+          squareSize,
+          squareSize,
+        ),
+        const Radius.circular(3),
+      );
+
+      canvas.drawRRect(
+        rect,
+        Paint()
+          ..color = const Color.fromRGBO(
+              255, 215, 0, 0.5) // Gold color for selected piece
+          ..style = PaintingStyle.fill,
+      );
+    }
+
+    // Highlight valid moves
     if (selectedPiece != null) {
       for (final move in gameState.validMoves) {
         final rect = RRect.fromRectAndRadius(
@@ -184,10 +197,24 @@ class CheckersBoard extends RectangleComponent
           const Radius.circular(3),
         );
 
+        // Draw move indicator
         canvas.drawRRect(
           rect,
           Paint()
-            ..color = const Color.fromRGBO(76, 175, 80, 0.5)
+            ..color =
+                const Color.fromRGBO(76, 175, 80, 0.5) // Green for valid moves
+            ..style = PaintingStyle.fill,
+        );
+
+        // Draw a dot in the center of valid move squares
+        final centerX = move.x * squareSize + squareSize / 2;
+        final centerY = move.y * squareSize + squareSize / 2;
+        canvas.drawCircle(
+          Offset(centerX, centerY),
+          squareSize * 0.15, // Size of the dot
+          Paint()
+            ..color = const Color.fromRGBO(
+                76, 175, 80, 0.8) // Darker green for the dot
             ..style = PaintingStyle.fill,
         );
       }
@@ -203,15 +230,18 @@ class CheckersBoard extends RectangleComponent
     if (!isValidPosition(row, col)) return false;
 
     // If a piece is already selected
-    if (selectedPiece != null) {
-      final validMoves = getValidMoves(
-          selectedPosition!.y.toInt(), selectedPosition!.x.toInt());
-      final targetPos = Vector2(col.toDouble(), row.toDouble());
+    if (selectedPiece != null && selectedPosition != null) {
+      final fromRow = selectedPosition!.y.toInt();
+      final fromCol = selectedPosition!.x.toInt();
 
-      if (validMoves.contains(targetPos)) {
-        // Move the piece
-        movePiece(
-            selectedPosition!.y.toInt(), selectedPosition!.x.toInt(), row, col);
+      // Check if the tap is on a valid move position
+      final validMoves = getValidMoves(fromRow, fromCol);
+      final isMoveValid =
+          validMoves.any((move) => move.row == row && move.col == col);
+
+      if (isMoveValid) {
+        // Make the move through the provider
+        makeNetworkMove(fromRow, fromCol, row, col);
         clearSelection();
         return true;
       }
@@ -225,6 +255,15 @@ class CheckersBoard extends RectangleComponent
     if (piece != null && piece.isBlack == game.isBlackTurn) {
       selectedPiece = piece;
       selectedPosition = Vector2(col.toDouble(), row.toDouble());
+
+      // Show valid moves
+      gameState.validMoves.clear();
+      final validMoves = getValidMoves(row, col);
+      for (final move in validMoves) {
+        gameState.validMoves
+            .add(Vector2(move.col.toDouble(), move.row.toDouble()));
+      }
+
       return true;
     }
 
@@ -414,6 +453,9 @@ class CheckersBoard extends RectangleComponent
     if (kDebugMode) {
       print("Initializing board with ${session.pieces.length} pieces");
       print("Session data: ${session.toString()}");
+      print("Board size: ${size.x} x ${size.y}");
+      print("Square size: $squareSize");
+      print("Piece size: $pieceSize");
     }
 
     // Initialize standard checkers setup
@@ -442,12 +484,18 @@ class CheckersBoard extends RectangleComponent
                   "Creating ${isBlack ? 'black' : 'white'} piece at row: $row, col: $col");
             }
 
+            final piecePosition = Vector2(
+              col * squareSize + (squareSize / 2),
+              row * squareSize + (squareSize / 2),
+            );
+
+            if (kDebugMode) {
+              print("Piece position: $piecePosition");
+            }
+
             final newPiece = CheckersPin(
               isBlack: isBlack,
-              position: Vector2(
-                col * squareSize + (squareSize / 2), // Center horizontally
-                row * squareSize + (squareSize / 2), // Center vertically
-              ),
+              position: piecePosition,
               dimensions: Vector2.all(pieceSize),
               spritePath: isBlack
                   ? 'assets/images/blackchecker.svg'
@@ -470,17 +518,6 @@ class CheckersBoard extends RectangleComponent
 
     if (kDebugMode) {
       print("Board initialization complete");
-      print(
-          "Black score: ${session.blackScore}, Orange score: ${session.orangeScore}");
-      // Print final board state
-      for (int row = 0; row < boardSize; row++) {
-        for (int col = 0; col < boardSize; col++) {
-          if (pieces[row][col] != null) {
-            print(
-                "Piece at [$row,$col] is ${pieces[row][col]!.isBlack ? 'black' : 'white'}");
-          }
-        }
-      }
     }
   }
 

@@ -2,6 +2,8 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:math' as math;
 
 class CheckersPin extends PositionComponent {
   final bool isBlack;
@@ -30,9 +32,10 @@ class CheckersPin extends PositionComponent {
       final String svgString = String.fromCharCodes(data.buffer.asUint8List());
       checkerSprite = await vg.loadPicture(SvgStringLoader(svgString), null);
 
-      // Debug log
-      debugPrint(
-          'Loaded ${isBlack ? "black" : "white"} piece sprite from $spritePath at position $position');
+      if (kDebugMode) {
+        print(
+            'Loaded ${isBlack ? "black" : "white"} piece sprite at position $position with size $size');
+      }
     } catch (e) {
       debugPrint('Error loading sprite: $e');
     }
@@ -41,16 +44,19 @@ class CheckersPin extends PositionComponent {
   @override
   void render(Canvas canvas) {
     try {
+      if (checkerSprite.picture.approximateBytesUsed.isNegative) return;
+
       canvas.save();
 
-      // Scale the sprite to fit the piece size while maintaining aspect ratio
-      final scale = size.x / checkerSprite.size.width;
+      // Calculate the scale to fit the piece within its bounds
+      final scale = math.min(size.x / checkerSprite.size.width,
+          size.y / checkerSprite.size.height);
 
-      // Center the piece
-      canvas.translate(position.x, position.y);
+      // Center the piece in its square
+      canvas.translate(size.x / 2, size.y / 2);
       canvas.scale(scale);
 
-      // Center the sprite within the piece
+      // Center the sprite
       canvas.translate(
         -checkerSprite.size.width / 2,
         -checkerSprite.size.height / 2,
