@@ -6,8 +6,22 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marquis_v2/games/checkers/components/checkers_pin.dart';
 import 'package:marquis_v2/games/checkers/components/checkers_state.dart';
 import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
+import 'package:flutter/foundation.dart';
+import 'package:marquis_v2/models/enums.dart';
 
 import '../checkers_game_controller.dart';
+
+class MovePosition {
+  final int row;
+  final int col;
+  final bool isCapture;
+
+  MovePosition({
+    required this.row,
+    required this.col,
+    this.isCapture = false,
+  });
+}
 
 class CheckersBoard extends RectangleComponent
     with HasGameReference<CheckersGameController>, TapCallbacks {
@@ -261,7 +275,7 @@ class CheckersBoard extends RectangleComponent
     return row >= 0 && row < boardSize && col >= 0 && col < boardSize;
   }
 
-  List<Vector2> getValidMoves(int row, int col) {
+  List<Vector2> getValidMovesAsVector2(int row, int col) {
     List<Vector2> moves = [];
     final piece = pieces[row][col];
     if (piece == null) return moves;
@@ -423,32 +437,39 @@ class CheckersBoard extends RectangleComponent
   }
 
   void initializeFromSession(CheckersSessionData session) {
-    // Create a copy of the children list to avoid concurrent modification
-    final piecesToRemove = [...children.whereType<CheckersPin>()];
+    // Clear existing pieces
+    for (int row = 0; row < boardSize; row++) {
+      for (int col = 0; col < boardSize; col++) {
+        if (pieces[row][col] != null) {
+          pieces[row][col]!.removeFromParent();
+          pieces[row][col] = null;
+        }
+      }
+    }
 
-    // Remove all existing pieces
-    removeAll(piecesToRemove);
-
-    // Clear pieces array
-    pieces = List.generate(boardSize, (_) => List.filled(boardSize, null));
-
-    // Add new pieces from session
+    // Place pieces from session data
     for (final piece in session.pieces) {
-      final newPiece = CheckersPin(
-        isBlack: piece.position == 2, // 2 = Down = Black
-        position: Vector2(
-            piece.col * (size.x / boardSize), piece.row * (size.y / boardSize)),
-        dimensions: Vector2(size.x / boardSize * 0.8, size.y / boardSize * 0.8),
-        spritePath: piece.position == 2
-            ? 'assets/images/blackchecker.svg'
-            : 'assets/images/whitechecker.svg',
-      );
+      if (piece.isAlive) {
+        final isBlack = piece.position == 2; // 2 for black, 1 for white
+        final newPiece = CheckersPin(
+          isBlack: isBlack,
+          position: Vector2(
+            piece.col * (size.x / boardSize),
+            piece.row * (size.y / boardSize),
+          ),
+          dimensions:
+              Vector2(size.x / boardSize * 0.8, size.y / boardSize * 0.8),
+          spritePath: isBlack
+              ? 'assets/images/blackchecker.svg'
+              : 'assets/images/whitechecker.svg',
+        );
 
-      pieces[piece.row][piece.col] = newPiece;
-      add(newPiece);
+        if (piece.isKing) {
+          newPiece.promoteToKing();
+        }
 
-      if (piece.isKing) {
-        newPiece.promoteToKing();
+        pieces[piece.row][piece.col] = newPiece;
+        add(newPiece);
       }
     }
 
@@ -458,5 +479,120 @@ class CheckersBoard extends RectangleComponent
       orangeScore: session.orangeScore,
       blackScore: session.blackScore,
     );
+  }
+
+  bool isValidMove(int fromRow, int fromCol, int toRow, int toCol) {
+    final piece = pieces[fromRow][fromCol];
+    if (piece == null) return false;
+
+    // Check if it's the player's turn
+    final isBlackTurn = game.isBlackTurn;
+    if (piece.isBlack != isBlackTurn) return false;
+
+    // Calculate valid moves for the piece
+    final validMoves = getValidMovesAsVector2(fromRow, fromCol);
+    return validMoves.any((move) => move.y == toRow && move.x == toCol);
+  }
+
+  Future<void> makeNetworkMove(
+      int fromRow, int fromCol, int toRow, int toCol) async {
+    if (!isValidMove(fromRow, fromCol, toRow, toCol)) return;
+
+    try {
+      await game.makeMove(fromRow, fromCol, toRow, toCol);
+      // The board will be updated through the websocket event
+    } catch (e) {
+      if (kDebugMode) print("Error moving piece: $e");
+    }
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    // Check for game over conditions
+    if (game.checkGameOver()) {
+      game.updatePlayState(PlayState.finished);
+    }
+  }
+
+  List<MovePosition> getValidMoves(int row, int col) {
+    final piece = pieces[row][col];
+    if (piece == null) return [];
+
+    final moves = <MovePosition>[];
+    final directions = piece.isKing
+        ? [
+            [-1, -1],
+            [-1, 1],
+            [1, -1],
+            [1, 1]
+          ]
+        : piece.isBlack
+            ? [
+                [1, -1],
+                [1, 1]
+              ]
+            : [
+                [-1, -1],
+                [-1, 1]
+              ];
+
+    // Check normal moves
+    for (final dir in directions) {
+      final newRow = row + dir[0];
+      final newCol = col + dir[1];
+      if (_isValidPosition(newRow, newCol) && pieces[newRow][newCol] == null) {
+        moves.add(MovePosition(row: newRow, col: newCol));
+      }
+    }
+
+    // Check capture moves
+    final captureMoves =
+        _getCaptureMoves(row, col, piece.isBlack, piece.isKing);
+    moves.addAll(captureMoves);
+
+    return moves;
+  }
+
+  List<MovePosition> _getCaptureMoves(
+      int row, int col, bool isBlack, bool isKing) {
+    final moves = <MovePosition>[];
+    final directions = isKing
+        ? [
+            [-1, -1],
+            [-1, 1],
+            [1, -1],
+            [1, 1]
+          ]
+        : isBlack
+            ? [
+                [1, -1],
+                [1, 1]
+              ]
+            : [
+                [-1, -1],
+                [-1, 1]
+              ];
+
+    for (final dir in directions) {
+      final jumpRow = row + dir[0] * 2;
+      final jumpCol = col + dir[1] * 2;
+      final midRow = row + dir[0];
+      final midCol = col + dir[1];
+
+      if (_isValidPosition(jumpRow, jumpCol) &&
+          pieces[jumpRow][jumpCol] == null &&
+          pieces[midRow][midCol] != null &&
+          pieces[midRow][midCol]!.isBlack != isBlack) {
+        moves.add(MovePosition(row: jumpRow, col: jumpCol, isCapture: true));
+      }
+    }
+
+    return moves;
+  }
+
+  bool _isValidPosition(int row, int col) {
+    return row >= 0 && row < boardSize && col >= 0 && col < boardSize;
   }
 }

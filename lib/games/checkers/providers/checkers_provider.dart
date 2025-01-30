@@ -26,15 +26,35 @@ class CheckersSession extends _$CheckersSession {
   // Initialize GraphQL client
   void _initGraphQLClient() {
     final httpLink = HttpLink('http://localhost:8080/graphql');
-    final wsLink = WebSocketLink('ws://localhost:8080/graphql');
+    final wsLink = WebSocketLink(
+      'ws://localhost:8080/graphql',
+      config: SocketClientConfig(
+        autoReconnect: true,
+        inactivityTimeout: const Duration(seconds: 30),
+        initialPayload: () => {
+          'headers': {
+            'content-type': 'application/json',
+          },
+        },
+      ),
+    );
+
+    final link = Link.split(
+      (request) => request.isSubscription,
+      wsLink,
+      httpLink,
+    );
 
     _graphQLClient = GraphQLClient(
-      link: Link.split(
-        (request) => request.isSubscription,
-        wsLink,
-        httpLink,
+      link: link,
+      cache: GraphQLCache(
+        store: InMemoryStore(),
       ),
-      cache: GraphQLCache(),
+      defaultPolicies: DefaultPolicies(
+        subscribe: Policies(
+          fetch: FetchPolicy.noCache,
+        ),
+      ),
     );
   }
 
@@ -238,51 +258,89 @@ class CheckersSession extends _$CheckersSession {
               position
               is_king
               is_alive
+              session_id
             }
             ... on checkers_marq_Player {
               player
               remaining_pieces
+              session_id
             }
           }
         }
       }
     ''');
 
-    _subscription?.cancel();
-    _subscription = _graphQLClient
-        ?.subscribe(
-      SubscriptionOptions(
-        document: subscriptionDocument,
-        variables: {'sessionId': sessionId},
-      ),
-    )
-        .listen(
-      (result) {
-        if (result.hasException) {
-          final errors = result.exception?.graphqlErrors ?? [];
-          if (errors.isNotEmpty) {
-            if (kDebugMode) {
-              print(
-                  'GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
-            }
-          } else {
-            if (kDebugMode) {
-              print('Subscription Error: ${result.exception.toString()}');
-            }
-          }
-          return;
-        }
+    try {
+      _subscription?.cancel();
 
-        if (result.data != null) {
-          _updateStateFromGraphQL(result.data!);
-        }
-      },
-      onError: (error) {
+      if (_graphQLClient == null) {
+        _initGraphQLClient();
+      }
+
+      _subscription = _graphQLClient
+          ?.subscribe(
+        SubscriptionOptions(
+          document: subscriptionDocument,
+          variables: {'sessionId': sessionId},
+          fetchPolicy: FetchPolicy.noCache,
+        ),
+      )
+          .listen(
+        (result) {
+          if (result.hasException) {
+            final errors = result.exception?.graphqlErrors ?? [];
+            if (errors.isNotEmpty) {
+              if (kDebugMode) {
+                print(
+                    'GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
+              }
+            } else {
+              if (kDebugMode) {
+                print('Subscription Error: ${result.exception.toString()}');
+              }
+            }
+            return;
+          }
+
+          if (result.data != null) {
+            if (kDebugMode) {
+              print('Received subscription data: ${result.data}');
+            }
+            _updateStateFromGraphQL(result.data!);
+          }
+        },
+        onError: (error) {
+          if (kDebugMode) {
+            print('Subscription Error: $error');
+          }
+          // Try to reconnect after error
+          Future.delayed(Duration(seconds: 5), () {
+            if (kDebugMode) {
+              print('Attempting to reconnect subscription...');
+            }
+            subscribeToSession(sessionId);
+          });
+        },
+        onDone: () {
+          if (kDebugMode) {
+            print('Subscription completed');
+          }
+        },
+        cancelOnError: false,
+      );
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('Error setting up subscription: $e');
+        print('Stack trace: $stackTrace');
+      }
+      // Try to reconnect after error
+      Future.delayed(Duration(seconds: 5), () {
         if (kDebugMode) {
-          print('Subscription Error: $error');
+          print('Attempting to reconnect subscription after error...');
         }
-      },
-    );
+        subscribeToSession(sessionId);
+      });
+    }
   }
 
   // Update state from GraphQL data
@@ -298,7 +356,7 @@ class CheckersSession extends _$CheckersSession {
 
       // Sort the models into their respective types
       for (var model in models) {
-        if (model['session_id'] != null) {
+        if (model['session_id'] != null && model['turn'] != null) {
           sessionData = model;
         } else if (model['row'] != null) {
           piecesData.add(model);
@@ -309,6 +367,7 @@ class CheckersSession extends _$CheckersSession {
 
       if (sessionData == null) return;
 
+      // Convert pieces data to CheckersPiece objects
       final pieces = piecesData.map<CheckersPiece>((node) {
         return CheckersPiece(
           sessionId: int.parse(sessionData!['session_id']),
@@ -316,11 +375,12 @@ class CheckersSession extends _$CheckersSession {
           col: node['col'],
           player: node['player'],
           position: _parsePosition(node['position']),
-          isKing: node['is_king'],
-          isAlive: node['is_alive'],
+          isKing: node['is_king'] ?? false,
+          isAlive: node['is_alive'] ?? true,
         );
       }).toList();
 
+      // Create new state
       final newState = CheckersSessionData(
         id: sessionData['session_id'].toString(),
         status: _parseGameState(sessionData['state']),
@@ -329,16 +389,30 @@ class CheckersSession extends _$CheckersSession {
         nextPlayerId: sessionData['turn'].toString(),
         createdAt: state?.createdAt ?? DateTime.now(),
         pieces: pieces,
-        isGameOver: sessionData['winner'] != null,
+        isGameOver: sessionData['winner'] != null && sessionData['state'] == 2,
         orangeScore: _getPlayerScore(playersData, Position.Up),
         blackScore: _getPlayerScore(playersData, Position.Down),
         isBlackTurn: sessionData['turn'] == '2',
         message: state?.message,
       );
 
+      if (kDebugMode) {
+        print('Updating state with new data:');
+        print('Session ID: ${newState.id}');
+        print('Status: ${newState.status}');
+        print('Next Player: ${newState.nextPlayer}');
+        print('Pieces Count: ${newState.pieces.length}');
+        print('Game Over: ${newState.isGameOver}');
+        print('Orange Score: ${newState.orangeScore}');
+        print('Black Score: ${newState.blackScore}');
+      }
+
       state = newState;
-    } catch (e) {
-      if (kDebugMode) print('Error updating state from GraphQL: $e');
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('Error updating state from GraphQL: $e');
+        print('Stack trace: $stackTrace');
+      }
     }
   }
 
@@ -545,7 +619,7 @@ class CheckersSession extends _$CheckersSession {
         nextPlayerId: sessionData['turn']?.toString() ?? '1',
         createdAt: DateTime.now(),
         pieces: pieces,
-        isGameOver: sessionData['winner'] != null,
+        isGameOver: sessionData['winner'] != null && sessionData['state'] == 2,
         orangeScore: _getPlayerScore(playersData, Position.Up),
         blackScore: _getPlayerScore(playersData, Position.Down),
         isBlackTurn: sessionData['turn'] == '2',

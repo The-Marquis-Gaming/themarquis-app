@@ -102,7 +102,7 @@ class _CheckersGameScreenState extends ConsumerState<CheckersGameScreen> {
             widget._game.isTablet ? uiPadding * 1.2 : uiPadding * 0.3,
           ),
           child: GestureDetector(
-            onTap: () => _showGameOutcomeDialog(context),
+            onTap: () => widget._game.updatePlayState(PlayState.welcome),
             child: SizedBox(
               width: widget._game.isTablet ? 60 : 60,
               height: widget._game.isTablet ? 60 : 60,
@@ -148,18 +148,21 @@ class _CheckersGameScreenState extends ConsumerState<CheckersGameScreen> {
   }
 
   void _showGameOutcomeDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      useRootNavigator: false,
-      builder: (BuildContext context) {
-        final session = ref.read(checkersSessionProvider);
-        final isBlackWinner =
-            (session?.blackScore ?? 0) > (session?.whiteScore ?? 0);
-        return CheckersGameOutcomeDialog(
-          widget._game,
-          didUserWin: isBlackWinner,
-        );
-      },
-    );
+    final session = ref.read(checkersSessionProvider);
+    // Only show dialog if game is over
+    if (session != null && session.isGameOver) {
+      showDialog(
+        context: context,
+        useRootNavigator: false,
+        builder: (BuildContext context) {
+          final isBlackWinner =
+              (session.blackScore ?? 0) > (session.whiteScore ?? 0);
+          return CheckersGameOutcomeDialog(
+            widget._game,
+            didUserWin: isBlackWinner,
+          );
+        },
+      );
+    }
   }
 }

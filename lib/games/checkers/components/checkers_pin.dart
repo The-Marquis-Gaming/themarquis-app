@@ -16,13 +16,13 @@ class CheckersPin extends PositionComponent {
     required Vector2 dimensions,
     required this.spritePath,
   }) : super(
-    size: dimensions,
-    anchor: Anchor.center,
-  );
+          size: dimensions,
+          anchor: Anchor.center,
+        );
 
   @override
   Future<void> onLoad() async {
-    super.onLoad();
+    await super.onLoad();
     final ByteData data = await rootBundle.load(spritePath);
     final String svgString = String.fromCharCodes(data.buffer.asUint8List());
     checkerSprite = await vg.loadPicture(SvgStringLoader(svgString), null);
@@ -35,6 +35,10 @@ class CheckersPin extends PositionComponent {
     canvas.scale(
       size.x / checkerSprite.size.width,
       size.y / checkerSprite.size.height,
+    );
+    canvas.translate(
+      -checkerSprite.size.width / 2,
+      -checkerSprite.size.height / 2,
     );
     canvas.drawPicture(checkerSprite.picture);
     canvas.restore();
@@ -49,4 +53,4 @@ class CheckersPin extends PositionComponent {
     if (isKing) return true;
     return isBlack ? newRow > currentRow : newRow < currentRow;
   }
-} 
+}

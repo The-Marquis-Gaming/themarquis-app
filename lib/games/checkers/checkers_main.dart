@@ -62,14 +62,7 @@ class _CheckersGameAppState extends ConsumerState<CheckersGameApp> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            showDialog(
-                              context: context,
-                              useRootNavigator: false,
-                              builder: (BuildContext context) {
-                                return CheckersGameOutcomeDialog(_game,
-                                    didUserWin: false);
-                              },
-                            );
+                            _game.updatePlayState(PlayState.welcome);
                           },
                           child: Image.asset(
                               'assets/images/Group 1171276336.png',

@@ -64,18 +64,14 @@ class CheckersJoinGameDialogState
     }
   }
 
-  Future<void> _joinGame(String sessionId) async {
-    if (_isJoining) return;
-
+  Future<void> _joinGame(CheckersSessionData session) async {
     setState(() {
       _isJoining = true;
     });
-
     try {
       await ref
           .read(checkersSessionProvider.notifier)
-          .joinLobby(int.parse(sessionId));
-
+          .joinLobby(int.parse(session.id));
       if (mounted) {
         Navigator.of(context).pop();
         await widget.gameController.updatePlayState(PlayState.playing);
@@ -106,69 +102,62 @@ class CheckersJoinGameDialogState
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: const Color(0xFF21262B),
         clipBehavior: Clip.antiAlias,
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.80,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Available Games',
-                  style: TextStyle(
-                    fontFamily: "Montserrat",
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (isLoading)
-                  const CircularProgressIndicator()
-                else if (availableSessions?.isEmpty ?? true)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'No games available',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  )
-                else
-                  SizedBox(
-                    height: 300,
-                    child: ListView.builder(
-                      itemCount: availableSessions!.length,
-                      itemBuilder: (context, index) {
-                        final session = availableSessions![index];
-                        return _buildRoomItem(session);
-                      },
-                    ),
-                  ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+        child: Stack(
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.80,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFFF3B46E),
+                    Text(
+                      'Available Games',
+                      style: TextStyle(
+                        fontFamily: "Montserrat",
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
                       ),
-                      child: Text('Cancel'),
                     ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () => _fetchAvailableSessions(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF3B46E),
-                        foregroundColor: Colors.black,
+                    const SizedBox(height: 16),
+                    if (isLoading)
+                      const CircularProgressIndicator()
+                    else if (availableSessions?.isEmpty ?? true)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'No games available',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        height: 300,
+                        child: ListView.builder(
+                          itemCount: availableSessions!.length,
+                          itemBuilder: (context, index) {
+                            final session = availableSessions![index];
+                            return _buildRoomItem(session);
+                          },
+                        ),
                       ),
-                      child: Text('Refresh'),
-                    ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
+            if (_isJoining)
+              Container(
+                color: Colors.black54,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFFF3B46E)),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -205,7 +194,7 @@ class CheckersJoinGameDialogState
             ],
           ),
           ElevatedButton(
-            onPressed: () => _joinGame(session.id),
+            onPressed: () => _joinGame(session),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF3B46E),
               foregroundColor: Colors.black,

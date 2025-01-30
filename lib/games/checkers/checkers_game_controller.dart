@@ -12,6 +12,7 @@ import 'package:marquis_v2/games/checkers/components/checkers_board.dart';
 import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marquis_v2/providers/user.dart';
+import 'package:marquis_v2/providers/starknet.dart';
 
 class CheckersGameController extends MarquisGameController {
   // Private fields
@@ -93,7 +94,7 @@ class CheckersGameController extends MarquisGameController {
   }
 
   @override
-  Color backgroundColor() => Colors.transparent;
+  Color backgroundColor() => const Color.fromRGBO(0, 0, 0, 1);
 
   @override
   Future<void> initGame() async {
@@ -104,7 +105,7 @@ class CheckersGameController extends MarquisGameController {
       await add(userStats!);
     }
 
-    final boardSizeMultiplier = isTablet ? 22 : 13;
+    final boardSizeMultiplier = isTablet ? 18 : 11;
     final boardSize = unitSize * boardSizeMultiplier;
 
     final tabletOffset = isTablet ? -width * 0.12 : 0.0;
@@ -123,6 +124,51 @@ class CheckersGameController extends MarquisGameController {
     if (session != null) {
       if (kDebugMode) log("Initializing board with session: ${session.id}");
       board?.initializeFromSession(session);
+
+      // Update stats for both players
+      final playerAddress = ref
+          .read(starknetProvider)
+          .signerAccount
+          ?.accountAddress
+          .toHexString();
+
+      // Find current player's status
+      final currentPlayerStatus = session.sessionUserStatus.firstWhere(
+        (status) => status.userId == playerAddress,
+        orElse: () => session.sessionUserStatus.first,
+      );
+
+      // Find opponent's status
+      final opponentStatus = session.sessionUserStatus.firstWhere(
+        (status) => status.userId != playerAddress,
+        orElse: () => session.sessionUserStatus.last,
+      );
+
+      // Update stats for current player
+      updateStats(
+        playerIndex: currentPlayerStatus.position == "up" ? 0 : 1,
+        lostPieces: 12 -
+            (currentPlayerStatus.position == "up"
+                ? session.orangeScore
+                : session.blackScore),
+        winPieces: currentPlayerStatus.position == "up"
+            ? session.orangeScore
+            : session.blackScore,
+        queens: 0, // Queens count not available in current data model
+      );
+
+      // Update stats for opponent
+      updateStats(
+        playerIndex: opponentStatus.position == "up" ? 0 : 1,
+        lostPieces: 12 -
+            (opponentStatus.position == "up"
+                ? session.orangeScore
+                : session.blackScore),
+        winPieces: opponentStatus.position == "up"
+            ? session.orangeScore
+            : session.blackScore,
+        queens: 0, // Queens count not available in current data model
+      );
     } else {
       if (kDebugMode) log("No session data available for initialization");
     }
@@ -137,20 +183,27 @@ class CheckersGameController extends MarquisGameController {
   Future<void> updatePlayState(PlayState value) async {
     if (playStateNotifier.value == value) return;
 
+    // First handle component cleanup for any state transition
     if (value != PlayState.playing) {
       if (board != null) {
-        add(board!);
-        Future.microtask(() => remove(board!));
+        remove(board!);
+        board = null;
       }
       if (userStats != null) {
-        add(userStats!);
-        Future.microtask(() => remove(userStats!));
+        remove(userStats!);
+        userStats = null;
       }
     }
-    playStateNotifier.value = value;
 
+    // Then handle specific state transitions
     switch (value) {
       case PlayState.welcome:
+        overlays.clear();
+        overlays.add(value.name);
+        // Clear session data when going back to welcome screen
+        await ref.read(checkersSessionProvider.notifier).clearData();
+        break;
+
       case PlayState.waiting:
         overlays.clear();
         overlays.add(value.name);
@@ -165,47 +218,71 @@ class CheckersGameController extends MarquisGameController {
       case PlayState.finished:
         overlays.clear();
         overlays.add(value.name);
-        Future.microtask(
-          () async {
+        // Show game over dialog only if we have a valid session and the game is actually over
+        final session = ref.read(checkersSessionProvider);
+        if (session != null && session.isGameOver) {
+          Future.microtask(() async {
             if (buildContext != null && buildContext!.mounted) {
-              // Force rebuild of game over screen
-              (buildContext! as Element).markNeedsBuild();
+              final playerAddress = ref
+                  .read(starknetProvider)
+                  .signerAccount
+                  ?.accountAddress
+                  .toHexString();
 
-              if (playState == PlayState.finished) {
-                if (buildContext != null && buildContext!.mounted) {
-                  await showDialog(
-                    context: buildContext!,
-                    useRootNavigator: false,
-                    barrierDismissible: false,
-                    builder: (context) => GameOverDialog(
-                      isWinning: userIndex == winnerIndex,
-                      playerName: winnerIndex == 1 ? 'Orange' : 'Black',
-                      tokenAddress: '',
-                      tokenAmount: '0',
-                    ),
-                  );
-                }
-              }
+              final isWinning = playerAddress != null &&
+                  ((session.blackScore == 0 && session.nextPlayer == "1") ||
+                      (session.orangeScore == 0 && session.nextPlayer == "2"));
+
+              await showDialog(
+                context: buildContext!,
+                useRootNavigator: false,
+                barrierDismissible: false,
+                builder: (context) => GameOverDialog(
+                  isWinning: isWinning,
+                  playerName: session.blackScore == 0 ? 'Orange' : 'Black',
+                  tokenAddress: '',
+                  tokenAmount: '0',
+                ),
+              );
             }
-          },
-        );
+          });
+        }
         break;
     }
+
+    // Finally update the play state
+    playStateNotifier.value = value;
   }
 
   // Check if the game is over
   bool checkGameOver() {
     final session = ref.read(checkersSessionProvider);
-    return session?.isGameOver ?? false;
+    if (session == null) return false;
+
+    // Check if game is over from session state
+    if (session.isGameOver) {
+      // Determine winner
+      if (session.blackScore == 0) {
+        _winnerIndex = 1; // Orange/White wins
+      } else if (session.orangeScore == 0) {
+        _winnerIndex = 0; // Black wins
+      }
+      return true;
+    }
+
+    return false;
   }
 
   Future<void> makeMove(int fromRow, int fromCol, int toRow, int toCol) async {
+    final session = ref.read(checkersSessionProvider);
+    if (session == null) return;
+
     final checkersPiece = board?.pieces[fromRow][fromCol];
     if (checkersPiece != null) {
       try {
         // Convert CheckersPin to CheckersPiece
         final piece = CheckersPiece(
-          sessionId: int.parse(ref.read(checkersSessionProvider)?.id ?? "0"),
+          sessionId: int.parse(session.id),
           row: fromRow,
           col: fromCol,
           player: checkersPiece.isBlack ? "2" : "1", // 2 for black, 1 for white
@@ -220,8 +297,11 @@ class CheckersGameController extends MarquisGameController {
               targetRow: toRow,
               targetCol: toCol,
             );
+
+        // Board will be updated through websocket event
       } catch (e) {
         if (kDebugMode) print("Error making move: $e");
+        rethrow;
       }
     }
   }
@@ -267,7 +347,7 @@ class _GameOverDialogState extends ConsumerState<GameOverDialog> {
             margin: const EdgeInsets.only(top: 40),
             width: 180,
             decoration: BoxDecoration(
-              color: Color.fromRGBO(26, 32, 45, 1),
+              color: const Color.fromRGBO(26, 32, 45, 1),
               borderRadius: BorderRadius.circular(30),
             ),
             child: Column(
@@ -287,11 +367,32 @@ class _GameOverDialogState extends ConsumerState<GameOverDialog> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (!widget.isWinning)
-                      Column(
-                        children: [
-                          const CircleAvatar(radius: 20),
-                          Text(widget.playerName),
-                        ],
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final session = ref.watch(checkersSessionProvider);
+                          final playerAddress = ref
+                              .watch(starknetProvider)
+                              .signerAccount
+                              ?.accountAddress
+                              .toHexString();
+
+                          if (session == null) return const SizedBox.shrink();
+
+                          final winnerStatus =
+                              session.sessionUserStatus.firstWhere(
+                            (status) =>
+                                status.position ==
+                                (session.blackScore == 0 ? "up" : "down"),
+                            orElse: () => session.sessionUserStatus.first,
+                          );
+
+                          return Column(
+                            children: [
+                              const CircleAvatar(radius: 20),
+                              Text(winnerStatus.email),
+                            ],
+                          );
+                        },
                       ),
                     Column(
                       children: [
