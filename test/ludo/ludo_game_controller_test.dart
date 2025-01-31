@@ -35,7 +35,8 @@ void _setupFlame() {
 
   when(mockImages.fromCache('spritesheet.png')).thenReturn(spriteImage);
 
-  when(mockImages.fromCache('avatar_spritesheet.png')).thenReturn(avatarSpriteImage);
+  when(mockImages.fromCache('avatar_spritesheet.png'))
+      .thenReturn(avatarSpriteImage);
 
   when(mockImages.fromCache('dice_interface.png')).thenReturn(diceImage);
 
@@ -43,7 +44,8 @@ void _setupFlame() {
 
   when(mockImages.fromCache('play.png')).thenReturn(playImage);
 
-  when(mockImages.fromCache('dice_icon.png')).thenReturn(MockImage(height: 17, width: 16));
+  when(mockImages.fromCache('dice_icon.png'))
+      .thenReturn(MockImage(height: 17, width: 16));
 }
 
 @GenerateMocks([Box, LudoSessionData, Client, Images])
@@ -68,9 +70,12 @@ void main() {
       gameKey = GlobalKey<RiverpodAwareGameWidgetState<LudoGameController>>();
       container = ProviderContainer(
         overrides: [
-          appStateProvider.overrideWith(() => AppState(hiveBox: appMockBox, httpClient: mockClient)),
-          userProvider.overrideWith(() => User(hiveBox: userMockBox, httpClient: mockClient)),
-          ludoSessionProvider.overrideWith(() => LudoSession(hiveBox: ludoBox, httpClient: mockClient)),
+          appStateProvider.overrideWith(
+              () => AppState(hiveBox: appMockBox, httpClient: mockClient)),
+          userProvider.overrideWith(
+              () => User(hiveBox: userMockBox, httpClient: mockClient)),
+          ludoSessionProvider.overrideWith(
+              () => LudoSession(hiveBox: ludoBox, httpClient: mockClient)),
         ],
       );
       gameWidget = UncontrolledProviderScope(
@@ -79,15 +84,20 @@ void main() {
           key: gameKey,
           game: ludoGameController,
           overlayBuilderMap: {
-            PlayState.welcome.name: (context, game) => LudoWelcomeScreen(game: game),
-            PlayState.waiting.name: (context, game) => FourPlayerWaitingRoomScreen(game: game),
-            PlayState.finished.name: (context, game) => MatchResultsScreen(game: game, session: container.read(ludoSessionProvider)!),
+            PlayState.welcome.name: (context, game) =>
+                LudoWelcomeScreen(game: game),
+            PlayState.waiting.name: (context, game) =>
+                FourPlayerWaitingRoomScreen(game: game),
+            PlayState.finished.name: (context, game) => MatchResultsScreen(
+                game: game, session: container.read(ludoSessionProvider)!),
           },
         ),
       );
 
-      when(appMockBox.get('appState', defaultValue: anyNamed('defaultValue'))).thenReturn(AppStateData(navigatorIndex: 0));
-      when(userMockBox.get('user', defaultValue: anyNamed('defaultValue'))).thenReturn(
+      when(appMockBox.get('appState', defaultValue: anyNamed('defaultValue')))
+          .thenReturn(AppStateData(navigatorIndex: 0));
+      when(userMockBox.get('user', defaultValue: anyNamed('defaultValue')))
+          .thenReturn(
         UserData(
           id: "0",
           email: "email",
@@ -105,13 +115,13 @@ void main() {
           sessionId: "sessionId",
         ),
       );
-      when(ludoBox.get('ludoSession', defaultValue: anyNamed('defaultValue'))).thenReturn(
+      when(ludoBox.get('ludoSession', defaultValue: anyNamed('defaultValue')))
+          .thenReturn(
         LudoSessionData(
           id: "0",
           status: "status",
           nextPlayer: "nextPlayer",
           nonce: "nonce",
-          color: "red",
           playAmount: "playAmount",
           playToken: "playToken",
           sessionUserStatus: List.generate(4, (index) {
@@ -125,7 +135,6 @@ void main() {
               status: "status",
               points: 0,
               playerTokensCircled: [false, false, false, false],
-              color: "red",
             );
           }),
           nextPlayerId: 1,
@@ -159,7 +168,8 @@ void main() {
         expect(ludoGameController.destination, isNull);
       });
 
-      testWidgets("Waiting playState doesn't have game elements loaded", (widgetTester) async {
+      testWidgets("Waiting playState doesn't have game elements loaded",
+          (widgetTester) async {
         await widgetTester.pumpWidget(gameWidget);
 
         await ludoGameController.updatePlayState(PlayState.waiting);
@@ -171,7 +181,8 @@ void main() {
         expect(ludoGameController.destination, isNull);
       });
 
-      testWidgets("Finished playState doesn't have game elements loaded", (widgetTester) async {
+      testWidgets("Finished playState doesn't have game elements loaded",
+          (widgetTester) async {
         await widgetTester.pumpWidget(gameWidget);
 
         await ludoGameController.updatePlayState(PlayState.finished);
@@ -202,7 +213,9 @@ void main() {
       );
 
       testWidgets('Playing move updates dice state', (widgetTester) async {
-        when(mockClient.post(any, body: anyNamed('body'), headers: anyNamed('headers'))).thenAnswer((_) async => Response("", 200));
+        when(mockClient.post(any,
+                body: anyNamed('body'), headers: anyNamed('headers')))
+            .thenAnswer((_) async => Response("", 200));
         await widgetTester.pumpWidget(gameWidget);
         ludoGameController.sessionData = ludoBox.get("ludoSession")!;
         await ludoGameController.updatePlayState(PlayState.playing);
