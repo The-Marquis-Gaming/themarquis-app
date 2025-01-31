@@ -164,7 +164,7 @@ class LudoSession extends _$LudoSession {
 
     if (kDebugMode) print("Session Response Status: ${response.statusCode}");
     if (kDebugMode)
-      print("Session Response Body: ${utf8.decode(response.bodyBytes)}");
+      log("Session Response Body: ${utf8.decode(response.bodyBytes)}");
 
     if (response.statusCode != 201 && response.statusCode != 200) {
       throw HttpException(
@@ -213,7 +213,7 @@ class LudoSession extends _$LudoSession {
       creator: "",
       currentDiceValue: _currentDiceValue ?? -1,
       playMoveFailed: _playMoveFailed,
-      requiredPlayers: decodedResponse['required_players'] ?? "4",
+      requiredPlayers: decodedResponse['session_user_status'].length.toString(),
     );
     await _hiveBox!.put(_id, ludoSession);
     state = ludoSession;
@@ -412,7 +412,6 @@ class LudoSession extends _$LudoSession {
       'amount': amount,
       'required_players': requiredPlayers,
       'token_address': tokenAddress,
-      'required_players': requiredPlayers,
     }));
     final response = await _httpClient!.post(
       url,
@@ -420,7 +419,6 @@ class LudoSession extends _$LudoSession {
         'amount': amount,
         'required_players': requiredPlayers.toString(),
         'token_address': tokenAddress,
-        'required_players': requiredPlayers,
       }),
       headers: {
         'Content-Type': 'application/json',

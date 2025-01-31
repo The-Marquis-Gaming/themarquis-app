@@ -259,12 +259,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                                 vertical: scaledHeight(5)),
                                             value: NumberOfPlayers.two,
                                             globalValue: _numberOfPlayers,
-                                            onTap: (_) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          '2 Players Mode Not Available Yet')));
-                                            },
+                                            onTap: _selectNumberOfPlayers,
                                             selectedBackgroundColor:
                                                 const Color(0x1200ECFF),
                                             unSelectedBackgroundColor:

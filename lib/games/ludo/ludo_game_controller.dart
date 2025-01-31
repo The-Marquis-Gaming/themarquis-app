@@ -45,6 +45,7 @@ class LudoGameController extends MarquisGameController {
   Completer<void>? ludoSessionLoadingCompleter;
 
   set sessionData(LudoSessionData value) => _sessionData = value;
+  String get requiredPlayers => _sessionData!.requiredPlayers;
 
   LudoGameController()
       : super(
@@ -178,7 +179,7 @@ class LudoGameController extends MarquisGameController {
   Future<void> _handleLudoSessionUpdate(LudoSessionData? next) async {
     ludoSessionLoadingCompleter = Completer<void>();
     _sessionData = next;
-    
+
     if (_sessionData != null) {
       // Remove the immediate play state update for FULL status
       // Let the timer handle the transition instead
