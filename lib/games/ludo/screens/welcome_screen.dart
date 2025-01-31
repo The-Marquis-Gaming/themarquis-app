@@ -9,13 +9,11 @@ import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/screens/create_game_screen.dart';
-import 'package:marquis_v2/games/ludo/widgets/pin_color_option.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/app_state.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:marquis_v2/widgets/balance_appbar.dart';
 import 'package:marquis_v2/widgets/error_dialog.dart';
-import 'package:marquis_v2/widgets/ui_widgets.dart';
 
 class LudoWelcomeScreen extends ConsumerStatefulWidget {
   const LudoWelcomeScreen({super.key, required this.game});
