@@ -33,6 +33,7 @@ class CheckersBoard extends RectangleComponent
   // Track selected piece
   CheckersPin? selectedPiece;
   Vector2? selectedPosition;
+  bool isProcessingMove = false;
 
   // Add this line to track pieces
   List<List<CheckersPin?>> pieces =
@@ -219,10 +220,44 @@ class CheckersBoard extends RectangleComponent
         );
       }
     }
+
+    // Draw loading overlay if processing move
+    if (isProcessingMove) {
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, size.x, size.y),
+        Paint()..color = const Color.fromRGBO(0, 0, 0, 0.3),
+      );
+
+      // Draw loading indicator
+      final centerX = size.x / 2;
+      final centerY = size.y / 2;
+      final radius = size.x * 0.1;
+      final paint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
+
+      for (int i = 0; i < 8; i++) {
+        final startAngle = (i * math.pi / 4) + (game.currentTime * 2);
+        canvas.drawArc(
+          Rect.fromCenter(
+            center: Offset(centerX, centerY),
+            width: radius,
+            height: radius,
+          ),
+          startAngle,
+          math.pi / 8,
+          false,
+          paint..color = Colors.white.withOpacity(1 - (i * 0.1)),
+        );
+      }
+    }
   }
 
   @override
   bool onTapUp(TapUpEvent event) {
+    if (isProcessingMove) return false;  // Ignore taps while processing move
+
     final position = event.localPosition;
     final row = (position.y / (size.y / boardSize)).floor();
     final col = (position.x / (size.x / boardSize)).floor();
@@ -240,9 +275,20 @@ class CheckersBoard extends RectangleComponent
           validMoves.any((move) => move.row == row && move.col == col);
 
       if (isMoveValid) {
-        // Make the move through the provider
-        makeNetworkMove(fromRow, fromCol, row, col);
+        // Start processing move
+        isProcessingMove = true;
+        
+        // Clear selection immediately
         clearSelection();
+        
+        // Make the move through the provider
+        makeNetworkMove(fromRow, fromCol, row, col).then((_) {
+          isProcessingMove = false;
+        }).catchError((error) {
+          isProcessingMove = false;
+          debugPrint('Error making move: $error');
+        });
+        
         return true;
       }
 
