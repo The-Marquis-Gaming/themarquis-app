@@ -105,44 +105,44 @@ class CheckersJoinGameDialogState
         child: Stack(
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.80,
-              child: Padding(
+          width: MediaQuery.of(context).size.width * 0.80,
+          child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Available Games',
-                      style: TextStyle(
-                        fontFamily: "Montserrat",
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                      ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Available Games',
+                  style: TextStyle(
+                    fontFamily: "Montserrat",
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (isLoading)
+                  const CircularProgressIndicator()
+                else if (availableSessions?.isEmpty ?? true)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'No games available',
+                      style: TextStyle(color: Colors.white),
                     ),
-                    const SizedBox(height: 16),
-                    if (isLoading)
-                      const CircularProgressIndicator()
-                    else if (availableSessions?.isEmpty ?? true)
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'No games available',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      )
-                    else
-                      SizedBox(
-                        height: 300,
-                        child: ListView.builder(
-                          itemCount: availableSessions!.length,
-                          itemBuilder: (context, index) {
-                            final session = availableSessions![index];
-                            return _buildRoomItem(session);
-                          },
-                        ),
-                      ),
+                  )
+                else
+                  SizedBox(
+                    height: 300,
+                    child: ListView.builder(
+                      itemCount: availableSessions!.length,
+                      itemBuilder: (context, index) {
+                        final session = availableSessions![index];
+                        return _buildRoomItem(session);
+                      },
+                    ),
+                    ),
                   ],
                 ),
               ),
@@ -155,8 +155,8 @@ class CheckersJoinGameDialogState
                     valueColor:
                         AlwaysStoppedAnimation<Color>(Color(0xFFF3B46E)),
                   ),
-                ),
-              ),
+            ),
+          ),
           ],
         ),
       ),

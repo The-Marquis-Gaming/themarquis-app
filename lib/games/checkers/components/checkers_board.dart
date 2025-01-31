@@ -448,15 +448,7 @@ class CheckersBoard extends RectangleComponent
 
     // Calculate square size and piece size
     final squareSize = size.x / boardSize;
-    final pieceSize = squareSize * 0.8; // Pieces are 80% of square size
-
-    if (kDebugMode) {
-      print("Initializing board with ${session.pieces.length} pieces");
-      print("Session data: ${session.toString()}");
-      print("Board size: ${size.x} x ${size.y}");
-      print("Square size: $squareSize");
-      print("Piece size: $pieceSize");
-    }
+    final pieceSize = squareSize * 0.8;
 
     // Initialize standard checkers setup
     // Black pieces on top (rows 0-2), White pieces on bottom (rows 5-7)
@@ -479,31 +471,22 @@ class CheckersBoard extends RectangleComponent
           }
 
           if (shouldPlacePiece) {
-            if (kDebugMode) {
-              print(
-                  "Creating ${isBlack ? 'black' : 'white'} piece at row: $row, col: $col");
-            }
-
             final piecePosition = Vector2(
               col * squareSize + (squareSize / 2),
               row * squareSize + (squareSize / 2),
             );
 
-            if (kDebugMode) {
-              print("Piece position: $piecePosition");
-            }
-
-            final newPiece = CheckersPin(
+      final newPiece = CheckersPin(
               isBlack: isBlack,
               position: piecePosition,
               dimensions: Vector2.all(pieceSize),
               spritePath: isBlack
-                  ? 'assets/images/blackchecker.svg'
-                  : 'assets/images/whitechecker.svg',
-            );
+            ? 'assets/images/blackchecker.svg'
+            : 'assets/images/whitechecker.svg',
+      );
 
             pieces[row][col] = newPiece;
-            add(newPiece);
+      add(newPiece);
           }
         }
       }
@@ -515,10 +498,6 @@ class CheckersBoard extends RectangleComponent
       orangeScore: session.orangeScore,
       blackScore: session.blackScore,
     );
-
-    if (kDebugMode) {
-      print("Board initialization complete");
-    }
   }
 
   bool isValidMove(int fromRow, int fromCol, int toRow, int toCol) {

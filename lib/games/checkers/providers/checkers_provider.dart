@@ -396,60 +396,45 @@ class CheckersSession extends _$CheckersSession {
         message: state?.message,
       );
 
-      if (kDebugMode) {
-        print('Updating state with new data:');
-        print('Session ID: ${newState.id}');
-        print('Status: ${newState.status}');
-        print('Next Player: ${newState.nextPlayer}');
-        print('Pieces Count: ${newState.pieces.length}');
-        print('Game Over: ${newState.isGameOver}');
-        print('Orange Score: ${newState.orangeScore}');
-        print('Black Score: ${newState.blackScore}');
-      }
-
+      // Update state - the board will be notified through state change
       state = newState;
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('Error updating state from GraphQL: $e');
-        print('Stack trace: $stackTrace');
-      }
+    } catch (e) {
+      // Log error but don't crash
+      debugPrint('Error updating state from GraphQL: $e');
     }
   }
 
   // Build user status from GraphQL data
   List<CheckersSessionUserStatus> _buildUserStatus(List<dynamic> playersData) {
-    return playersData.map<CheckersSessionUserStatus>((edge) {
-      final node = edge['node'];
+    return playersData.map<CheckersSessionUserStatus>((player) {
       return CheckersSessionUserStatus(
-        playerId: node['player'],
-        userId: node['player'], // Using player address as userId
-        email: '', // Optional in checkers
+        playerId: player['player'],
+        userId: player['player'],
+        email: '', // Required but not used in checkers
         role: 'PLAYER',
         status: 'PLAYING',
-        points: node['remaining_pieces'],
-        position: 'none', // We'll determine position from pieces data
+        points: player['remaining_pieces'],
+        position: 'none',
       );
     }).toList();
   }
 
   // Calculate player score based on remaining pieces
   int _getPlayerScore(List<dynamic> playersData, Position position) {
-    for (final edge in playersData) {
-      final node = edge['node'];
-      final playerId = node['player'];
-
-      // Find any piece belonging to this player to determine their position
+    for (final player in playersData) {
+      final playerId = player['player'];
       final playerPieces =
           state?.pieces.where((piece) => piece.player == playerId);
+
       if (playerPieces != null && playerPieces.isNotEmpty) {
         final playerPosition =
             _parsePositionToEnum(playerPieces.first.position.toString());
         if (playerPosition == position) {
-          return node['remaining_pieces'] as int? ?? 12;
+          return player['remaining_pieces'] as int? ?? 12;
         }
       }
     }
-    return 12; // Default score if no matching player found
+    return 12;
   }
 
   // Helper method to parse position string to enum
