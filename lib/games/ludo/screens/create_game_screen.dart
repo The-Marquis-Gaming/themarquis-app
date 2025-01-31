@@ -97,6 +97,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
             _gameMode == GameMode.free ? '0' : '$_selectedTokenAmount',
             _numberOfPlayers == NumberOfPlayers.two ? 2 : 4,
             _selectedTokenAddress ?? "0",
+            requiredPlayers,
           );
       if (!mounted) return;
       Navigator.of(context).pop();

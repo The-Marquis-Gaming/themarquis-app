@@ -37,6 +37,28 @@ class _FourPlayerWaitingRoomScreenState
     extends ConsumerState<FourPlayerWaitingRoomScreen> {
   Timer? _countdownTimer;
   int _countdown = 15;
+  bool _isCountdownStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Check immediately if room is already full when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final session = ref.read(ludoSessionProvider);
+      if (session != null && _isRoomFull(session) && !_isCountdownStarted) {
+        _isCountdownStarted = true;
+        _startCountdown();
+      }
+    });
+    
+    // Listen for changes
+    ref.listenManual(ludoSessionProvider, (previous, next) {
+      if (next != null && _isRoomFull(next) && !_isCountdownStarted) {
+        _isCountdownStarted = true;
+        _startCountdown();
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -45,23 +67,34 @@ class _FourPlayerWaitingRoomScreenState
   }
 
   void _startCountdown() {
-    _countdown = 15;
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-      if (_countdown > 0) {
-        _countdown--;
-      } else {
-        _countdownTimer?.cancel();
-        await widget.game.updatePlayState(PlayState.playing);
-      }
+    if (_countdownTimer?.isActive ?? false) return;
+    
+    setState(() {
+      _countdown = 15;
+    });
+    
+    // Add initial delay before starting countdown
+    Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
-      setState(() {});
+      
+      _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+        if (!mounted) return;
+        
+        setState(() {
+          if (_countdown > 0) {
+            _countdown--;
+          } else {
+            _countdownTimer?.cancel();
+            widget.game.updatePlayState(PlayState.playing);
+          }
+        });
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(ludoSessionProvider);
-    if (_isRoomFull(session) && _countdownTimer == null) _startCountdown();
     return Scaffold(
       backgroundColor: Colors.black,
       body: session == null
@@ -96,9 +129,7 @@ class _FourPlayerWaitingRoomScreenState
             : null,
         child: Text(
           _isRoomFull(session)
-              ? _countdownTimer == null
-                  ? 'Start Game'
-                  : 'Starting in $_countdown'
+              ? 'Starting in $_countdown'
               : 'Waiting for players',
           style: const TextStyle(
               color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
@@ -108,14 +139,14 @@ class _FourPlayerWaitingRoomScreenState
   }
 
   Widget _playesrDetailsList(LudoSessionData session) {
-    log("${session.getListOfColors}");
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          for (int i = 0; i < session.sessionUserStatus.length; i++)
-            playerAvatarCard(
+        children: List.generate(4, (i) {
+          if (i < session.sessionUserStatus.length && 
+              session.sessionUserStatus[i].status == "ACTIVE") {
+            return playerAvatarCard(
               session,
               index: i,
               size: 72,
@@ -123,8 +154,11 @@ class _FourPlayerWaitingRoomScreenState
               player: session.sessionUserStatus[i],
               color: session.getListOfColors[i],
               showText: true,
-            ),
-        ],
+            );
+          } else {
+            return _invitePlayer(session);
+          }
+        }),
       ),
     );
   }
@@ -179,51 +213,6 @@ class _FourPlayerWaitingRoomScreenState
                 padding: const EdgeInsets.only(top: 33),
                 child: _invitePlayer(session),
               ),
-        // : Column(
-        //     children: [
-        //       Padding(
-        //         padding: const EdgeInsets.only(top: 33),
-        //         child: Container(
-        //           width: 72,
-        //           height: 72,
-        //           decoration: BoxDecoration(
-        //             color: Colors.transparent,
-        //             borderRadius: BorderRadius.circular(15),
-        //             border: Border.all(
-        //               width: 2,
-        //               color: const Color(0XFF00ECFF),
-        //             ),
-        //           ),
-        //           child: Padding(
-        //             padding: const EdgeInsets.all(14.0),
-        //             child: SvgPicture.asset(
-        //               'assets/svg/invite.svg',
-        //               width: 15,
-        //               height: 15,
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //       const SizedBox(height: 10),
-        //       Container(
-        //         height: 24,
-        //         width: 74,
-        //         decoration: BoxDecoration(
-        //             color: const Color(0XFF00ECFF),
-        //             borderRadius: BorderRadius.circular(5)),
-        //         child: const Center(
-        //           child: Text(
-        //             'Invite',
-        //             style: TextStyle(
-        //               fontSize: 14,
-        //               color: Colors.black,
-        //               fontWeight: FontWeight.w600,
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
         if (showText) const SizedBox(height: 10),
         Text(
           player.email.split("@").first.truncate(6),
@@ -276,7 +265,6 @@ class _FourPlayerWaitingRoomScreenState
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // SizedBox(width: 96),
                       ...List.generate(
                         4,
                         (index) => Container(
@@ -379,7 +367,6 @@ class _FourPlayerWaitingRoomScreenState
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Row(
-                    // mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
@@ -767,8 +754,23 @@ class _FourPlayerWaitingRoomScreenState
   }
 
   bool _isRoomFull(LudoSessionData? session) {
-    return session != null &&
-        session.sessionUserStatus.where((e) => e.status == "ACTIVE").length ==
-            4;
+    if (session == null) return false;
+    
+    if (session.status == "FULL") {
+      if (kDebugMode) print("Session is FULL");
+      return true;
+    }
+    
+    final requiredPlayers = int.tryParse(session.requiredPlayers ?? "4") ?? 4;
+    final activePlayers = session.sessionUserStatus.where((e) => e.status == "ACTIVE").length;
+    
+    if (kDebugMode) {
+      print("Required Players: $requiredPlayers");
+      print("Active Players: $activePlayers");
+      print("Session Status: ${session.status}");
+      print("Is Room Full: ${activePlayers >= requiredPlayers}");
+    }
+    
+    return activePlayers >= requiredPlayers;
   }
 }

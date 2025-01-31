@@ -695,6 +695,9 @@ class _TwoPlayerWaitingRoomScreenState extends ConsumerState<TwoPlayerWaitingRoo
   }
 
   bool _isRoomFull(LudoSessionData? session) {
-    return session != null && session.sessionUserStatus.where((e) => e.status == "ACTIVE").length == 2;
+    if (session == null) return false;
+    final requiredPlayers = session.requiredPlayers ?? 2; // Default to 2 if not specified
+    final activePlayers = session.sessionUserStatus.where((e) => e.status == "ACTIVE").length;
+    return activePlayers == requiredPlayers;
   }
 }
