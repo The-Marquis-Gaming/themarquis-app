@@ -291,12 +291,11 @@ class CheckersSession extends _$CheckersSession {
             final errors = result.exception?.graphqlErrors ?? [];
             if (errors.isNotEmpty) {
               if (kDebugMode) {
-                print(
-                    'GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
+                log('GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
               }
             } else {
               if (kDebugMode) {
-                print('Subscription Error: ${result.exception.toString()}');
+                log('Subscription Error: ${result.exception.toString()}');
               }
             }
             return;
@@ -304,26 +303,26 @@ class CheckersSession extends _$CheckersSession {
 
           if (result.data != null) {
             if (kDebugMode) {
-              print('Received subscription data: ${result.data}');
+              log('Received subscription data: ${result.data}');
             }
             _updateStateFromGraphQL(result.data!);
           }
         },
         onError: (error) {
           if (kDebugMode) {
-            print('Subscription Error: $error');
+            log('Subscription Error: $error');
           }
           // Try to reconnect after error
           Future.delayed(Duration(seconds: 5), () {
             if (kDebugMode) {
-              print('Attempting to reconnect subscription...');
+              log('Attempting to reconnect subscription...');
             }
             subscribeToSession(sessionId);
           });
         },
         onDone: () {
           if (kDebugMode) {
-            print('Subscription completed');
+            log('Subscription completed');
           }
         },
         cancelOnError: false,
@@ -407,13 +406,14 @@ class CheckersSession extends _$CheckersSession {
   // Build user status from GraphQL data
   List<CheckersSessionUserStatus> _buildUserStatus(List<dynamic> playersData) {
     return playersData.map<CheckersSessionUserStatus>((player) {
+      final playerNode = player['node'];
       return CheckersSessionUserStatus(
-        playerId: player['player'],
-        userId: player['player'],
+        playerId: playerNode['player'],
+        userId: playerNode['player'],
         email: '', // Required but not used in checkers
         role: 'PLAYER',
         status: 'PLAYING',
-        points: player['remaining_pieces'],
+        points: playerNode['remaining_pieces'],
         position: 'none',
       );
     }).toList();

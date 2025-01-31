@@ -165,7 +165,9 @@ class CheckersBoard extends RectangleComponent
     }
 
     // Highlight selected piece
-    if (selectedPiece != null && selectedPosition != null) {
+    if (selectedPiece != null &&
+        selectedPosition != null &&
+        !isProcessingMove) {
       final rect = RRect.fromRectAndRadius(
         Rect.fromLTWH(
           selectedPosition!.x * squareSize,
@@ -186,7 +188,7 @@ class CheckersBoard extends RectangleComponent
     }
 
     // Highlight valid moves
-    if (selectedPiece != null) {
+    if (selectedPiece != null && !isProcessingMove) {
       for (final move in gameState.validMoves) {
         final rect = RRect.fromRectAndRadius(
           Rect.fromLTWH(
@@ -225,38 +227,16 @@ class CheckersBoard extends RectangleComponent
     if (isProcessingMove) {
       canvas.drawRect(
         Rect.fromLTWH(0, 0, size.x, size.y),
-        Paint()..color = const Color.fromRGBO(0, 0, 0, 0.3),
+        Paint()
+          ..color = const Color.fromRGBO(0, 0, 0, 0.3)
+          ..style = PaintingStyle.fill,
       );
-
-      // Draw loading indicator
-      final centerX = size.x / 2;
-      final centerY = size.y / 2;
-      final radius = size.x * 0.1;
-      final paint = Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3;
-
-      for (int i = 0; i < 8; i++) {
-        final startAngle = (i * math.pi / 4) + (game.currentTime * 2);
-        canvas.drawArc(
-          Rect.fromCenter(
-            center: Offset(centerX, centerY),
-            width: radius,
-            height: radius,
-          ),
-          startAngle,
-          math.pi / 8,
-          false,
-          paint..color = Colors.white.withOpacity(1 - (i * 0.1)),
-        );
-      }
     }
   }
 
   @override
   bool onTapUp(TapUpEvent event) {
-    if (isProcessingMove) return false;  // Ignore taps while processing move
+    if (isProcessingMove) return false; // Ignore taps while processing move
 
     final position = event.localPosition;
     final row = (position.y / (size.y / boardSize)).floor();
@@ -275,20 +255,15 @@ class CheckersBoard extends RectangleComponent
           validMoves.any((move) => move.row == row && move.col == col);
 
       if (isMoveValid) {
-        // Start processing move
-        isProcessingMove = true;
-        
-        // Clear selection immediately
-        clearSelection();
-        
         // Make the move through the provider
+        isProcessingMove = true;
         makeNetworkMove(fromRow, fromCol, row, col).then((_) {
           isProcessingMove = false;
         }).catchError((error) {
           isProcessingMove = false;
           debugPrint('Error making move: $error');
         });
-        
+        clearSelection();
         return true;
       }
 
@@ -522,17 +497,17 @@ class CheckersBoard extends RectangleComponent
               row * squareSize + (squareSize / 2),
             );
 
-      final newPiece = CheckersPin(
+            final newPiece = CheckersPin(
               isBlack: isBlack,
               position: piecePosition,
               dimensions: Vector2.all(pieceSize),
               spritePath: isBlack
-            ? 'assets/images/blackchecker.svg'
-            : 'assets/images/whitechecker.svg',
-      );
+                  ? 'assets/images/blackchecker.svg'
+                  : 'assets/images/whitechecker.svg',
+            );
 
             pieces[row][col] = newPiece;
-      add(newPiece);
+            add(newPiece);
           }
         }
       }

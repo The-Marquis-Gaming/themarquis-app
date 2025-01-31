@@ -84,6 +84,18 @@ class _CheckersGameScreenState extends ConsumerState<CheckersGameScreen> {
                       ],
                     ),
                   ),
+
+                  // Loading Indicator
+                  if (widget._game.board?.isProcessingMove ?? false)
+                    Container(
+                      color: Colors.black.withOpacity(0.3),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Color(0xFFF3B46E)),
+                        ),
+                      ),
+                    ),
                 ],
               ),
       ),
