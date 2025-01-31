@@ -23,6 +23,11 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     final user = ref.read(userProvider);
     if (user == null) {
+      Future.microtask(() {
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      });
       return const Center(child: Text("Not Logged In"));
     }
     return LayoutBuilder(
@@ -41,7 +46,8 @@ class CheckersHomeScreenState extends ConsumerState<CheckersHomeScreen> {
     );
   }
 
-  Widget _checkerNavigationItems(double Function(double height) scaledHeight, BuildContext context) {
+  Widget _checkerNavigationItems(
+      double Function(double height) scaledHeight, BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: 69, right: 35, top: scaledHeight(15)),
       child: Column(

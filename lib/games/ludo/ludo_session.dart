@@ -133,7 +133,6 @@ class LudoSession extends _$LudoSession {
       status: decodedResponse['status'],
       nextPlayer: decodedResponse['next_player'],
       nonce: decodedResponse['nonce'],
-      color: decodedResponse['color'] ?? "0",
       playAmount: decodedResponse['play_amount'],
       playToken: decodedResponse['play_token'],
       sessionUserStatus: [
@@ -161,7 +160,6 @@ class LudoSession extends _$LudoSession {
               role: e['role'],
               status: e['status'],
               points: e['points'],
-              color: e['color'],
             );
           },
         ),
@@ -198,7 +196,6 @@ class LudoSession extends _$LudoSession {
       status: decodedResponse['status'],
       nextPlayer: decodedResponse['next_player'],
       nonce: decodedResponse['nonce'],
-      color: decodedResponse['color'] ?? "0",
       playAmount: decodedResponse['play_amount'],
       playToken: decodedResponse['play_token'],
       sessionUserStatus: [
@@ -226,7 +223,6 @@ class LudoSession extends _$LudoSession {
               role: e['role'],
               status: e['status'],
               points: e['points'],
-              color: e['color'],
             );
           },
         ),
@@ -261,7 +257,6 @@ class LudoSession extends _$LudoSession {
             status: sessionData['status'],
             nextPlayer: sessionData['next_player'],
             nonce: sessionData['nonce'],
-            color: sessionData['color'] ?? "0",
             playAmount: sessionData['play_amount'],
             playToken: sessionData['play_token'],
             sessionUserStatus: [
@@ -289,7 +284,6 @@ class LudoSession extends _$LudoSession {
                     role: e['role'],
                     status: e['status'],
                     points: e['points'],
-                    color: e['color'],
                   );
                 },
               ),
@@ -365,19 +359,19 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<void> createSession(
-      String amount, String color, String tokenAddress) async {
+      String amount, int requiredPlayers, String tokenAddress) async {
     final url = Uri.parse(
         '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/create');
     log(jsonEncode({
       'amount': amount,
-      'user_creator_color': color,
+      'required_players': requiredPlayers,
       'token_address': tokenAddress,
     }));
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({
         'amount': amount,
-        'user_creator_color': color,
+        'required_players': requiredPlayers.toString(),
         'token_address': tokenAddress,
       }),
       headers: {
@@ -396,15 +390,12 @@ class LudoSession extends _$LudoSession {
     await ref.read(userProvider.notifier).getUser();
   }
 
-  Future<void> joinSession(String sessionId, String color) async {
+  Future<void> joinSession(String sessionId) async {
     final url = Uri.parse(
         '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/join');
     final response = await _httpClient!.post(
       url,
-      body: jsonEncode({
-        'session_id': sessionId,
-        'user_color': color,
-      }),
+      body: jsonEncode({'session_id': sessionId}),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': ref.read(appStateProvider).bearerToken,

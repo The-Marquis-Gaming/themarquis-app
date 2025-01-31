@@ -28,8 +28,6 @@ mixin _$LudoSessionData {
   String get nextPlayer => throw _privateConstructorUsedError;
   @HiveField(4)
   String get nonce => throw _privateConstructorUsedError;
-  @HiveField(5)
-  String get color => throw _privateConstructorUsedError;
   @HiveField(6)
   String get playAmount => throw _privateConstructorUsedError;
   @HiveField(7)
@@ -71,7 +69,6 @@ abstract class $LudoSessionDataCopyWith<$Res> {
       @HiveField(2) String status,
       @HiveField(3) String nextPlayer,
       @HiveField(4) String nonce,
-      @HiveField(5) String color,
       @HiveField(6) String playAmount,
       @HiveField(7) String playToken,
       @HiveField(8) List<LudoSessionUserStatus> sessionUserStatus,
@@ -102,7 +99,6 @@ class _$LudoSessionDataCopyWithImpl<$Res, $Val extends LudoSessionData>
     Object? status = null,
     Object? nextPlayer = null,
     Object? nonce = null,
-    Object? color = null,
     Object? playAmount = null,
     Object? playToken = null,
     Object? sessionUserStatus = null,
@@ -129,10 +125,6 @@ class _$LudoSessionDataCopyWithImpl<$Res, $Val extends LudoSessionData>
       nonce: null == nonce
           ? _value.nonce
           : nonce // ignore: cast_nullable_to_non_nullable
-              as String,
-      color: null == color
-          ? _value.color
-          : color // ignore: cast_nullable_to_non_nullable
               as String,
       playAmount: null == playAmount
           ? _value.playAmount
@@ -187,7 +179,6 @@ abstract class _$$LudoSessionDataImplCopyWith<$Res>
       @HiveField(2) String status,
       @HiveField(3) String nextPlayer,
       @HiveField(4) String nonce,
-      @HiveField(5) String color,
       @HiveField(6) String playAmount,
       @HiveField(7) String playToken,
       @HiveField(8) List<LudoSessionUserStatus> sessionUserStatus,
@@ -216,7 +207,6 @@ class __$$LudoSessionDataImplCopyWithImpl<$Res>
     Object? status = null,
     Object? nextPlayer = null,
     Object? nonce = null,
-    Object? color = null,
     Object? playAmount = null,
     Object? playToken = null,
     Object? sessionUserStatus = null,
@@ -243,10 +233,6 @@ class __$$LudoSessionDataImplCopyWithImpl<$Res>
       nonce: null == nonce
           ? _value.nonce
           : nonce // ignore: cast_nullable_to_non_nullable
-              as String,
-      color: null == color
-          ? _value.color
-          : color // ignore: cast_nullable_to_non_nullable
               as String,
       playAmount: null == playAmount
           ? _value.playAmount
@@ -297,7 +283,6 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
       @HiveField(2) required this.status,
       @HiveField(3) required this.nextPlayer,
       @HiveField(4) required this.nonce,
-      @HiveField(5) required this.color,
       @HiveField(6) required this.playAmount,
       @HiveField(7) required this.playToken,
       @HiveField(8)
@@ -326,9 +311,6 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
   @override
   @HiveField(4)
   final String nonce;
-  @override
-  @HiveField(5)
-  final String color;
   @override
   @HiveField(6)
   final String playAmount;
@@ -366,7 +348,7 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
 
   @override
   String toString() {
-    return 'LudoSessionData(id: $id, status: $status, nextPlayer: $nextPlayer, nonce: $nonce, color: $color, playAmount: $playAmount, playToken: $playToken, sessionUserStatus: $sessionUserStatus, nextPlayerId: $nextPlayerId, creator: $creator, createdAt: $createdAt, currentDiceValue: $currentDiceValue, playMoveFailed: $playMoveFailed, message: $message)';
+    return 'LudoSessionData(id: $id, status: $status, nextPlayer: $nextPlayer, nonce: $nonce, playAmount: $playAmount, playToken: $playToken, sessionUserStatus: $sessionUserStatus, nextPlayerId: $nextPlayerId, creator: $creator, createdAt: $createdAt, currentDiceValue: $currentDiceValue, playMoveFailed: $playMoveFailed, message: $message)';
   }
 
   @override
@@ -379,7 +361,6 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
             (identical(other.nextPlayer, nextPlayer) ||
                 other.nextPlayer == nextPlayer) &&
             (identical(other.nonce, nonce) || other.nonce == nonce) &&
-            (identical(other.color, color) || other.color == color) &&
             (identical(other.playAmount, playAmount) ||
                 other.playAmount == playAmount) &&
             (identical(other.playToken, playToken) ||
@@ -406,7 +387,6 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
       status,
       nextPlayer,
       nonce,
-      color,
       playAmount,
       playToken,
       const DeepCollectionEquality().hash(_sessionUserStatus),
@@ -440,7 +420,6 @@ abstract class _LudoSessionData extends LudoSessionData {
       @HiveField(2) required final String status,
       @HiveField(3) required final String nextPlayer,
       @HiveField(4) required final String nonce,
-      @HiveField(5) required final String color,
       @HiveField(6) required final String playAmount,
       @HiveField(7) required final String playToken,
       @HiveField(8)
@@ -468,9 +447,6 @@ abstract class _LudoSessionData extends LudoSessionData {
   @override
   @HiveField(4)
   String get nonce;
-  @override
-  @HiveField(5)
-  String get color;
   @override
   @HiveField(6)
   String get playAmount;
@@ -534,8 +510,6 @@ mixin _$LudoSessionUserStatus {
   int get points => throw _privateConstructorUsedError;
   @HiveField(9)
   List<bool>? get playerTokensCircled => throw _privateConstructorUsedError;
-  @HiveField(10)
-  String? get color => throw _privateConstructorUsedError;
 
   /// Serializes this LudoSessionUserStatus to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -563,8 +537,7 @@ abstract class $LudoSessionUserStatusCopyWith<$Res> {
       @HiveField(6) String status,
       @HiveField(7) String? profileImageUrl,
       @HiveField(8) int points,
-      @HiveField(9) List<bool>? playerTokensCircled,
-      @HiveField(10) String? color});
+      @HiveField(9) List<bool>? playerTokensCircled});
 }
 
 /// @nodoc
@@ -593,7 +566,6 @@ class _$LudoSessionUserStatusCopyWithImpl<$Res,
     Object? profileImageUrl = freezed,
     Object? points = null,
     Object? playerTokensCircled = freezed,
-    Object? color = freezed,
   }) {
     return _then(_value.copyWith(
       playerId: null == playerId
@@ -636,10 +608,6 @@ class _$LudoSessionUserStatusCopyWithImpl<$Res,
           ? _value.playerTokensCircled
           : playerTokensCircled // ignore: cast_nullable_to_non_nullable
               as List<bool>?,
-      color: freezed == color
-          ? _value.color
-          : color // ignore: cast_nullable_to_non_nullable
-              as String?,
     ) as $Val);
   }
 }
@@ -663,8 +631,7 @@ abstract class _$$LudoSessionUserStatusImplCopyWith<$Res>
       @HiveField(6) String status,
       @HiveField(7) String? profileImageUrl,
       @HiveField(8) int points,
-      @HiveField(9) List<bool>? playerTokensCircled,
-      @HiveField(10) String? color});
+      @HiveField(9) List<bool>? playerTokensCircled});
 }
 
 /// @nodoc
@@ -691,7 +658,6 @@ class __$$LudoSessionUserStatusImplCopyWithImpl<$Res>
     Object? profileImageUrl = freezed,
     Object? points = null,
     Object? playerTokensCircled = freezed,
-    Object? color = freezed,
   }) {
     return _then(_$LudoSessionUserStatusImpl(
       playerId: null == playerId
@@ -734,10 +700,6 @@ class __$$LudoSessionUserStatusImplCopyWithImpl<$Res>
           ? _value._playerTokensCircled
           : playerTokensCircled // ignore: cast_nullable_to_non_nullable
               as List<bool>?,
-      color: freezed == color
-          ? _value.color
-          : color // ignore: cast_nullable_to_non_nullable
-              as String?,
     ));
   }
 }
@@ -756,8 +718,7 @@ class _$LudoSessionUserStatusImpl extends _LudoSessionUserStatus {
       @HiveField(6) required this.status,
       @HiveField(7) this.profileImageUrl,
       @HiveField(8) required this.points,
-      @HiveField(9) required final List<bool>? playerTokensCircled,
-      @HiveField(10) required this.color})
+      @HiveField(9) required final List<bool>? playerTokensCircled})
       : _playerTokensPosition = playerTokensPosition,
         _playerWinningTokens = playerWinningTokens,
         _playerTokensCircled = playerTokensCircled,
@@ -820,12 +781,8 @@ class _$LudoSessionUserStatusImpl extends _LudoSessionUserStatus {
   }
 
   @override
-  @HiveField(10)
-  final String? color;
-
-  @override
   String toString() {
-    return 'LudoSessionUserStatus(playerId: $playerId, playerTokensPosition: $playerTokensPosition, playerWinningTokens: $playerWinningTokens, userId: $userId, email: $email, role: $role, status: $status, profileImageUrl: $profileImageUrl, points: $points, playerTokensCircled: $playerTokensCircled, color: $color)';
+    return 'LudoSessionUserStatus(playerId: $playerId, playerTokensPosition: $playerTokensPosition, playerWinningTokens: $playerWinningTokens, userId: $userId, email: $email, role: $role, status: $status, profileImageUrl: $profileImageUrl, points: $points, playerTokensCircled: $playerTokensCircled)';
   }
 
   @override
@@ -847,8 +804,7 @@ class _$LudoSessionUserStatusImpl extends _LudoSessionUserStatus {
                 other.profileImageUrl == profileImageUrl) &&
             (identical(other.points, points) || other.points == points) &&
             const DeepCollectionEquality()
-                .equals(other._playerTokensCircled, _playerTokensCircled) &&
-            (identical(other.color, color) || other.color == color));
+                .equals(other._playerTokensCircled, _playerTokensCircled));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -864,8 +820,7 @@ class _$LudoSessionUserStatusImpl extends _LudoSessionUserStatus {
       status,
       profileImageUrl,
       points,
-      const DeepCollectionEquality().hash(_playerTokensCircled),
-      color);
+      const DeepCollectionEquality().hash(_playerTokensCircled));
 
   /// Create a copy of LudoSessionUserStatus
   /// with the given fields replaced by the non-null parameter values.
@@ -895,8 +850,7 @@ abstract class _LudoSessionUserStatus extends LudoSessionUserStatus {
           @HiveField(6) required final String status,
           @HiveField(7) final String? profileImageUrl,
           @HiveField(8) required final int points,
-          @HiveField(9) required final List<bool>? playerTokensCircled,
-          @HiveField(10) required final String? color}) =
+          @HiveField(9) required final List<bool>? playerTokensCircled}) =
       _$LudoSessionUserStatusImpl;
   _LudoSessionUserStatus._() : super._();
 
@@ -933,9 +887,6 @@ abstract class _LudoSessionUserStatus extends LudoSessionUserStatus {
   @override
   @HiveField(9)
   List<bool>? get playerTokensCircled;
-  @override
-  @HiveField(10)
-  String? get color;
 
   /// Create a copy of LudoSessionUserStatus
   /// with the given fields replaced by the non-null parameter values.
