@@ -20,11 +20,8 @@ void main() async {
   Hive.registerAdapter(UserDataImplAdapter());
   Hive.registerAdapter(LudoSessionDataImplAdapter());
   Hive.registerAdapter(LudoSessionUserStatusImplAdapter());
-  await Future.wait([
-    _loadAppStateBox(),
-    Hive.openBox<UserData>("user"),
-    Hive.openBox<LudoSessionData>("ludoSession")
-  ]);
+  await Future.wait(
+      [_loadAppStateBox(), _loadUserBox(), _loadLudoSessionBox()]);
   runApp(const ProviderScope(child: MyApp()));
   // Magic.instance = Magic("pk_live_D38AAC9114F908B0");
 }
@@ -35,6 +32,24 @@ Future<void> _loadAppStateBox() async {
   } catch (e) {
     await Hive.deleteBoxFromDisk("appState");
     await Hive.openBox<AppStateData>("appState");
+  }
+}
+
+Future<void> _loadUserBox() async {
+  try {
+    await Hive.openBox<UserData>("user");
+  } catch (e) {
+    await Hive.deleteBoxFromDisk("user");
+    await Hive.openBox<UserData>("user");
+  }
+}
+
+Future<void> _loadLudoSessionBox() async {
+  try {
+    await Hive.openBox<LudoSessionData>("ludoSession");
+  } catch (e) {
+    await Hive.deleteBoxFromDisk("ludoSession");
+    await Hive.openBox<LudoSessionData>("ludoSession");
   }
 }
 

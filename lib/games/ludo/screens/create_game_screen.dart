@@ -31,7 +31,6 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   GameMode? _gameMode;
   String? _selectedTokenAddress;
   double? _selectedTokenAmount;
-  String? _playerColor;
   bool _isLoading = false;
   bool _shouldRetrieveBalance = false;
 
@@ -46,12 +45,6 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
       _gameMode = gameMode;
       _selectedTokenAddress = null;
       _selectedTokenAmount = null;
-    });
-  }
-
-  void _selectPinColor(String pinColor) {
-    setState(() {
-      _playerColor = pinColor;
     });
   }
 
@@ -88,29 +81,22 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
     if (_activeTab == 1) return _numberOfPlayers != null;
     if (_activeTab == 2 && _gameMode == GameMode.token)
       return _selectedTokenAddress != null && _selectedTokenAmount != null;
-    if (_activeTab == 2 && _gameMode == GameMode.free)
-      return _playerColor != null;
-    if (_activeTab == 3) return _playerColor != null;
     return false;
   }
 
-  int get _numberOfTabs => _gameMode == GameMode.token ? 4 : 3;
+  int get _numberOfTabs => _gameMode == GameMode.token ? 3 : 2;
 
   Future<void> _createGame() async {
     final game =
         ModalRoute.of(context)!.settings.arguments as LudoGameController;
-    final color =
-        _playerColor!.split("/").last.split(".").first.split("_").first;
-    final requiredPlayers = _numberOfPlayers == NumberOfPlayers.two ? "2" : "4";
     try {
       setState(() {
         _isLoading = true;
       });
       await ref.read(ludoSessionProvider.notifier).createSession(
             _gameMode == GameMode.free ? '0' : '$_selectedTokenAmount',
-            color,
+            _numberOfPlayers == NumberOfPlayers.two ? 2 : 4,
             _selectedTokenAddress ?? "0",
-            requiredPlayers,
           );
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -273,12 +259,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                                 vertical: scaledHeight(5)),
                                             value: NumberOfPlayers.two,
                                             globalValue: _numberOfPlayers,
-                                            onTap: (_) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          '2 Players Mode Not Available Yet')));
-                                            },
+                                            onTap: _selectNumberOfPlayers,
                                             selectedBackgroundColor:
                                                 const Color(0x1200ECFF),
                                             unSelectedBackgroundColor:
@@ -822,93 +803,12 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                       },
                                     ),
                                   ),
-                                if (((_activeTab == 2 &&
-                                        _gameMode == GameMode.free) ||
-                                    _activeTab == 3))
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Text('Pin Color',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600)),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          PinColorOption(
-                                            gradient: const LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Color(0xFF005C30),
-                                                Color(0x730C3823),
-                                                Color(0xFF005C30)
-                                              ],
-                                            ),
-                                            svgPath:
-                                                'assets/svg/chess-and-bg/green_chess.svg',
-                                            selectedPinColor: _playerColor,
-                                            onTap: _selectPinColor,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          PinColorOption(
-                                            gradient: const LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Color(0xC700CEDB),
-                                                Color(0x73145559),
-                                                Color(0x9E00CEDB)
-                                              ],
-                                            ),
-                                            svgPath:
-                                                'assets/svg/chess-and-bg/blue_chess.svg',
-                                            selectedPinColor: _playerColor,
-                                            onTap: _selectPinColor,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          PinColorOption(
-                                            gradient: const LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Color(0xC7DB0000),
-                                                Color(0x73591414),
-                                                Color(0x9EDB0000)
-                                              ],
-                                            ),
-                                            svgPath:
-                                                'assets/svg/chess-and-bg/red_chess.svg',
-                                            selectedPinColor: _playerColor,
-                                            onTap: _selectPinColor,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          PinColorOption(
-                                            gradient: const LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Color(0xC7DBD200),
-                                                Color(0x73595214),
-                                                Color(0x9EDBD200)
-                                              ],
-                                            ),
-                                            svgPath:
-                                                'assets/svg/chess-and-bg/yellow_chess.svg',
-                                            selectedPinColor: _playerColor,
-                                            onTap: _selectPinColor,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
                               ],
                             ),
                           ),
                         ),
                       ],
-                      if (_activeTab == _numberOfTabs && _playerColor != null)
+                      if (_activeTab == _numberOfTabs)
                         SizedBox(
                           width: constraints.maxWidth - 24,
                           height: scaledHeight(462),
@@ -1051,33 +951,37 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
                                           colors: [
-                                            if (_playerColor ==
-                                                'assets/svg/chess-and-bg/yellow_chess.svg') ...[
-                                              const Color(0xC7DBD200),
-                                              const Color(0x73595214),
-                                              const Color(0x9EDBD200),
-                                            ],
-                                            if (_playerColor ==
-                                                'assets/svg/chess-and-bg/red_chess.svg') ...[
-                                              const Color(0xC7DB0000),
-                                              const Color(0x73591414),
-                                              const Color(0x9EDB0000),
-                                            ],
-                                            if (_playerColor ==
-                                                'assets/svg/chess-and-bg/blue_chess.svg') ...[
-                                              const Color(0xC700CEDB),
-                                              const Color(0x73145559),
-                                              const Color(0x9E00CEDB),
-                                            ],
-                                            if (_playerColor ==
-                                                'assets/svg/chess-and-bg/green_chess.svg') ...[
-                                              const Color(0xFF005C30),
-                                              const Color(0x730C3823),
-                                              const Color(0xFF005C30),
-                                            ],
+                                            // if (_playerColor ==
+                                            //     'assets/svg/chess-and-bg/yellow_chess.svg') ...[
+                                            //   const Color(0xC7DBD200),
+                                            //   const Color(0x73595214),
+                                            //   const Color(0x9EDBD200),
+                                            // ],
+                                            // if (_playerColor ==
+                                            //     'assets/svg/chess-and-bg/red_chess.svg') ...[
+                                            //   const Color(0xC7DB0000),
+                                            //   const Color(0x73591414),
+                                            //   const Color(0x9EDB0000),
+                                            // ],
+                                            // if (_playerColor ==
+                                            //     'assets/svg/chess-and-bg/blue_chess.svg') ...[
+                                            //   const Color(0xC700CEDB),
+                                            //   const Color(0x73145559),
+                                            //   const Color(0x9E00CEDB),
+                                            // ],
+                                            const Color(0xFF005C30),
+                                            const Color(0x730C3823),
+                                            const Color(0xFF005C30),
+                                            // if (_playerColor ==
+                                            //     'assets/svg/chess-and-bg/green_chess.svg') ...[
+                                            //   const Color(0xFF005C30),
+                                            //   const Color(0x730C3823),
+                                            //   const Color(0xFF005C30),
+                                            // ],
                                           ],
                                         ),
-                                        svgPath: _playerColor!,
+                                        svgPath:
+                                            "assets/svg/chess-and-bg/green_chess.svg",
                                         selectedPinColor: "",
                                         onTap: (_) {},
                                       ),
@@ -1140,8 +1044,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                   : null,
                           child: _isLoading
                               ? const CircularProgressIndicator()
-                              : Text(_activeTab == _numberOfTabs &&
-                                      _playerColor != null
+                              : Text(_activeTab == _numberOfTabs
                                   ? 'Create Game'
                                   : 'Next'),
                         ),

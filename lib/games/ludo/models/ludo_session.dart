@@ -7,11 +7,18 @@ part 'ludo_session.freezed.dart';
 
 const playerColors = {
   // Add this const
-  'red': Color(0xffd04c2f),
-  'blue': Color(0xff2fa9d0),
   'green': Color(0xff2fd06f),
+  'blue': Color(0xff2fa9d0),
+  'red': Color(0xffd04c2f),
   'yellow': Color(0xffb0d02f),
 };
+
+const playerColorsList = [
+  Color(0xff2fd06f),
+  Color(0xff2fa9d0),
+  Color(0xffd04c2f),
+  Color(0xffb0d02f),
+];
 
 @freezed
 class LudoSessionData extends HiveObject with _$LudoSessionData {
@@ -23,7 +30,6 @@ class LudoSessionData extends HiveObject with _$LudoSessionData {
     @HiveField(2) required String status,
     @HiveField(3) required String nextPlayer,
     @HiveField(4) required String nonce,
-    @HiveField(5) required String color,
     @HiveField(6) required String playAmount,
     @HiveField(7) required String playToken,
     @HiveField(8) required List<LudoSessionUserStatus> sessionUserStatus,
@@ -36,9 +42,8 @@ class LudoSessionData extends HiveObject with _$LudoSessionData {
     @HiveField(15) @Default("4") String requiredPlayers,
   }) = _LudoSessionData;
 
-  List<Color> get getListOfColors => sessionUserStatus
-      .map((user) => playerColors[user.color] ?? Colors.grey)
-      .toList();
+  List<Color> get getListOfColors =>
+      sessionUserStatus.map((user) => playerColorsList[user.playerId]).toList();
 //find index of that color
 //sub list, [0, target][target, 3]
 //return it
@@ -48,7 +53,7 @@ class LudoSessionData extends HiveObject with _$LudoSessionData {
   List<String> get notAvailableColors => sessionUserStatus
       .where((pl) => pl.status == "ACTIVE")
       .toList()
-      .map((e) => e.color!)
+      .map((e) => playerColors.keys.toList()[e.playerId])
       .toList();
 
   factory LudoSessionData.fromJson(Map<String, dynamic> json) =>
@@ -71,7 +76,6 @@ class LudoSessionUserStatus extends HiveObject with _$LudoSessionUserStatus {
     @HiveField(7) String? profileImageUrl,
     @HiveField(8) required int points,
     @HiveField(9) required List<bool>? playerTokensCircled,
-    @HiveField(10) required String? color,
   }) = _LudoSessionUserStatus;
 
   factory LudoSessionUserStatus.fromJson(Map<String, dynamic> json) =>
