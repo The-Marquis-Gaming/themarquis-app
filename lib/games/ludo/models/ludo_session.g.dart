@@ -31,14 +31,13 @@ class LudoSessionDataImplAdapter extends TypeAdapter<_$LudoSessionDataImpl> {
       playMoveFailed: fields[13] as bool?,
       message: fields[14] as String?,
       requiredPlayers: fields[15] as String,
-      countdownStartTime: fields[16] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, _$LudoSessionDataImpl obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(2)
@@ -65,8 +64,6 @@ class LudoSessionDataImplAdapter extends TypeAdapter<_$LudoSessionDataImpl> {
       ..write(obj.message)
       ..writeByte(15)
       ..write(obj.requiredPlayers)
-      ..writeByte(16)
-      ..write(obj.countdownStartTime)
       ..writeByte(8)
       ..write(obj.sessionUserStatus);
   }
@@ -167,9 +164,6 @@ _$LudoSessionDataImpl _$$LudoSessionDataImplFromJson(
       playMoveFailed: json['playMoveFailed'] as bool?,
       message: json['message'] as String?,
       requiredPlayers: json['requiredPlayers'] as String? ?? "4",
-      countdownStartTime: json['countdownStartTime'] == null
-          ? null
-          : DateTime.parse(json['countdownStartTime'] as String),
     );
 
 Map<String, dynamic> _$$LudoSessionDataImplToJson(
@@ -189,7 +183,6 @@ Map<String, dynamic> _$$LudoSessionDataImplToJson(
       'playMoveFailed': instance.playMoveFailed,
       'message': instance.message,
       'requiredPlayers': instance.requiredPlayers,
-      'countdownStartTime': instance.countdownStartTime?.toIso8601String(),
     };
 
 _$LudoSessionUserStatusImpl _$$LudoSessionUserStatusImplFromJson(
