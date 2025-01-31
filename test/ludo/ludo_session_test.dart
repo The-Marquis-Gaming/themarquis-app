@@ -67,7 +67,6 @@ void main() {
             'status': 'status',
             'next_player': 'next_player',
             'nonce': 'nonce',
-            'color': 'color',
             'play_amount': 'play_amount',
             'play_token': 'play_token',
             'next_player_id': 1,
@@ -83,7 +82,6 @@ void main() {
                 'role': 'role',
                 'status': 'status',
                 'points': 0,
-                'color': 'color'
               },
             ],
           },
@@ -148,7 +146,6 @@ void main() {
 
     test('createSession creates a new session', () async {
       final amount = '100';
-      final color = '1';
       final tokenAddress = 'token_address';
       final requiredPlayers = 4;
       final response1 = Response(jsonEncode({'id': sessionId}), 201);
@@ -156,9 +153,8 @@ void main() {
       when(mockClient.post(Uri.parse('$baseUrl/session/create'),
               body: jsonEncode({
                 'amount': amount,
-                'user_creator_color': color,
-                'token_address': tokenAddress,
                 'required_players': requiredPlayers.toString(),
+                'token_address': tokenAddress,
               }),
               headers: anyNamed('headers')))
           .thenAnswer((_) async => response1);
