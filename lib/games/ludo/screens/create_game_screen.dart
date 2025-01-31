@@ -31,6 +31,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   GameMode? _gameMode;
   String? _selectedTokenAddress;
   double? _selectedTokenAmount;
+  String? _playerColor;
   bool _isLoading = false;
   bool _shouldRetrieveBalance = false;
 
@@ -81,7 +82,6 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
     if (_activeTab == 1) return _numberOfPlayers != null;
     if (_activeTab == 2 && _gameMode == GameMode.token)
       return _selectedTokenAddress != null && _selectedTokenAmount != null;
-    if (_activeTab == 3) return true;
     return false;
   }
 
@@ -90,19 +90,17 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
   Future<void> _createGame() async {
     final game =
         ModalRoute.of(context)!.settings.arguments as LudoGameController;
-    final requiredPlayers = _numberOfPlayers == NumberOfPlayers.two ? "2" : "4";
     try {
       setState(() {
         _isLoading = true;
       });
       await ref.read(ludoSessionProvider.notifier).createSession(
             _gameMode == GameMode.free ? '0' : '$_selectedTokenAmount',
+            _numberOfPlayers == NumberOfPlayers.two ? 2 : 4,
             _selectedTokenAddress ?? "0",
-            requiredPlayers,
           );
       if (!mounted) return;
       Navigator.of(context).pop();
-      await game.setNumberOfPlayers(_numberOfPlayers!);
       await game.updatePlayState(PlayState.waiting);
     } catch (e) {
       if (!mounted) return;
@@ -962,7 +960,8 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                             ],
                                           ],
                                         ),
-                                        svgPath: 'assets/svg/chess-and-bg/green_chess.svg',
+                                        svgPath:
+                                            "assets/svg/chess-and-bg/green_chess.svg",
                                         selectedPinColor: "",
                                         onTap: (_) {},
                                       ),

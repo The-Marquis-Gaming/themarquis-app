@@ -48,48 +48,43 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
         ),
         child: SafeArea(
           child: ValueListenableBuilder(
-            valueListenable: _game.numberOfPlayersNotifier,
-            builder: (BuildContext context, numberOfPlayerState, child)  {
-              return ValueListenableBuilder(
-                valueListenable: _game.playStateNotifier,
-                builder: (context, playState, child) {
-                  if (playState == PlayState.playing) {
-                    return Column(
-                      children: [
-                        GameTopBar(game: _game),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                            child: FittedBox(
-                              fit: BoxFit.contain,
-                              child: SizedBox(
-                                  width: kLudoGameWidth,
-                                  height: kLudoGameHeight,
-                                  child: _buildRiverpodGameWidget(numberOfPlayerState)),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                  if (playState == PlayState.finished) {
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 80.0, right: 80),
-                      child: AspectRatio(
-                        aspectRatio: 7 / 20,
+            valueListenable: _game.playStateNotifier,
+            builder: (context, playState, child) {
+              if (playState == PlayState.playing) {
+                return Column(
+                  children: [
+                    GameTopBar(game: _game),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                         child: FittedBox(
-                          fit: BoxFit.fitHeight,
+                          fit: BoxFit.contain,
                           child: SizedBox(
                               width: kLudoGameWidth,
                               height: kLudoGameHeight,
-                              child: _buildRiverpodGameWidget(numberOfPlayerState)),
+                              child: _buildRiverpodGameWidget()),
                         ),
                       ),
-                    );
-                  }
-                  return _buildRiverpodGameWidget(numberOfPlayerState);
-                },
-              );
+                    ),
+                  ],
+                );
+              }
+              if (playState == PlayState.finished) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 80.0, right: 80),
+                  child: AspectRatio(
+                    aspectRatio: 7 / 20,
+                    child: FittedBox(
+                      fit: BoxFit.fitHeight,
+                      child: SizedBox(
+                          width: kLudoGameWidth,
+                          height: kLudoGameHeight,
+                          child: _buildRiverpodGameWidget()),
+                    ),
+                  ),
+                );
+              }
+              return _buildRiverpodGameWidget();
             },
           ),
         ),
@@ -97,15 +92,16 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
     );
   }
 
-  Widget _buildRiverpodGameWidget(NumberOfPlayers numOfPlayers) {
+  Widget _buildRiverpodGameWidget() {
     return RiverpodAwareGameWidget<LudoGameController>(
       key: _gameWidgetKey,
       game: _game,
       overlayBuilderMap: {
         PlayState.welcome.name: (context, game) =>
             LudoWelcomeScreen(game: game),
-        PlayState.waiting.name: (context, game) =>
-           FourPlayerWaitingRoomScreen(game: game),
+        PlayState.waiting.name: (context, game) => game.requiredPlayers == '2'
+            ? TwoPlayerWaitingRoomScreen(game: game)
+            : FourPlayerWaitingRoomScreen(game: game),
         PlayState.finished.name: (context, game) => MatchResultsScreen(
             game: game, session: ref.read(ludoSessionProvider)!),
       },

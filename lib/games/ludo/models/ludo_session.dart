@@ -7,11 +7,18 @@ part 'ludo_session.freezed.dart';
 
 const playerColors = {
   // Add this const
-  'red': Color(0xffd04c2f),
-  'blue': Color(0xff2fa9d0),
   'green': Color(0xff2fd06f),
+  'blue': Color(0xff2fa9d0),
+  'red': Color(0xffd04c2f),
   'yellow': Color(0xffb0d02f),
 };
+
+const playerColorsList = [
+  Color(0xff2fd06f),
+  Color(0xff2fa9d0),
+  Color(0xffd04c2f),
+  Color(0xffb0d02f),
+];
 
 @freezed
 class LudoSessionData extends HiveObject with _$LudoSessionData {
@@ -35,9 +42,8 @@ class LudoSessionData extends HiveObject with _$LudoSessionData {
     @HiveField(15) @Default("4") String requiredPlayers,
   }) = _LudoSessionData;
 
-  List<Color> get getListOfColors => sessionUserStatus
-      .map((user) => /*playerColors[user.color] ??*/ Colors.grey)
-      .toList();
+  List<Color> get getListOfColors =>
+      sessionUserStatus.map((user) => playerColorsList[user.playerId]).toList();
 //find index of that color
 //sub list, [0, target][target, 3]
 //return it
@@ -47,7 +53,7 @@ class LudoSessionData extends HiveObject with _$LudoSessionData {
   List<String> get notAvailableColors => sessionUserStatus
       .where((pl) => pl.status == "ACTIVE")
       .toList()
-      .map((e) => 'red')
+      .map((e) => playerColors.keys.toList()[e.playerId])
       .toList();
 
   factory LudoSessionData.fromJson(Map<String, dynamic> json) =>

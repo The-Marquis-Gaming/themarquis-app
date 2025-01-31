@@ -33,9 +33,12 @@ void main() {
       appMockBox = MockBox();
       userMockBox = MockBox();
       container = ProviderContainer(overrides: [
-        appStateProvider.overrideWith(() => AppState(httpClient: mockClient, hiveBox: appMockBox)),
-        userProvider.overrideWith(() => User(httpClient: mockClient, hiveBox: userMockBox)),
-        ludoSessionProvider.overrideWith(() => LudoSession(httpClient: mockClient, hiveBox: ludoMockBox)),
+        appStateProvider.overrideWith(
+            () => AppState(httpClient: mockClient, hiveBox: appMockBox)),
+        userProvider.overrideWith(
+            () => User(httpClient: mockClient, hiveBox: userMockBox)),
+        ludoSessionProvider.overrideWith(
+            () => LudoSession(httpClient: mockClient, hiveBox: ludoMockBox)),
       ]);
       final response1 = Response(
         jsonEncode({
@@ -64,7 +67,6 @@ void main() {
             'status': 'status',
             'next_player': 'next_player',
             'nonce': 'nonce',
-            'color': 'color',
             'play_amount': 'play_amount',
             'play_token': 'play_token',
             'next_player_id': 1,
@@ -80,22 +82,25 @@ void main() {
                 'role': 'role',
                 'status': 'status',
                 'points': 0,
-                'color': 'color'
               },
             ],
           },
         ),
         200,
       );
-      baseUrl = environment['build'] == 'DEBUG' ? environment['apiUrlDebug'] : environment['apiUrl'];
-      when(appMockBox.get('appState', defaultValue: anyNamed('defaultValue'))).thenReturn(AppStateData());
-      when(ludoMockBox.get('ludoSession', defaultValue: anyNamed('defaultValue'))).thenReturn(
+      baseUrl = environment['build'] == 'DEBUG'
+          ? environment['apiUrlDebug']
+          : environment['apiUrl'];
+      when(appMockBox.get('appState', defaultValue: anyNamed('defaultValue')))
+          .thenReturn(AppStateData());
+      when(ludoMockBox.get('ludoSession',
+              defaultValue: anyNamed('defaultValue')))
+          .thenReturn(
         LudoSessionData(
           id: "id",
           status: "status",
           nextPlayer: "nextPlayer",
           nonce: "nonce",
-          //color: "color",
           playAmount: "playAmount",
           playToken: "playToken",
           sessionUserStatus: [],
@@ -106,56 +111,69 @@ void main() {
           playMoveFailed: false,
         ),
       );
-      when(mockClient.get(Uri.parse('$baseUrl/user/info'), headers: anyNamed('headers'))).thenAnswer((_) async => response1);
-      when(mockClient.get(Uri.parse("$baseUrl/game/session/$sessionId"), headers: anyNamed('headers'))).thenAnswer((_) async => response2);
+      when(mockClient.get(Uri.parse('$baseUrl/user/info'),
+              headers: anyNamed('headers')))
+          .thenAnswer((_) async => response1);
+      when(mockClient.get(Uri.parse("$baseUrl/game/session/$sessionId"),
+              headers: anyNamed('headers')))
+          .thenAnswer((_) async => response2);
     },
   );
 
   group('LudoSession', () {
     test('joinSession joins an existing session', () async {
-      final color = '1';
       final response1 = Response(jsonEncode({'id': sessionId}), 201);
 
-      when(mockClient.post(Uri.parse('$baseUrl/session/join'), body: jsonEncode({'session_id': sessionId, 'user_color': color}), headers: anyNamed('headers')))
+      when(mockClient.post(Uri.parse('$baseUrl/session/join'),
+              body: jsonEncode({'session_id': sessionId}),
+              headers: anyNamed('headers')))
           .thenAnswer((_) async => response1);
 
-      await container.read(ludoSessionProvider.notifier).joinSession(sessionId, color);
+      await container.read(ludoSessionProvider.notifier).joinSession(sessionId);
 
       verify(mockClient.post(Uri.parse('$baseUrl/session/join'),
-              body: jsonEncode({'session_id': sessionId, 'user_color': color}), headers: anyNamed('headers')))
+              body: jsonEncode({'session_id': sessionId}),
+              headers: anyNamed('headers')))
           .called(1);
-      verify(mockClient.get(Uri.parse("$baseUrl/game/session/$sessionId"), headers: anyNamed('headers'))).called(1);
-      verify(mockClient.get(Uri.parse('$baseUrl/user/info'), headers: anyNamed('headers'))).called(1);
+      verify(mockClient.get(Uri.parse("$baseUrl/game/session/$sessionId"),
+              headers: anyNamed('headers')))
+          .called(1);
+      verify(mockClient.get(Uri.parse('$baseUrl/user/info'),
+              headers: anyNamed('headers')))
+          .called(1);
       expect(container.read(ludoSessionProvider)?.id, sessionId);
     });
 
     test('createSession creates a new session', () async {
       final amount = '100';
-      final color = '1';
       final tokenAddress = 'token_address';
-      final requiredPlayers = '4';
+      final requiredPlayers = 4;
       final response1 = Response(jsonEncode({'id': sessionId}), 201);
-      
+
       when(mockClient.post(Uri.parse('$baseUrl/session/create'),
-          body: jsonEncode({
-            'amount': amount,
-            'user_creator_color': color,
-            'token_address': tokenAddress,
-            'required_players': requiredPlayers,
-          }), 
-          headers: anyNamed('headers')))
-        .thenAnswer((_) async => response1);
+              body: jsonEncode({
+                'amount': amount,
+                'required_players': requiredPlayers.toString(),
+                'token_address': tokenAddress,
+              }),
+              headers: anyNamed('headers')))
+          .thenAnswer((_) async => response1);
 
       await container.read(ludoSessionProvider.notifier).createSession(
-        amount, 
-        color, 
-        tokenAddress,
-        requiredPlayers,
-      );
+            amount,
+            requiredPlayers,
+            tokenAddress,
+          );
 
-      verify(mockClient.post(any, body: anyNamed('body'), headers: anyNamed('headers'))).called(1);
-      verify(mockClient.get(Uri.parse("$baseUrl/game/session/$sessionId"), headers: anyNamed('headers'))).called(1);
-      verify(mockClient.get(Uri.parse('$baseUrl/user/info'), headers: anyNamed('headers'))).called(1);
+      verify(mockClient.post(any,
+              body: anyNamed('body'), headers: anyNamed('headers')))
+          .called(1);
+      verify(mockClient.get(Uri.parse("$baseUrl/game/session/$sessionId"),
+              headers: anyNamed('headers')))
+          .called(1);
+      verify(mockClient.get(Uri.parse('$baseUrl/user/info'),
+              headers: anyNamed('headers')))
+          .called(1);
 
       expect(container.read(ludoSessionProvider)?.id, sessionId);
     });
@@ -165,9 +183,12 @@ void main() {
       () async {
         final response = Response(jsonEncode({'message': 'success'}), 201);
 
-        when(mockClient.post(Uri.parse('$baseUrl/session/exit-game'), body: anyNamed('body'), headers: anyNamed('headers'))).thenAnswer((_) async => response);
+        when(mockClient.post(Uri.parse('$baseUrl/session/exit-game'),
+                body: anyNamed('body'), headers: anyNamed('headers')))
+            .thenAnswer((_) async => response);
 
-        when(userMockBox.get('user', defaultValue: anyNamed('defaultValue'))).thenReturn(
+        when(userMockBox.get('user', defaultValue: anyNamed('defaultValue')))
+            .thenReturn(
           UserData(
             id: "id",
             email: "email",
@@ -188,8 +209,12 @@ void main() {
 
         await container.read(ludoSessionProvider.notifier).exitSession();
 
-        verify(mockClient.post(Uri.parse('$baseUrl/session/exit-game'), body: anyNamed('body'), headers: anyNamed('headers'))).called(1);
-        verify(mockClient.get(Uri.parse('$baseUrl/user/info'), headers: anyNamed('headers'))).called(1);
+        verify(mockClient.post(Uri.parse('$baseUrl/session/exit-game'),
+                body: anyNamed('body'), headers: anyNamed('headers')))
+            .called(1);
+        verify(mockClient.get(Uri.parse('$baseUrl/user/info'),
+                headers: anyNamed('headers')))
+            .called(1);
 
         expect(container.read(ludoSessionProvider), isNull);
       },
@@ -199,9 +224,12 @@ void main() {
       () async {
         final response = Response(jsonEncode({'message': 'success'}), 201);
 
-        when(mockClient.post(Uri.parse('$baseUrl/session/exit-game'), body: anyNamed('body'), headers: anyNamed('headers'))).thenAnswer((_) async => response);
+        when(mockClient.post(Uri.parse('$baseUrl/session/exit-game'),
+                body: anyNamed('body'), headers: anyNamed('headers')))
+            .thenAnswer((_) async => response);
 
-        when(userMockBox.get('user', defaultValue: anyNamed('defaultValue'))).thenReturn(null);
+        when(userMockBox.get('user', defaultValue: anyNamed('defaultValue')))
+            .thenReturn(null);
 
         await container.read(ludoSessionProvider.notifier).exitSession();
 
@@ -211,19 +239,32 @@ void main() {
     test('closeSession', () async {
       final response = Response(jsonEncode({'message': 'success'}), 201);
 
-      when(mockClient.post(Uri.parse('$baseUrl/session/close'), body: jsonEncode({'session_id': null}), headers: anyNamed('headers')))
+      when(mockClient.post(Uri.parse('$baseUrl/session/close'),
+              body: jsonEncode({'session_id': null}),
+              headers: anyNamed('headers')))
           .thenAnswer((_) async => response);
 
-      await container.read(ludoSessionProvider.notifier).closeSession(sessionId);
+      await container
+          .read(ludoSessionProvider.notifier)
+          .closeSession(sessionId);
 
-      verify(mockClient.post(Uri.parse('$baseUrl/session/close'), body: jsonEncode({'session_id': null}), headers: anyNamed('headers'))).called(1);
-      verify(mockClient.get(Uri.parse('$baseUrl/user/info'), headers: anyNamed('headers'))).called(1);
+      verify(mockClient.post(Uri.parse('$baseUrl/session/close'),
+              body: jsonEncode({'session_id': null}),
+              headers: anyNamed('headers')))
+          .called(1);
+      verify(mockClient.get(Uri.parse('$baseUrl/user/info'),
+              headers: anyNamed('headers')))
+          .called(1);
     });
 
     test('getLudoSessionFromId returns LudoSessionData on success', () async {
-      final result = await container.read(ludoSessionProvider.notifier).getLudoSessionFromId(sessionId);
+      final result = await container
+          .read(ludoSessionProvider.notifier)
+          .getLudoSessionFromId(sessionId);
 
-      verify(mockClient.get(Uri.parse("$baseUrl/game/session/$sessionId"), headers: anyNamed('headers'))).called(1);
+      verify(mockClient.get(Uri.parse("$baseUrl/game/session/$sessionId"),
+              headers: anyNamed('headers')))
+          .called(1);
 
       expect(result, isA<LudoSessionData>());
       expect(result?.id, sessionId);
@@ -237,11 +278,17 @@ void main() {
           ]),
           200);
 
-      when(mockClient.get(Uri.parse('$baseUrl/game/session/$id/transactions'), headers: anyNamed('headers'))).thenAnswer((_) async => response);
+      when(mockClient.get(Uri.parse('$baseUrl/game/session/$id/transactions'),
+              headers: anyNamed('headers')))
+          .thenAnswer((_) async => response);
 
-      final result = await container.read(ludoSessionProvider.notifier).getTransactions(id);
+      final result = await container
+          .read(ludoSessionProvider.notifier)
+          .getTransactions(id);
 
-      verify(mockClient.get(Uri.parse('$baseUrl/game/session/$id/transactions'), headers: anyNamed('headers'))).called(1);
+      verify(mockClient.get(Uri.parse('$baseUrl/game/session/$id/transactions'),
+              headers: anyNamed('headers')))
+          .called(1);
 
       expect(result, isA<List<Map>>());
       expect(result.length, 1);
@@ -264,11 +311,16 @@ void main() {
   test(
     'clearData resets LudoSessionData and Reloads User',
     () async {
-      await container.read(ludoSessionProvider.notifier).clearData(refreshUser: true);
+      await container
+          .read(ludoSessionProvider.notifier)
+          .clearData(refreshUser: true);
 
       verify(ludoMockBox.delete('ludoSession')).called(1);
-      verify(mockClient.get(Uri.parse('$baseUrl/user/info'), headers: anyNamed('headers'))).called(1);
-      verify(userMockBox.get('user', defaultValue: anyNamed('defaultValue'))).called(1);
+      verify(mockClient.get(Uri.parse('$baseUrl/user/info'),
+              headers: anyNamed('headers')))
+          .called(1);
+      verify(userMockBox.get('user', defaultValue: anyNamed('defaultValue')))
+          .called(1);
       verify(userMockBox.put('user', any)).called(1);
 
       verifyNoMoreInteractions(userMockBox);
@@ -282,24 +334,39 @@ void main() {
     'playMove makes request to the right url',
     () async {
       final tokenId = 'test_token_id';
-      when(mockClient.post(Uri.parse('$baseUrl/game/session/null/play-move/$tokenId'), body: anyNamed('body'), headers: anyNamed('headers')))
+      when(mockClient.post(
+              Uri.parse('$baseUrl/game/session/null/play-move/$tokenId'),
+              body: anyNamed('body'),
+              headers: anyNamed('headers')))
           .thenAnswer((_) async => Response('', 201));
 
       await container.read(ludoSessionProvider.notifier).playMove(tokenId);
 
-      verify(mockClient.post(Uri.parse('$baseUrl/game/session/null/play-move/$tokenId'), body: anyNamed('body'), headers: anyNamed('headers'))).called(1);
+      verify(mockClient.post(
+              Uri.parse('$baseUrl/game/session/null/play-move/$tokenId'),
+              body: anyNamed('body'),
+              headers: anyNamed('headers')))
+          .called(1);
       verifyNoMoreInteractions(mockClient);
     },
   );
   test(
     'generateMove returns List<int>',
     () async {
-      when(mockClient.post(Uri.parse('$baseUrl/game/session/null/generate-move'), body: anyNamed('body'), headers: anyNamed('headers')))
+      when(mockClient.post(
+              Uri.parse('$baseUrl/game/session/null/generate-move'),
+              body: anyNamed('body'),
+              headers: anyNamed('headers')))
           .thenAnswer((_) async => Response(jsonEncode([6, 5]), 200));
 
-      final moves = await container.read(ludoSessionProvider.notifier).generateMove();
+      final moves =
+          await container.read(ludoSessionProvider.notifier).generateMove();
 
-      verify(mockClient.post(Uri.parse('$baseUrl/game/session/null/generate-move'), body: anyNamed('body'), headers: anyNamed('headers'))).called(1);
+      verify(mockClient.post(
+              Uri.parse('$baseUrl/game/session/null/generate-move'),
+              body: anyNamed('body'),
+              headers: anyNamed('headers')))
+          .called(1);
 
       expect(moves, isA<List<int>>());
     },
