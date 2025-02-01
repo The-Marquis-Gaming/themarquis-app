@@ -6,12 +6,12 @@ part of 'ludo_session.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ludoSessionHash() => r'ab718e145936ab99c15047197bad2ae87e18ed77';
+String _$ludoSessionHash() => r'3514d5c4f17a9c35b39138870b140fd1eadadc9e';
 
 /// See also [LudoSession].
 @ProviderFor(LudoSession)
 final ludoSessionProvider =
-    AutoDisposeNotifierProvider<LudoSession, LudoSessionData?>.internal(
+    NotifierProvider<LudoSession, LudoSessionData?>.internal(
   LudoSession.new,
   name: r'ludoSessionProvider',
   debugGetCreateSourceHash:
@@ -20,6 +20,6 @@ final ludoSessionProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$LudoSession = AutoDisposeNotifier<LudoSessionData?>;
+typedef _$LudoSession = Notifier<LudoSessionData?>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

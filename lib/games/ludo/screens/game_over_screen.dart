@@ -38,9 +38,9 @@ class MatchResultsScreen extends ConsumerWidget {
                 .reduce((a, b) => a + b);
             return {
               'index': session.sessionUserStatus.indexOf(element),
-              'score': numWinningTokens == 4
+              'score': (numWinningTokens == 4
                   ? 4 * double.parse(session.playAmount)
-                  : -double.parse(session.playAmount),
+                  : -double.parse(session.playAmount)),
               'numWinningTokens': numWinningTokens,
               'exp': 400,
             };
@@ -51,9 +51,10 @@ class MatchResultsScreen extends ConsumerWidget {
             results[i]['rank'] = i + 1;
           }
           final deviceSize = MediaQuery.of(context).size;
-          if (kDebugMode)
+          if (kDebugMode) {
             print(
                 "Device width: ${deviceSize.width}, game width: ${game.width}");
+          }
           return Scaffold(
               body: Transform.scale(
             scale: game.height / deviceSize.height,
@@ -65,11 +66,6 @@ class MatchResultsScreen extends ConsumerWidget {
                   FutureBuilder<List<Map<String, dynamic>>>(future: () async {
                 final supportedTokens =
                     await ref.read(userProvider.notifier).getSupportedTokens();
-                supportedTokens.add({
-                  "tokenAddress":
-                      "0x0000000000000000000000000000000000000000000000000000000000000000",
-                  "tokenName": "No Token",
-                });
                 return supportedTokens;
               }(), builder: (context, snapshot) {
                 return snapshot.connectionState == ConnectionState.waiting
@@ -142,8 +138,9 @@ class MatchResultsScreen extends ConsumerWidget {
                                               }(),
                                               builder: (context, snapshot) {
                                                 if (snapshot.connectionState ==
-                                                    ConnectionState.waiting)
+                                                    ConnectionState.waiting) {
                                                   return const CircularProgressIndicator();
+                                                }
                                                 return Visibility(
                                                   visible:
                                                       snapshot.data!.isNotEmpty,
@@ -357,28 +354,33 @@ class MatchResultsScreen extends ConsumerWidget {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              results.firstWhere((e) =>
-                                  e["tokenAddress"] ==
-                                  session.playToken)["tokenName"],
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                                overflow: TextOverflow.ellipsis,
+                            if (session.playAmount != '0')
+                              Text(
+                                results.firstWhere((e) =>
+                                    e["tokenAddress"] ==
+                                    session.playToken)["tokenName"],
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              result['rank'] == 1 ? '400' : '100',
-                              style: TextStyle(
-                                color: result['rank'] == 1
-                                    ? Colors.yellow
-                                    : Colors.red,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                            if (session.playAmount != '0')
+                              const SizedBox(width: 4),
+                            if (session.playAmount != '0')
+                              Text(
+                                result['score']
+                                    .toStringAsFixed(7)
+                                    .replaceAll(RegExp(r'0*$'), ''),
+                                style: TextStyle(
+                                  color: result['rank'] == 1
+                                      ? Colors.yellow
+                                      : Colors.red,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
                             const SizedBox(width: 12),
                           ],
                         ),
@@ -687,22 +689,33 @@ class MatchResultsScreen extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                SvgPicture.asset(
-                                  'assets/images/starknet-token-strk-logo (4) 7.svg',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  result['score'],
-                                  style: TextStyle(
-                                    color: result['rank'] == 1
-                                        ? Colors.yellow
-                                        : Colors.red,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                if (session.playAmount != '0')
+                                  Text(
+                                    results.firstWhere((e) =>
+                                        e["tokenAddress"] ==
+                                        session.playToken)["tokenName"],
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                ),
+                                if (session.playAmount != '0')
+                                  const SizedBox(width: 4),
+                                if (session.playAmount != '0')
+                                  Text(
+                                    result['score']
+                                        .toStringAsFixed(7)
+                                        .replaceAll(RegExp(r'0*$'), ''),
+                                    style: TextStyle(
+                                      color: result['rank'] == 1
+                                          ? Colors.yellow
+                                          : Colors.red,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 const SizedBox(width: 12),
                               ],
                             ),

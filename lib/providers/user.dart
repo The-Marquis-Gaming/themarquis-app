@@ -11,9 +11,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part "user.g.dart";
 
-final baseUrl = environment['build'] == 'DEBUG'
-    ? environment['apiUrlDebug']
-    : environment['apiUrl'];
+final baseUrl = environment['apiUrl'];
+final baseUrlDebug = environment['apiUrlDebug'];
 
 @Riverpod(keepAlive: true)
 class User extends _$User {
@@ -37,7 +36,8 @@ class User extends _$User {
   }
 
   Future<void> getUser() async {
-    final url = Uri.parse('$baseUrl/user/info');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/user/info');
     final response = await _httpClient!.get(
       url,
       headers: {
@@ -108,7 +108,8 @@ class User extends _$User {
   }
 
   Future<List<Map<String, String>>> getSupportedTokens() async {
-    final url = Uri.parse('$baseUrl/game/supported-tokens');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/supported-tokens');
     final response = await _httpClient!.get(
       url,
       headers: {
@@ -135,7 +136,7 @@ class User extends _$User {
   Future<BigInt> getTokenBalance(String tokenAddress) async {
     if (state == null) return BigInt.from(0);
     final url = Uri.parse(
-        '$baseUrl/game/token/balance/$tokenAddress/${state!.accountAddress}');
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/token/balance/$tokenAddress/${state!.accountAddress}');
     final response = await _httpClient!.get(
       url,
       headers: {

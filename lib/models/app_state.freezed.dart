@@ -38,8 +38,12 @@ mixin _$AppStateData {
   String? get selectedGameSessionId => throw _privateConstructorUsedError;
   @HiveField(10)
   bool get isBalanceVisible => throw _privateConstructorUsedError;
+  @HiveField(11)
+  bool get isSandbox => throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
+  /// Create a copy of AppStateData
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $AppStateDataCopyWith<AppStateData> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -61,7 +65,8 @@ abstract class $AppStateDataCopyWith<$Res> {
       @HiveField(7) DateTime? accessTokenExpiry,
       @HiveField(8) DateTime? refreshTokenExpiry,
       @HiveField(9) String? selectedGameSessionId,
-      @HiveField(10) bool isBalanceVisible});
+      @HiveField(10) bool isBalanceVisible,
+      @HiveField(11) bool isSandbox});
 }
 
 /// @nodoc
@@ -74,6 +79,8 @@ class _$AppStateDataCopyWithImpl<$Res, $Val extends AppStateData>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of AppStateData
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -88,6 +95,7 @@ class _$AppStateDataCopyWithImpl<$Res, $Val extends AppStateData>
     Object? refreshTokenExpiry = freezed,
     Object? selectedGameSessionId = freezed,
     Object? isBalanceVisible = null,
+    Object? isSandbox = null,
   }) {
     return _then(_value.copyWith(
       navigatorIndex: null == navigatorIndex
@@ -134,6 +142,10 @@ class _$AppStateDataCopyWithImpl<$Res, $Val extends AppStateData>
           ? _value.isBalanceVisible
           : isBalanceVisible // ignore: cast_nullable_to_non_nullable
               as bool,
+      isSandbox: null == isSandbox
+          ? _value.isSandbox
+          : isSandbox // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -157,7 +169,8 @@ abstract class _$$AppStateDataImplCopyWith<$Res>
       @HiveField(7) DateTime? accessTokenExpiry,
       @HiveField(8) DateTime? refreshTokenExpiry,
       @HiveField(9) String? selectedGameSessionId,
-      @HiveField(10) bool isBalanceVisible});
+      @HiveField(10) bool isBalanceVisible,
+      @HiveField(11) bool isSandbox});
 }
 
 /// @nodoc
@@ -168,6 +181,8 @@ class __$$AppStateDataImplCopyWithImpl<$Res>
       _$AppStateDataImpl _value, $Res Function(_$AppStateDataImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of AppStateData
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -182,6 +197,7 @@ class __$$AppStateDataImplCopyWithImpl<$Res>
     Object? refreshTokenExpiry = freezed,
     Object? selectedGameSessionId = freezed,
     Object? isBalanceVisible = null,
+    Object? isSandbox = null,
   }) {
     return _then(_$AppStateDataImpl(
       navigatorIndex: null == navigatorIndex
@@ -228,6 +244,10 @@ class __$$AppStateDataImplCopyWithImpl<$Res>
           ? _value.isBalanceVisible
           : isBalanceVisible // ignore: cast_nullable_to_non_nullable
               as bool,
+      isSandbox: null == isSandbox
+          ? _value.isSandbox
+          : isSandbox // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -247,7 +267,8 @@ class _$AppStateDataImpl extends _AppStateData {
       @HiveField(7) this.accessTokenExpiry,
       @HiveField(8) this.refreshTokenExpiry,
       @HiveField(9) this.selectedGameSessionId,
-      @HiveField(10) this.isBalanceVisible = false})
+      @HiveField(10) this.isBalanceVisible = false,
+      @HiveField(11) this.isSandbox = false})
       : super._();
 
   @override
@@ -287,10 +308,14 @@ class _$AppStateDataImpl extends _AppStateData {
   @JsonKey()
   @HiveField(10)
   final bool isBalanceVisible;
+  @override
+  @JsonKey()
+  @HiveField(11)
+  final bool isSandbox;
 
   @override
   String toString() {
-    return 'AppStateData(navigatorIndex: $navigatorIndex, accessToken: $accessToken, theme: $theme, autoLoginResult: $autoLoginResult, isConnectedInternet: $isConnectedInternet, selectedGame: $selectedGame, refreshToken: $refreshToken, accessTokenExpiry: $accessTokenExpiry, refreshTokenExpiry: $refreshTokenExpiry, selectedGameSessionId: $selectedGameSessionId, isBalanceVisible: $isBalanceVisible)';
+    return 'AppStateData(navigatorIndex: $navigatorIndex, accessToken: $accessToken, theme: $theme, autoLoginResult: $autoLoginResult, isConnectedInternet: $isConnectedInternet, selectedGame: $selectedGame, refreshToken: $refreshToken, accessTokenExpiry: $accessTokenExpiry, refreshTokenExpiry: $refreshTokenExpiry, selectedGameSessionId: $selectedGameSessionId, isBalanceVisible: $isBalanceVisible, isSandbox: $isSandbox)';
   }
 
   @override
@@ -318,7 +343,9 @@ class _$AppStateDataImpl extends _AppStateData {
             (identical(other.selectedGameSessionId, selectedGameSessionId) ||
                 other.selectedGameSessionId == selectedGameSessionId) &&
             (identical(other.isBalanceVisible, isBalanceVisible) ||
-                other.isBalanceVisible == isBalanceVisible));
+                other.isBalanceVisible == isBalanceVisible) &&
+            (identical(other.isSandbox, isSandbox) ||
+                other.isSandbox == isSandbox));
   }
 
   @override
@@ -334,9 +361,12 @@ class _$AppStateDataImpl extends _AppStateData {
       accessTokenExpiry,
       refreshTokenExpiry,
       selectedGameSessionId,
-      isBalanceVisible);
+      isBalanceVisible,
+      isSandbox);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of AppStateData
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$AppStateDataImplCopyWith<_$AppStateDataImpl> get copyWith =>
@@ -355,7 +385,8 @@ abstract class _AppStateData extends AppStateData {
       @HiveField(7) final DateTime? accessTokenExpiry,
       @HiveField(8) final DateTime? refreshTokenExpiry,
       @HiveField(9) final String? selectedGameSessionId,
-      @HiveField(10) final bool isBalanceVisible}) = _$AppStateDataImpl;
+      @HiveField(10) final bool isBalanceVisible,
+      @HiveField(11) final bool isSandbox}) = _$AppStateDataImpl;
   _AppStateData._() : super._();
 
   @override
@@ -392,7 +423,13 @@ abstract class _AppStateData extends AppStateData {
   @HiveField(10)
   bool get isBalanceVisible;
   @override
-  @JsonKey(ignore: true)
+  @HiveField(11)
+  bool get isSandbox;
+
+  /// Create a copy of AppStateData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AppStateDataImplCopyWith<_$AppStateDataImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

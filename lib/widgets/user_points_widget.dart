@@ -20,7 +20,10 @@ class _UserPointsWidgetState extends ConsumerState<UserPointsWidget> {
     return GestureDetector(
       onTap: user == null
           ? () {
-              showDialog(context: context, useRootNavigator: false, builder: (c) => const AuthDialog());
+              showDialog(
+                  context: context,
+                  useRootNavigator: false,
+                  builder: (c) => const AuthDialog());
             }
           : () {
               //go to profile page
@@ -47,7 +50,12 @@ class _UserPointsWidgetState extends ConsumerState<UserPointsWidget> {
             children: [
               Text(
                 user == null ? "LOGIN" : user.email.split("@").first,
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Orbitron',
+                ),
               ),
               user == null
                   ? Container()

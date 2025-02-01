@@ -42,6 +42,12 @@ You can check if Flutter detects your device by running:
 flutter devices
 ```
 
+To test in Starknet Sepolia, set the environment variable in `lib.env.dart` `build` to `DEBUG`.
+
+```
+'build': 'DEBUG', // Modify this line
+```
+
 ### 4. Run the app
 
 To run the app on your connected device or emulator, use:

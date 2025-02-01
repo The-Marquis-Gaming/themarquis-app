@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CheckersJoinGameDialog extends ConsumerStatefulWidget {
   const CheckersJoinGameDialog({super.key});
@@ -17,7 +16,10 @@ class CheckersJoinGameDialogState
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        textTheme: GoogleFonts.montserratTextTheme(),
+        textTheme: TextTheme(
+            bodyMedium: TextStyle(
+          fontFamily: "Montserrat",
+        )),
       ),
       child: Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -78,7 +80,8 @@ class CheckersJoinGameDialogState
         ),
         Text(
           'Join Game',
-          style: GoogleFonts.montserrat(
+          style: TextStyle(
+            fontFamily: "Montserrat",
             color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.w700,
@@ -91,7 +94,10 @@ class CheckersJoinGameDialogState
   Widget _joinGameDetails(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        textTheme: GoogleFonts.orbitronTextTheme(),
+        textTheme: TextTheme(
+            bodyMedium: TextStyle(
+          fontFamily: "Orbitron",
+        )),
       ),
       child: Container(
         height: 95,
@@ -130,7 +136,8 @@ class CheckersJoinGameDialogState
       children: [
         Text(
           '1/2 Players',
-          style: GoogleFonts.orbitron(
+          style: TextStyle(
+            fontFamily: "Orbitron",
             color: const Color(0xFF979797),
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -151,7 +158,8 @@ class CheckersJoinGameDialogState
             child: Center(
               child: Text(
                 'Join',
-                style: GoogleFonts.orbitron(
+                style: TextStyle(
+                  fontFamily: "Orbitron",
                   color: Colors.black,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -170,7 +178,8 @@ class CheckersJoinGameDialogState
       children: [
         Text(
           'ROOM 0030',
-          style: GoogleFonts.orbitron(
+          style: TextStyle(
+            fontFamily: "Orbitron",
             color: Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w600,

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
@@ -119,6 +118,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                             height: scaledHeight(64),
                             child: FittedBox(
                               child: _MenuButton(
+                                  key: const ValueKey("ResumeGameButton"),
                                   icon: Icons.play_arrow,
                                   label: 'Resume Game',
                                   onTap: () async {
@@ -148,9 +148,10 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                                         await widget.game
                                             .updatePlayState(PlayState.waiting);
                                       }
-                                    } catch (e) {
+                                    } catch (e, stackTrace) {
                                       if (!context.mounted) return;
-                                      showErrorDialog(e.toString(), context);
+                                      showErrorDialog(
+                                          "$e\n$stackTrace", context);
                                     } finally {
                                       widget.game.hideLoader();
                                     }
@@ -374,7 +375,8 @@ class _MenuButton extends StatelessWidget {
   const _MenuButton(
       {required String label,
       required IconData icon,
-      required VoidCallback onTap})
+      required VoidCallback onTap,
+      super.key})
       : _label = label,
         _onTap = onTap,
         _icon = icon;
@@ -501,8 +503,7 @@ class _FindRoomDialogState extends ConsumerState<_FindRoomDialog> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: Theme.of(context)
-          .copyWith(textTheme: GoogleFonts.montserratTextTheme()),
+      data: ThemeData(fontFamily: "Montserrat"),
       child: Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
@@ -635,8 +636,7 @@ class _JoinGameDialogState extends ConsumerState<_JoinGameDialog> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: Theme.of(context)
-          .copyWith(textTheme: GoogleFonts.montserratTextTheme()),
+      data: ThemeData(fontFamily: "Montserrat"),
       child: Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: const Color(0xFF21262B),
@@ -737,8 +737,7 @@ class _OpenSessionRoomCard extends StatelessWidget {
                 : const Color.fromARGB(255, 144, 50, 50);
 
     return Theme(
-      data: Theme.of(context)
-          .copyWith(textTheme: GoogleFonts.orbitronTextTheme()),
+      data: ThemeData(fontFamily: "Orbitron"),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(

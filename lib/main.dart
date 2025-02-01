@@ -2,7 +2,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/models/app_state.dart';
@@ -42,10 +41,10 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(appStateProvider);
+    final appState = ref.watch(appStateProvider);
     ref.watch(userProvider);
     return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: appState.isSandbox,
       title: 'The Marquis',
       scrollBehavior: MyCustomScrollBehavior(),
       theme: ThemeData(
@@ -55,8 +54,7 @@ class MyApp extends ConsumerWidget {
           surface: const Color(0xff0f1118),
           brightness: Brightness.dark,
         ),
-        textTheme: GoogleFonts.orbitronTextTheme(Theme.of(context).textTheme)
-            .apply(bodyColor: Colors.white),
+        fontFamily: "Orbitron",
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       routeInformationParser: AppRouteInformationParser(),

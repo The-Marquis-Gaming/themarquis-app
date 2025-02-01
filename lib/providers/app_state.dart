@@ -65,7 +65,8 @@ class AppState extends _$AppState {
   }
 
   Future<void> login(String email) async {
-    final url = Uri.parse('$baseUrl/auth/signin');
+    final url = Uri.parse(
+        '${environment['build'] == 'DEBUG' ? baseUrlDebug : baseUrl}/auth/signin');
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({'email': email}),
@@ -78,7 +79,7 @@ class AppState extends _$AppState {
   }
 
   Future<void> loginSandbox(String email) async {
-    final url = Uri.parse('$baseUrl/auth/signin-sandbox');
+    final url = Uri.parse('$baseUrlDebug/auth/signin-sandbox');
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({'email': email}),
@@ -99,6 +100,7 @@ class AppState extends _$AppState {
       accessTokenExpiry: accessTokenExpiryTime,
       refreshTokenExpiry: refreshTokenExpiryTime,
       autoLoginResult: true,
+      isSandbox: true,
     );
     if (_refreshTokenTimer != null) _refreshTokenTimer!.cancel();
     _refreshTokenTimer = Timer(
@@ -121,7 +123,8 @@ class AppState extends _$AppState {
   }
 
   Future<void> signup(String email, String referralCode) async {
-    final url = Uri.parse('$baseUrl/auth/signup');
+    final url = Uri.parse(
+        '${environment['build'] == 'DEBUG' ? baseUrlDebug : baseUrl}/auth/signup');
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({'email': email, 'referral_code': referralCode}),
@@ -134,7 +137,7 @@ class AppState extends _$AppState {
   }
 
   Future<void> signupSandbox(String email) async {
-    final url = Uri.parse('$baseUrl/auth/signup-sandbox');
+    final url = Uri.parse('${environment['apiUrlDebug']}/auth/signup-sandbox');
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({
@@ -154,6 +157,7 @@ class AppState extends _$AppState {
       accessTokenExpiry: DateTime.now().add(const Duration(hours: 1)),
       refreshTokenExpiry: DateTime.now().add(const Duration(days: 1)),
       autoLoginResult: true,
+      isSandbox: true,
     );
     if (_refreshTokenTimer != null) _refreshTokenTimer!.cancel();
     _refreshTokenTimer = Timer(
@@ -176,7 +180,8 @@ class AppState extends _$AppState {
   }
 
   Future<void> verifyCode(String email, String code) async {
-    final url = Uri.parse('$baseUrl/auth/verify-code');
+    final url = Uri.parse(
+        '${environment['build'] == 'DEBUG' ? baseUrlDebug : baseUrl}/auth/verify-code');
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({'email': email, 'code': code}),
@@ -196,6 +201,7 @@ class AppState extends _$AppState {
       accessTokenExpiry: DateTime.now().add(const Duration(hours: 1)),
       refreshTokenExpiry: DateTime.now().add(const Duration(days: 1)),
       autoLoginResult: true,
+      isSandbox: environment['build'] == 'DEBUG',
     );
     if (_refreshTokenTimer != null) _refreshTokenTimer!.cancel();
     _refreshTokenTimer = Timer(
@@ -229,6 +235,7 @@ class AppState extends _$AppState {
           selectedGame: null,
           selectedGameSessionId: null,
           autoLoginResult: false,
+          isSandbox: false,
         );
       },
     );
@@ -279,7 +286,8 @@ class AppState extends _$AppState {
 
     while (tries <= maxRetries) {
       try {
-        final url = Uri.parse('$baseUrl/auth/refresh');
+        final url = Uri.parse(
+            '${state.isSandbox ? baseUrlDebug : baseUrl}/auth/refresh');
         final response = await _httpClient!.post(
           url,
           body: jsonEncode({'refresh_token': state.refreshToken}),

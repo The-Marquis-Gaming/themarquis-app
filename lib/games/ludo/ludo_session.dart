@@ -15,17 +15,15 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 part "ludo_session.g.dart";
 
-final baseUrl = environment['build'] == 'DEBUG'
-    ? environment['apiUrlDebug']
-    : environment['apiUrl'];
-final wsUrl = environment['build'] == 'DEBUG'
-    ? environment['wsUrlDebug']
-    : environment['wsUrl'];
+final baseUrl = environment['apiUrl'];
+final baseUrlDebug = environment['apiUrlDebug'];
+final wsUrl = environment['wsUrl'];
+final wsUrlDebug = environment['wsUrlDebug'];
 
-@riverpod
+@Riverpod(keepAlive: true)
 class LudoSession extends _$LudoSession {
   //Details Declaration
-  late WebSocketChannel _channel;
+  WebSocketChannel? _channel;
   Box<LudoSessionData>? _hiveBox;
   http.Client? _httpClient;
   String? _id;
@@ -45,14 +43,18 @@ class LudoSession extends _$LudoSession {
   LudoSessionData? build() {
     _hiveBox ??= Hive.box<LudoSessionData>("ludoSession");
     _httpClient ??= http.Client();
-    if (!Platform.environment.containsKey('FLUTTER_TEST')) _connectWebSocket();
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) connectWebSocket();
+    ref.onDispose(() {
+      _channel?.sink.close();
+    });
     return null;
   }
 
-  void _connectWebSocket() {
+  void connectWebSocket() {
     try {
-      _channel = WebSocketChannel.connect(Uri.parse(wsUrl!));
-      _channel.stream.listen(
+      _channel = WebSocketChannel.connect(Uri.parse(
+          ref.read(appStateProvider).isSandbox ? wsUrlDebug! : wsUrl!));
+      _channel?.stream.listen(
         (data) async {
           if (kDebugMode) print("WS: $data");
           final decodedResponse = jsonDecode(data) as Map;
@@ -88,20 +90,21 @@ class LudoSession extends _$LudoSession {
         },
         onDone: () {
           Future.delayed(const Duration(seconds: 1), () {
-            _connectWebSocket();
+            connectWebSocket();
           });
         },
         onError: (error) {
           if (kDebugMode) print('WS Error $error');
           Future.delayed(const Duration(seconds: 1), () {
-            _connectWebSocket();
+            connectWebSocket();
           });
         },
+        cancelOnError: false,
       );
     } catch (e) {
       if (kDebugMode) print('WS Connection Error $e');
       Future.delayed(const Duration(seconds: 1), () {
-        _connectWebSocket();
+        connectWebSocket();
       });
     }
   }
@@ -111,7 +114,8 @@ class LudoSession extends _$LudoSession {
       _id = ref.read(appStateProvider).selectedGameSessionId;
       if (_id == null) return;
     }
-    final url = Uri.parse('$baseUrl/game/session/$_id');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/session/$_id');
     final response = await _httpClient!.get(
       url,
       headers: {
@@ -174,7 +178,8 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<LudoSessionData?> getLudoSessionFromId(String id) async {
-    final url = Uri.parse('$baseUrl/game/session/$id');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/session/$id');
     final response = await _httpClient!
         .get(url, headers: {'Content-Type': 'application/json'});
     debugPrint("${response.headers}");
@@ -237,7 +242,8 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<List<LudoSessionData>> getOpenSessions() async {
-    final url = Uri.parse('$baseUrl/session/get-open-sessions');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/get-open-sessions');
     final response = await _httpClient!.get(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -300,7 +306,8 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<List<Map>> getTransactions(String id) async {
-    final url = Uri.parse('$baseUrl/game/session/$id/transactions');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/session/$id/transactions');
     final response = await _httpClient!
         .get(url, headers: {'Content-Type': 'application/json'});
     if (response.statusCode != 201 && response.statusCode != 200) {
@@ -314,7 +321,8 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<List<int>> generateMove() async {
-    final url = Uri.parse('$baseUrl/game/session/$_id/generate-move');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/session/$_id/generate-move');
     final response = await _httpClient!.post(
       url,
       headers: {
@@ -332,7 +340,8 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<void> playMove(String tokenId) async {
-    final url = Uri.parse('$baseUrl/game/session/$_id/play-move/$tokenId');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/session/$_id/play-move/$tokenId');
     final response = await _httpClient!.post(
       url,
       headers: {
@@ -357,7 +366,8 @@ class LudoSession extends _$LudoSession {
 
   Future<void> createSession(
       String amount, String color, String tokenAddress) async {
-    final url = Uri.parse('$baseUrl/session/create');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/create');
     log(jsonEncode({
       'amount': amount,
       'user_creator_color': color,
@@ -387,7 +397,8 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<void> joinSession(String sessionId, String color) async {
-    final url = Uri.parse('$baseUrl/session/join');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/join');
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({
@@ -411,7 +422,8 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<void> closeSession(String tokenId) async {
-    final url = Uri.parse('$baseUrl/session/close');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/close');
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({'session_id': _id}),
@@ -431,7 +443,8 @@ class LudoSession extends _$LudoSession {
       _id = ref.read(userProvider)?.sessionId;
       if (_id == null) return;
     }
-    final url = Uri.parse('$baseUrl/session/exit-game');
+    final url = Uri.parse(
+        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/exit-game');
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({'session_id': _id}),

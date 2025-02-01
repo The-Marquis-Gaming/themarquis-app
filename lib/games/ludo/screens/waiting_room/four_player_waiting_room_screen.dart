@@ -145,12 +145,11 @@ class _FourPlayerWaitingRoomScreenState
     final isSessionExpired = _sessionTimeLeft <= 0;
 
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GestureDetector(
-        onTap: (_isRoomFull(session) && !isSessionExpired)
-            ? () async {
-                await widget.game.updatePlayState(PlayState.playing);
-              }
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      child: AngledBorderButton(
+        key: const ValueKey("StartGameButton"),
+        onTap: _isRoomFull(session)
+            ? () async => await widget.game.updatePlayState(PlayState.playing)
             : null,
         child: IconButton(
           onPressed: () {},

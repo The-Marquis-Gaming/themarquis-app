@@ -144,9 +144,7 @@ class LudoGameController extends MarquisGameController {
                     useRootNavigator: false,
                     barrierDismissible: false,
                     builder: (context) => GameOverDialog(
-                      isWinning: _sessionData!
-                              .sessionUserStatus[_currentPlayer].playerId ==
-                          winnerIndex,
+                      isWinning: _userIndex == winnerIndex,
                       playerName: playerNames[winnerIndex!],
                       tokenAddress: _sessionData!.playToken,
                       tokenAmount: _sessionData!.playAmount,
@@ -287,6 +285,7 @@ class LudoGameController extends MarquisGameController {
         'dice_icon.png',
       ]);
     }
+
     camera.viewfinder.anchor = Anchor.topLeft;
     _userIndex = _sessionData!.sessionUserStatus.indexWhere(
         (user) => user.userId.toString() == ref.read(userProvider)?.id);
@@ -374,35 +373,35 @@ class LudoGameController extends MarquisGameController {
     updateTurnText();
     isInit = true;
     // Add message container with text
-    final messageContainer = CustomRectangleComponent(
-      position: Vector2(size.x / 2, size.y - 140),
-      size: Vector2(500, 50),
-      anchor: Anchor.center,
-      color: const Color(0xFF1A3B44),
-      borderRadius: 12,
-      children: [
-        SpriteComponent(
-          sprite: Sprite(Flame.images.fromCache('dice_icon.png')),
-          position: Vector2(100, 25), // Center horizontally and vertically
-          size: Vector2(24, 24),
-          anchor: Anchor.center,
-        ),
-        TextComponent(
-          text: 'No tokens available to move. Roll a 6 to start!',
-          position: Vector2(130, 25), // Position text next to centered icon
-          anchor: Anchor.centerLeft,
-          textRenderer: TextPaint(
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
+    // final messageContainer = CustomRectangleComponent(
+    //   position: Vector2(size.x / 2, size.y - 170),
+    //   size: Vector2(500, 50),
+    //   anchor: Anchor.center,
+    //   color: const Color(0xFF1A3B44),
+    //   borderRadius: 12,
+    //   children: [
+    //     SpriteComponent(
+    //       sprite: Sprite(Flame.images.fromCache('dice_icon.png')),
+    //       position: Vector2(100, 25), // Center horizontally and vertically
+    //       size: Vector2(24, 24),
+    //       anchor: Anchor.center,
+    //     ),
+    //     TextComponent(
+    //       text: 'No tokens available to move. Roll a 6 to start!',
+    //       position: Vector2(130, 25), // Position text next to centered icon
+    //       anchor: Anchor.centerLeft,
+    //       textRenderer: TextPaint(
+    //         style: const TextStyle(
+    //           color: Colors.white,
+    //           fontSize: 14,
+    //           fontWeight: FontWeight.w500,
+    //         ),
+    //       ),
+    //     ),
+    //   ],
+    // );
 
-    await add(messageContainer);
+    // await add(messageContainer);
   }
 
   void updateTurnText() {
@@ -615,13 +614,21 @@ void onRemove() {
           size: Vector2(24, 24),
           anchor: Anchor.center,
         ),
-        TextComponent(
+        TextBoxComponent(
           text: message,
           position: Vector2(130, 25),
           anchor: Anchor.centerLeft,
+          boxConfig: TextBoxConfig(
+            maxWidth:
+                340, // Container width (500) - icon position (100) - icon width (24) - padding (36)
+          ),
           textRenderer: TextPaint(
             style: const TextStyle(
-                color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Orbitron',
+            ),
           ),
         ),
       ],
@@ -776,12 +783,13 @@ class DiceAnimationWidget extends StatefulWidget {
 class _DiceAnimationWidgetState extends State<DiceAnimationWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late int currentDiceFace = widget._dieFace ?? 1;
+  late int currentDiceFace;
   final List<int> diceSequence = [1, 2, 3, 4, 5, 6];
 
   @override
   void initState() {
     super.initState();
+    currentDiceFace = widget._dieFace ?? 1;
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1000));
 
@@ -885,30 +893,30 @@ class _GameOverDialogState extends ConsumerState<GameOverDialog> {
                     //show token amount and token address
                     Column(
                       children: [
-                        FutureBuilder(
-                            future: ref
-                                .read(userProvider.notifier)
-                                .getSupportedTokens(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Text("");
-                              } else {
-                                final roomStake = widget.tokenAmount == '0'
-                                    ? "Free"
-                                    : "${(((double.tryParse(widget.tokenAmount)) ?? 0) / 1e18).toStringAsFixed(7)}"
-                                        "${snapshot.data!.firstWhere((e) => e["tokenAddress"] == widget.tokenAddress)["tokenName"]}";
-                                return Text(
-                                  roomStake,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                );
-                              }
-                            }),
+                        if (widget.tokenAmount != '0')
+                          FutureBuilder(
+                              future: ref
+                                  .read(userProvider.notifier)
+                                  .getSupportedTokens(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Text("");
+                                } else {
+                                  final roomStake =
+                                      "${(((double.tryParse(widget.tokenAmount)) ?? 0) / 1e18 * (widget.isWinning ? 4 : -1)).toStringAsFixed(7).replaceAll(RegExp(r'0*$'), '')}"
+                                      "${snapshot.data!.firstWhere((e) => e["tokenAddress"] == widget.tokenAddress)["tokenName"]}";
+                                  return Text(
+                                    roomStake,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                }
+                              }),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

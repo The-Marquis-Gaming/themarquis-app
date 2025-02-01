@@ -33,7 +33,9 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
     final deviceSize = MediaQuery.of(context).size;
     return AlertDialog(
       content: Container(
-        width: deviceSize.aspectRatio > 1 ? deviceSize.width * 0.5 : deviceSize.width * 0.85,
+        width: deviceSize.aspectRatio > 1
+            ? deviceSize.width * 0.5
+            : deviceSize.width * 0.85,
         margin: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)),
         child: Column(
@@ -43,15 +45,19 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 key: _inputKey,
-                decoration: InputDecoration(label: const Text("Email"), errorText: _emailError),
-                inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r" "))],
+                decoration: InputDecoration(
+                    label: const Text("Email"), errorText: _emailError),
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp(r" "))
+                ],
                 controller: _emailController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Invalid Email";
                   }
 
-                  if (!value.contains(RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'))) {
+                  if (!value.contains(RegExp(
+                      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'))) {
                     return "Invalid Email";
                   }
                   return null;
@@ -69,11 +75,16 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    decoration: InputDecoration(label: const Text("Referral Code"), errorText: _refCodeError),
+                    decoration: InputDecoration(
+                        label: const Text("Referral Code"),
+                        errorText: _refCodeError),
                     controller: _refCodeController,
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z0-9]"))],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z0-9]"))
+                    ],
                     onChanged: (value) {
-                      _refCodeController.text = _refCodeController.text.toUpperCase();
+                      _refCodeController.text =
+                          _refCodeController.text.toUpperCase();
                     },
                   ),
                 ),
@@ -101,16 +112,22 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
                               _isLoading = true;
                             });
                             if (_isSignUp) {
-                              if (_emailController.text != "" && _refCodeController.text != "") {
+                              if (_emailController.text != "" &&
+                                  _refCodeController.text != "") {
                                 try {
-                                  if (!_emailController.text.endsWith('@test.com')) {
-                                    await ref.read(appStateProvider.notifier).signup(_emailController.text.trim(), _refCodeController.text.trim());
+                                  if (!_emailController.text
+                                      .endsWith('@test.com')) {
+                                    await ref
+                                        .read(appStateProvider.notifier)
+                                        .signup(_emailController.text.trim(),
+                                            _refCodeController.text.trim());
                                   }
                                   if (!context.mounted) return;
                                   await showDialog<String>(
                                     context: context,
                                     barrierDismissible: false,
-                                    builder: (BuildContext context) => OTPDialog(
+                                    builder: (BuildContext context) =>
+                                        OTPDialog(
                                       email: _emailController.text,
                                       isSignUp: true,
                                     ),
@@ -126,21 +143,27 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
                               //login
                               if (_emailController.text != "") {
                                 try {
-                                  if (!_emailController.text.endsWith('@test.com')) {
-                                    await ref.read(appStateProvider.notifier).login(_emailController.text.trim());
+                                  if (!_emailController.text
+                                      .endsWith('@test.com')) {
+                                    await ref
+                                        .read(appStateProvider.notifier)
+                                        .login(_emailController.text.trim());
                                   }
                                   if (!context.mounted) return;
                                   await showDialog<String>(
                                     context: context,
                                     barrierDismissible: false,
-                                    builder: (BuildContext context) => OTPDialog(
+                                    builder: (BuildContext context) =>
+                                        OTPDialog(
                                       email: _emailController.text,
                                       isSignUp: false,
                                     ),
                                   );
-                                  if (context.mounted) Navigator.of(context).pop();
+                                  if (context.mounted)
+                                    Navigator.of(context).pop();
                                 } catch (e) {
-                                  if (context.mounted) showErrorDialog(e.toString(), context);
+                                  if (context.mounted)
+                                    showErrorDialog(e.toString(), context);
                                 }
                               }
                             }
@@ -153,7 +176,8 @@ class _AuthDialogState extends ConsumerState<AuthDialog> {
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
                               _isSignUp ? 'Sign Up' : 'Login',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
@@ -188,7 +212,8 @@ class OTPDialog extends ConsumerStatefulWidget {
 }
 
 class _OTPDialogState extends ConsumerState<OTPDialog> {
-  final List<TextEditingController> _controllers = List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _controllers =
+      List.generate(4, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
   bool _isLoading = false;
 
@@ -275,27 +300,42 @@ class _OTPDialogState extends ConsumerState<OTPDialog> {
           4,
           (index) => SizedBox(
             width: 50,
-            child: TextField(
-              controller: _controllers[index],
-              focusNode: _focusNodes[index],
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.center,
-              maxLength: 1,
-              decoration: const InputDecoration(
-                counterText: '',
-                border: OutlineInputBorder(),
+            child: KeyboardListener(
+              focusNode: FocusNode(),
+              onKeyEvent: (KeyEvent event) {
+                if (event is KeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.backspace &&
+                    _controllers[index].text.isEmpty &&
+                    index > 0) {
+                  _controllers[index - 1].clear();
+                  _focusNodes[index - 1].requestFocus();
+                }
+              },
+              child: TextField(
+                controller: _controllers[index],
+                focusNode: _focusNodes[index],
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                maxLength: 1,
+                decoration: const InputDecoration(
+                  counterText: '',
+                  border: OutlineInputBorder(),
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                onChanged: (_) => _onOTPDigitChanged(index),
               ),
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-              onChanged: (_) => _onOTPDigitChanged(index),
             ),
           ),
         ),
       ),
       actions: <Widget>[
-        TextButton(onPressed: Navigator.of(context).pop, child: const Text('Cancel')),
-        _isLoading ? const CircularProgressIndicator() : TextButton(onPressed: _submitOTP, child: const Text('Submit')),
+        TextButton(
+            onPressed: Navigator.of(context).pop, child: const Text('Cancel')),
+        _isLoading
+            ? const CircularProgressIndicator()
+            : TextButton(onPressed: _submitOTP, child: const Text('Submit')),
       ],
     );
   }

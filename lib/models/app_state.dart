@@ -21,6 +21,7 @@ class AppStateData extends HiveObject with _$AppStateData {
     @HiveField(8) DateTime? refreshTokenExpiry,
     @HiveField(9) String? selectedGameSessionId,
     @HiveField(10) @Default(false) bool isBalanceVisible,
+    @HiveField(11) @Default(false) bool isSandbox,
   }) = _AppStateData;
 
   String get bearerToken => accessToken == null ? '' : 'Bearer $accessToken';

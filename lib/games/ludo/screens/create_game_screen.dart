@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/widgets/chevron_border.dart';
@@ -113,7 +112,7 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
           );
       if (!mounted) return;
       Navigator.of(context).pop();
-      await game.updatePlayState( PlayState.waiting);
+      await game.updatePlayState(PlayState.waiting);
     } catch (e) {
       if (!mounted) return;
       showErrorDialog(e.toString(), context);
@@ -231,7 +230,13 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                                 vertical: 5),
                                             value: GameMode.token,
                                             globalValue: _gameMode,
-                                            onTap: _selectGameMode,
+                                            // onTap: _selectGameMode,
+                                            onTap: (_) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          'Token Mode Not Available Yet')));
+                                            },
                                             selectedBackgroundColor:
                                                 const Color(0x1200ECFF),
                                             unSelectedBackgroundColor:
@@ -693,7 +698,9 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                                             children: [
                                                               Text(
                                                                 'Min',
-                                                                style: GoogleFonts.montserrat(
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "Montserrat",
                                                                     fontSize:
                                                                         10,
                                                                     color: const Color(
@@ -712,8 +719,10 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                                                           1e18)
                                                                       .toStringAsFixed(
                                                                           7),
-                                                                  style: GoogleFonts
-                                                                      .montserrat(
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontFamily:
+                                                                        "Montserrat",
                                                                     fontSize:
                                                                         10,
                                                                     color: const Color(
@@ -740,7 +749,9 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                                             children: [
                                                               Text(
                                                                 'Max',
-                                                                style: GoogleFonts.montserrat(
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "Montserrat",
                                                                     fontSize:
                                                                         10,
                                                                     color: const Color(
@@ -758,8 +769,10 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                                                 children: [
                                                                   Text(
                                                                     'Balance\t\t',
-                                                                    style: GoogleFonts
-                                                                        .montserrat(
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontFamily:
+                                                                          "Montserrat",
                                                                       fontSize:
                                                                           10,
                                                                       color: const Color(
@@ -774,8 +787,10 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                                                             1e18)
                                                                         .toStringAsFixed(
                                                                             7),
-                                                                    style: GoogleFonts
-                                                                        .montserrat(
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontFamily:
+                                                                          "Montserrat",
                                                                       fontSize:
                                                                           10,
                                                                       color: const Color(
@@ -1089,8 +1104,10 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                                   Size(double.infinity, scaledHeight(43)),
                               side: const BorderSide(color: Color(0xFF00ECFF)),
                               foregroundColor: const Color(0xFF00ECFF),
-                              textStyle: GoogleFonts.montserrat(
-                                  fontSize: 16, fontWeight: FontWeight.w500),
+                              textStyle: TextStyle(
+                                  fontFamily: "Montserrat",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500),
                             ),
                             onPressed: _switchToPreviousTab,
                             child: const Text('Back'),
@@ -1109,8 +1126,10 @@ class _CreateGameScreenState extends ConsumerState<CreateGameScreen> {
                             backgroundColor: const Color(0xFF00ECFF),
                             disabledForegroundColor: const Color(0xFF939393),
                             foregroundColor: const Color(0xFF000000),
-                            textStyle: GoogleFonts.montserrat(
-                                fontSize: 16, fontWeight: FontWeight.w500),
+                            textStyle: TextStyle(
+                                fontFamily: "Montserrat",
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500),
                           ),
                           onPressed: _activeTab == _numberOfTabs
                               ? _createGame

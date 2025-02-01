@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class RoomFoundDialogue extends ConsumerStatefulWidget {
   const RoomFoundDialogue({super.key});
@@ -23,8 +22,12 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: Theme.of(context)
-          .copyWith(textTheme: GoogleFonts.montserratTextTheme()),
+      data: Theme.of(context).copyWith(
+        textTheme: TextTheme(
+            bodyMedium: TextStyle(
+          fontFamily: "Montserrat",
+        )),
+      ),
       child: Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
@@ -70,7 +73,8 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
         ),
         Text(
           'Room Found!',
-          style: GoogleFonts.montserrat(
+          style: TextStyle(
+            fontFamily: "Montserrat",
             color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.w700,
@@ -96,7 +100,8 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
             ),
             child: Text(
               'Back',
-              style: GoogleFonts.montserrat(
+              style: TextStyle(
+                fontFamily: "Montserrat",
                 color: Color(0xFFF3B46E),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
@@ -120,7 +125,8 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
                 ? const CircularProgressIndicator()
                 : Text(
                     'Join',
-                    style: GoogleFonts.montserrat(
+                    style: TextStyle(
+                      fontFamily: "Montserrat",
                       color: Colors.black,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -135,11 +141,14 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
   Widget _roomFoundDetails(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        textTheme: GoogleFonts.orbitronTextTheme(),
+        textTheme: TextTheme(
+            bodyMedium: TextStyle(
+          fontFamily: "Orbitron",
+        )),
       ),
       child: Container(
         height: 115,
-        width:140,
+        width: 140,
         decoration: BoxDecoration(
           color: const Color(0x94181B25),
           borderRadius: BorderRadius.circular(4),
@@ -154,7 +163,8 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
             children: [
               Text(
                 'ROOM 0028',
-                style: GoogleFonts.orbitron(
+                style: TextStyle(
+                  fontFamily: "Orbitron",
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -162,7 +172,8 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
               ),
               Text(
                 '1/2 Players',
-                style: GoogleFonts.orbitron(
+                style: TextStyle(
+                  fontFamily: "Orbitron",
                   color: const Color(0xFF979797),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

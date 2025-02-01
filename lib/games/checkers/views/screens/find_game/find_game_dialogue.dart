@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:marquis_v2/games/checkers/views/screens/find_game/room_found_dialogue.dart';
 
 class CheckersFindRoomDialog extends ConsumerStatefulWidget {
@@ -25,8 +24,11 @@ class CheckersFindRoomDialogState
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: Theme.of(context)
-          .copyWith(textTheme: GoogleFonts.montserratTextTheme()),
+      data: Theme.of(context).copyWith(
+          textTheme: TextTheme(
+              bodyMedium: TextStyle(
+        fontFamily: "Montserrat",
+      ))),
       child: Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -44,7 +46,8 @@ class CheckersFindRoomDialogState
               children: [
                 Text(
                   'Find Game',
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(
+                    fontFamily: "Montserrat",
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -70,7 +73,8 @@ class CheckersFindRoomDialogState
           alignment: Alignment.centerLeft,
           child: Text(
             'Room ID',
-            style: GoogleFonts.montserrat(
+            style: TextStyle(
+              fontFamily: "Montserrat",
               color: Colors.white,
               fontSize: 15,
               fontWeight: FontWeight.w400,
@@ -86,7 +90,7 @@ class CheckersFindRoomDialogState
               contentPadding:
                   const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
               hintText: "Please enter room ID",
-              hintStyle: GoogleFonts.montserrat(
+              hintStyle: TextStyle(
                 color: Color(0xFF8B8B8B),
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
@@ -129,7 +133,8 @@ class CheckersFindRoomDialogState
             ),
             child: Text(
               'Cancel',
-              style: GoogleFonts.montserrat(
+              style: TextStyle(
+                fontFamily: "Montserrat",
                 color: Color(0xFFF3B46E),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
@@ -154,7 +159,8 @@ class CheckersFindRoomDialogState
                 ? const CircularProgressIndicator()
                 : Text(
                     'Confirm',
-                    style: GoogleFonts.montserrat(
+                    style: TextStyle(
+                      fontFamily: "Montserrat",
                       color: Colors.black,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

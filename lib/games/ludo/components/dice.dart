@@ -122,11 +122,25 @@ class Dice extends PositionComponent
       canvas.drawRect(size.toRect(), borderPaint);
 
       if (_currentSprites.isNotEmpty) {
-        _currentSprites[0]?.render(
-          canvas,
-          position: Vector2.zero(),
-          size: size,
-        );
+        final containerSize = size.x; // Assuming square container
+        final diceSize = Vector2.all(
+            containerSize * 0.8); // Make dice slightly smaller than container
+        final maxOffset =
+            containerSize * 0.25; // Maximum offset for stacking effect
+
+        // Render dice from first to last, with last one on top
+        for (int i = 0; i < _currentSprites.length; i++) {
+          final sprite = _currentSprites[i];
+          // Calculate offset for stacking effect, scaled to container size
+          final offset = Vector2(-maxOffset * (_currentSprites.length - 1 - i),
+              -maxOffset * (_currentSprites.length - 1 - i));
+
+          sprite?.render(
+            canvas,
+            position: offset,
+            size: diceSize,
+          );
+        }
       }
     }
 

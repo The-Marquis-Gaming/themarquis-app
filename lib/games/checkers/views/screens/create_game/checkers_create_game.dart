@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:marquis_v2/games/checkers/core/game/checkers_game_controller.dart';
 import 'package:marquis_v2/games/checkers/views/widgets/checkers_radio.dart';
 import 'package:marquis_v2/games/ludo/widgets/chevron_border.dart';
@@ -37,7 +36,8 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
   Widget build(BuildContext context) {
     return Scaffold(body: SafeArea(
       child: LayoutBuilder(builder: (context, constraints) {
-        double scaledHeight(double height) => (height / 717) * constraints.maxHeight;
+        double scaledHeight(double height) =>
+            (height / 717) * constraints.maxHeight;
         return SingleChildScrollView(
           child: Column(
             children: [
@@ -53,13 +53,23 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('CREATE GAME', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: Colors.white)),
+                        Text('CREATE GAME',
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white)),
                         GestureDetector(
                           onTap: Navigator.of(context).pop,
                           child: Container(
-                            decoration: ShapeDecoration(color: Colors.white, shape: ChevronBorder()),
-                            padding: EdgeInsets.only(top: scaledHeight(1), left: 8, bottom: scaledHeight(1), right: 31),
-                            child: const Text('MENU', style: TextStyle(color: Colors.black)),
+                            decoration: ShapeDecoration(
+                                color: Colors.white, shape: ChevronBorder()),
+                            padding: EdgeInsets.only(
+                                top: scaledHeight(1),
+                                left: 8,
+                                bottom: scaledHeight(1),
+                                right: 31),
+                            child: const Text('MENU',
+                                style: TextStyle(color: Colors.black)),
                           ),
                         ),
                       ],
@@ -67,13 +77,18 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                   ),
                   Container(
                     height: scaledHeight(10),
-                    decoration: const ShapeDecoration(color: Color(0xFFF3B46E), shape: DividerShape(Color(0xFFF3B46E))),
+                    decoration: const ShapeDecoration(
+                        color: Color(0xFFF3B46E),
+                        shape: DividerShape(Color(0xFFF3B46E))),
                   ),
                 ],
               ),
               SizedBox(height: 31),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: (_activeTab == 2 && _gameMode == GameMode.free) ? 0 : 12),
+                padding: EdgeInsets.symmetric(
+                    horizontal: (_activeTab == 2 && _gameMode == GameMode.free)
+                        ? 0
+                        : 12),
                 child: Column(
                   children: [
                     Row(
@@ -81,11 +96,16 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                       children: [
                         SizedBox(
                             width: 32,
-                            child: (_activeTab == 2 && _gameMode == GameMode.free)
-                                ? SizedBox()
-                                : (_activeTab == 3 && _gameMode == GameMode.token)
-                                    ? const SizedBox()
-                                    : VerticalStepper(activeTab: _activeTab, numberOfSteps: _numberOfTabs, activeColor: Color(0xFFF3B46E))),
+                            child:
+                                (_activeTab == 2 && _gameMode == GameMode.free)
+                                    ? SizedBox()
+                                    : (_activeTab == 3 &&
+                                            _gameMode == GameMode.token)
+                                        ? const SizedBox()
+                                        : VerticalStepper(
+                                            activeTab: _activeTab,
+                                            numberOfSteps: _numberOfTabs,
+                                            activeColor: Color(0xFFF3B46E))),
                         const SizedBox(width: 12),
                         Flexible(
                           child: Container(
@@ -99,8 +119,13 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 if (_activeTab == 0) _selectGame(scaledHeight),
-                                if (_activeTab == 1 && _gameMode == GameMode.token) _selectPlayAmount(scaledHeight),
-                                if ((_activeTab == 1 && _gameMode == GameMode.free) || _activeTab == 2) _selectCharacter(scaledHeight),
+                                if (_activeTab == 1 &&
+                                    _gameMode == GameMode.token)
+                                  _selectPlayAmount(scaledHeight),
+                                if ((_activeTab == 1 &&
+                                        _gameMode == GameMode.free) ||
+                                    _activeTab == 2)
+                                  _selectCharacter(scaledHeight),
                               ],
                             ),
                           ),
@@ -130,7 +155,8 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                               color: Color(0xFFF3B46E),
                             ),
                             foregroundColor: const Color(0xFFF3B46E),
-                            textStyle: GoogleFonts.montserrat(
+                            textStyle: TextStyle(
+                              fontFamily: "Montserrat",
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
@@ -144,19 +170,29 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
                           minimumSize: Size(double.infinity, 43),
                           disabledBackgroundColor: const Color(0xFF32363A),
                           backgroundColor: const Color(0xFFF3B46E),
                           disabledForegroundColor: const Color(0xFF939393),
                           foregroundColor: const Color(0xFF000000),
-                          textStyle: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w500),
+                          textStyle: TextStyle(
+                            fontFamily: "Montserrat",
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         onPressed: _isNextEnabled ? _switchToNextTab : null,
                         child: _isLoading
                             ? const CircularProgressIndicator()
                             : Text(
-                                (_activeTab == 1 && _gameMode == GameMode.free) || (_activeTab == 2 && _gameMode == GameMode.token) ? 'Create Game' : 'Next',
+                                (_activeTab == 1 &&
+                                            _gameMode == GameMode.free) ||
+                                        (_activeTab == 2 &&
+                                            _gameMode == GameMode.token)
+                                    ? 'Create Game'
+                                    : 'Next',
                               ),
                       ),
                     ),
@@ -174,7 +210,8 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Select Game Mode', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        const Text('Select Game Mode',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         SizedBox(width: 12, height: scaledHeight(12)),
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -190,7 +227,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
               borderColor: const Color(0xFFF3B46E),
               child: const Text(
                 'Free',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFFF3B46E)),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFFF3B46E)),
               ),
             ),
             const SizedBox(width: 8),
@@ -205,7 +245,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
               borderColor: const Color(0xFFF3B46E),
               child: const Text(
                 'Token',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFFF3B46E)),
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFFF3B46E)),
               ),
             ),
           ],
@@ -216,7 +259,9 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
 
   Widget _selectPlayAmount(double Function(double height) scaledHeight) {
     return FutureBuilder(
-      future: _supportedTokens.isEmpty ? ref.read(userProvider.notifier).getSupportedTokens() : null,
+      future: _supportedTokens.isEmpty
+          ? ref.read(userProvider.notifier).getSupportedTokens()
+          : null,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -226,7 +271,8 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
         if (snapshot.hasData) {
           _supportedTokens.clear();
           for (var item in snapshot.data!) {
-            _supportedTokens.addAll({item["tokenName"]!: item["tokenAddress"]!});
+            _supportedTokens
+                .addAll({item["tokenName"]!: item["tokenAddress"]!});
           }
         }
         if (_supportedTokens.isEmpty) {
@@ -263,7 +309,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                       const SizedBox(width: 4),
                       Text(
                         'STRK',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: const Color(0xFFF3B46E)),
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFFF3B46E)),
                       ),
                     ],
                   ),
@@ -284,7 +333,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                       const SizedBox(width: 4),
                       Text(
                         'ETH',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: const Color(0xFFF3B46E)),
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFFF3B46E)),
                       ),
                     ],
                   ),
@@ -310,7 +362,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                       const SizedBox(width: 4),
                       Text(
                         'LORDS',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: const Color(0xFFF3B46E)),
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFFF3B46E)),
                       ),
                     ],
                   ),
@@ -331,7 +386,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                       const SizedBox(width: 4),
                       Text(
                         'BROTHER',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: const Color(0xFFF3B46E)),
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFFF3B46E)),
                       ),
                     ],
                   ),
@@ -342,7 +400,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
             FutureBuilder(
               future: !_shouldRetrieveBalance
                   ? null
-                  : ref.read(userProvider.notifier).getTokenBalance(_selectedTokenAddress!).whenComplete(() => _shouldRetrieveBalance = false),
+                  : ref
+                      .read(userProvider.notifier)
+                      .getTokenBalance(_selectedTokenAddress!)
+                      .whenComplete(() => _shouldRetrieveBalance = false),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -362,27 +423,44 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Amount", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
+                          Text("Amount",
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w400)),
                           SizedBox(height: scaledHeight(4)),
                           SizedBox(
                             height: 41,
                             child: TextField(
                               controller: _tokenAmountController,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 14),
                                 filled: true,
                                 fillColor: Color(0xFF363D43),
                                 hintText: "Enter Amount",
-                                border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF363D43))),
-                                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF363D43))),
-                                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF363D43))),
+                                border: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Color(0xFF363D43))),
+                                enabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Color(0xFF363D43))),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Color(0xFF363D43))),
                               ),
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                              keyboardType: TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[.0-9]"))],
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w400),
+                              keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp("[.0-9]"))
+                              ],
                               onChanged: (value) {
                                 if (value.isEmpty) return;
-                                if (double.tryParse(value) == null || double.parse(value) > (_selectedTokenBalance / 1e18) || double.parse(value) == 0) {
+                                if (double.tryParse(value) == null ||
+                                    double.parse(value) >
+                                        (_selectedTokenBalance / 1e18) ||
+                                    double.parse(value) == 0) {
                                   setState(() {
                                     _selectedTokenAmount = null;
                                   });
@@ -399,7 +477,8 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                             divisions: 100,
                             inactiveColor: Colors.white,
                             activeColor: const Color(0xFFF3B46E),
-                            label: ((_selectedTokenAmount ?? 0) / 1e18).toStringAsFixed(7),
+                            label: ((_selectedTokenAmount ?? 0) / 1e18)
+                                .toStringAsFixed(7),
                             // secondaryActiveColor: const Color(0xFFF3B46E),
                             allowedInteraction: SliderInteraction.slideThumb,
                             max: _selectedTokenBalance.toDouble(),
@@ -413,14 +492,20 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                                 children: [
                                   Text(
                                     'Min',
-                                    style: GoogleFonts.montserrat(fontSize: 10, color: const Color(0xFFFFFFFF), fontWeight: FontWeight.w400),
+                                    style: TextStyle(
+                                        fontFamily: "Montserrat",
+                                        fontSize: 10,
+                                        color: const Color(0xFFFFFFFF),
+                                        fontWeight: FontWeight.w400),
                                   ),
                                   const SizedBox(width: 13),
                                   SizedBox(
                                     width: 80,
                                     child: Text(
-                                      ((_selectedTokenAmount ?? 0) / 1e18).toStringAsFixed(7),
-                                      style: GoogleFonts.montserrat(
+                                      ((_selectedTokenAmount ?? 0) / 1e18)
+                                          .toStringAsFixed(7),
+                                      style: TextStyle(
+                                        fontFamily: "Montserrat",
                                         fontSize: 10,
                                         color: const Color(0xFFFFFFFF),
                                         fontWeight: FontWeight.w400,
@@ -437,7 +522,11 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                                 children: [
                                   Text(
                                     'Max',
-                                    style: GoogleFonts.montserrat(fontSize: 10, color: const Color(0xFFFFFFFF), fontWeight: FontWeight.w400),
+                                    style: TextStyle(
+                                        fontFamily: "Montserrat",
+                                        fontSize: 10,
+                                        color: const Color(0xFFFFFFFF),
+                                        fontWeight: FontWeight.w400),
                                   ),
                                   const SizedBox(width: 13),
                                   Row(
@@ -445,15 +534,19 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                                     children: [
                                       Text(
                                         'Balance\t\t',
-                                        style: GoogleFonts.montserrat(
+                                        style: TextStyle(
+                                          fontFamily: "Montserrat",
                                           fontSize: 10,
                                           color: const Color(0xFFFFFFFF),
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                       Text(
-                                        (_selectedTokenBalance.toDouble() / 1e18).toStringAsFixed(7),
-                                        style: GoogleFonts.montserrat(
+                                        (_selectedTokenBalance.toDouble() /
+                                                1e18)
+                                            .toStringAsFixed(7),
+                                        style: TextStyle(
+                                          fontFamily: "Montserrat",
                                           fontSize: 10,
                                           color: const Color(0xFFFFFFFF),
                                           fontWeight: FontWeight.w400,
@@ -491,7 +584,8 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Choose a character', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        const Text('Choose a character',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         SizedBox(height: scaledHeight(12)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -510,7 +604,9 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                   borderRadius: BorderRadius.circular(12),
                   color: const Color(0xFFF3B46E),
                   border: Border.all(
-                    color: _selectedCharacterIndex == index ? Colors.white : Colors.transparent,
+                    color: _selectedCharacterIndex == index
+                        ? Colors.white
+                        : Colors.transparent,
                     width: 3,
                   ),
                   boxShadow: _selectedCharacterIndex == index
@@ -523,7 +619,9 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                         ]
                       : [],
                 ),
-                child: Center(child: Image.asset(characterAssets[index], width: 91, height: 91)),
+                child: Center(
+                    child: Image.asset(characterAssets[index],
+                        width: 91, height: 91)),
               ),
             ),
           ),
@@ -572,8 +670,10 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
 
   bool get _isNextEnabled {
     if (_activeTab == 0) return _gameMode != null;
-    if (_activeTab == 1 && _gameMode == GameMode.token) return _selectedTokenAddress != null && _selectedTokenAmount != null;
-    if ((_activeTab == 1 && _gameMode == GameMode.free) || _activeTab == 2) return _selectedCharacterIndex != null;
+    if (_activeTab == 1 && _gameMode == GameMode.token)
+      return _selectedTokenAddress != null && _selectedTokenAmount != null;
+    if ((_activeTab == 1 && _gameMode == GameMode.free) || _activeTab == 2)
+      return _selectedCharacterIndex != null;
     return false;
   }
 

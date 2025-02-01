@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../widgets/ui_widgets.dart';
 
 class MatchResultWidget extends StatelessWidget {
-  const MatchResultWidget({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon
-  });
+  const MatchResultWidget(
+      {super.key,
+      required this.title,
+      required this.value,
+      required this.icon});
 
   final String title, value;
   final Widget icon;
@@ -24,13 +22,15 @@ class MatchResultWidget extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.orbitron(
+            style: TextStyle(
+              fontFamily: "Orbitron",
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
           ),
-          SvgPicture.asset("assets/svg/line_gradient.svg", width: double.infinity, height: 2),
+          SvgPicture.asset("assets/svg/line_gradient.svg",
+              width: double.infinity, height: 2),
           Container(
             width: double.infinity,
             height: 42,
@@ -40,7 +40,8 @@ class MatchResultWidget extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: GoogleFonts.orbitron(
+                  style: TextStyle(
+                    fontFamily: "Orbitron",
                     color: Colors.white,
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
@@ -51,7 +52,8 @@ class MatchResultWidget extends StatelessWidget {
               ],
             ),
           ),
-          SvgPicture.asset("assets/svg/line_gradient.svg", width: double.infinity, height: 2),
+          SvgPicture.asset("assets/svg/line_gradient.svg",
+              width: double.infinity, height: 2),
         ],
       ),
     );
