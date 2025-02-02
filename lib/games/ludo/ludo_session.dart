@@ -200,15 +200,15 @@ class LudoSession extends _$LudoSession {
       },
     ).toList();
     if (decodedResponse['required_players'] == 2) {
-      sessionUserStatus[2] = sessionUserStatus[1].copyWith();
+      sessionUserStatus[2] = sessionUserStatus[1].copyWith(playerId: 2);
       sessionUserStatus[1] =
-          sessionUserStatus[1].copyWith(status: 'DUMMY', playerId: 2);
+          sessionUserStatus[1].copyWith(status: 'DUMMY', userId: -1);
       if (sessionUserStatus.length < 4) {
-        sessionUserStatus
-            .add(sessionUserStatus[2].copyWith(status: 'DUMMY', playerId: 3));
+        sessionUserStatus.add(sessionUserStatus[2]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1));
       } else {
-        sessionUserStatus[3] =
-            sessionUserStatus[3].copyWith(status: 'DUMMY', playerId: 3);
+        sessionUserStatus[3] = sessionUserStatus[3]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1);
       }
     }
     final ludoSession = LudoSessionData(
@@ -277,15 +277,15 @@ class LudoSession extends _$LudoSession {
       },
     ).toList();
     if (decodedResponse['required_players'] == 2) {
-      sessionUserStatus[2] = sessionUserStatus[1].copyWith();
+      sessionUserStatus[2] = sessionUserStatus[1].copyWith(playerId: 2);
       sessionUserStatus[1] =
-          sessionUserStatus[1].copyWith(status: 'DUMMY', playerId: 2);
+          sessionUserStatus[1].copyWith(status: 'DUMMY', userId: -1);
       if (sessionUserStatus.length < 4) {
-        sessionUserStatus
-            .add(sessionUserStatus[2].copyWith(status: 'DUMMY', playerId: 3));
+        sessionUserStatus.add(sessionUserStatus[2]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1));
       } else {
-        sessionUserStatus[3] =
-            sessionUserStatus[3].copyWith(status: 'DUMMY', playerId: 3);
+        sessionUserStatus[3] = sessionUserStatus[3]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1);
       }
     }
     final ludoSession = LudoSessionData(
