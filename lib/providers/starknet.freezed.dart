@@ -109,7 +109,9 @@ class __$$StarknetProviderDataImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$StarknetProviderDataImpl implements _StarknetProviderData {
+class _$StarknetProviderDataImpl
+    with DiagnosticableTreeMixin
+    implements _StarknetProviderData {
   _$StarknetProviderDataImpl({required this.provider, this.signerAccount});
 
   @override
@@ -118,8 +120,17 @@ class _$StarknetProviderDataImpl implements _StarknetProviderData {
   final Account? signerAccount;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'StarknetProviderData(provider: $provider, signerAccount: $signerAccount)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'StarknetProviderData'))
+      ..add(DiagnosticsProperty('provider', provider))
+      ..add(DiagnosticsProperty('signerAccount', signerAccount));
   }
 
   @override
