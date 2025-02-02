@@ -98,9 +98,10 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
       overlayBuilderMap: {
         PlayState.welcome.name: (context, game) =>
             LudoWelcomeScreen(game: game),
-        PlayState.waiting.name: (context, game) => game.requiredPlayers == '2'
-            ? TwoPlayerWaitingRoomScreen(game: game)
-            : FourPlayerWaitingRoomScreen(game: game),
+        PlayState.waiting.name: (context, game) =>
+            ref.read(ludoSessionProvider)!.requiredPlayers == '2'
+                ? TwoPlayerWaitingRoomScreen(game: game)
+                : FourPlayerWaitingRoomScreen(game: game),
         PlayState.finished.name: (context, game) => MatchResultsScreen(
             game: game, session: ref.read(ludoSessionProvider)!),
       },

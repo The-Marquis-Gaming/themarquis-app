@@ -45,7 +45,6 @@ class LudoGameController extends MarquisGameController {
   Completer<void>? ludoSessionLoadingCompleter;
 
   set sessionData(LudoSessionData value) => _sessionData = value;
-  String? get requiredPlayers => _sessionData?.requiredPlayers;
 
   LudoGameController()
       : super(
