@@ -36,12 +36,50 @@ class FourPlayerWaitingRoomScreen extends ConsumerStatefulWidget {
 class _FourPlayerWaitingRoomScreenState
     extends ConsumerState<FourPlayerWaitingRoomScreen> {
   Timer? _countdownTimer;
+  Timer? _sessionTimer;
   int _countdown = 15;
+  int _sessionTimeLeft = 120; // 2 minutes
+
+  @override
+  void initState() {
+    super.initState();
+    startSessionTimer();
+  }
+
+  void startSessionTimer() {
+    final session = ref.read(ludoSessionProvider);
+    if (session == null) return;
+
+    // Calculate remaining time based on session creation
+    final createdAt = session.createdAt;
+    final now = DateTime.now();
+    final difference = now.difference(createdAt);
+    _sessionTimeLeft = 120 - difference.inSeconds;
+    
+    // If time already expired, set to 0
+    if (_sessionTimeLeft < 0) _sessionTimeLeft = 0;
+
+    _sessionTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_sessionTimeLeft > 0) {
+          _sessionTimeLeft--;
+        }
+      });
+    });
+  }
 
   @override
   void dispose() {
     _countdownTimer?.cancel();
+    _sessionTimer?.cancel();
     super.dispose();
+  }
+
+  // Add this getter for the formatted time
+  String get formattedSessionTime {
+    final minutes = (_sessionTimeLeft ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_sessionTimeLeft % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
   }
 
   void _startCountdown() {
@@ -62,6 +100,7 @@ class _FourPlayerWaitingRoomScreenState
   Widget build(BuildContext context) {
     final session = ref.watch(ludoSessionProvider);
     if (_isRoomFull(session) && _countdownTimer == null) _startCountdown();
+    
     return Scaffold(
       backgroundColor: Colors.black,
       body: session == null
@@ -72,12 +111,28 @@ class _FourPlayerWaitingRoomScreenState
                 _waitingRoomTopBar(widget.game),
                 const SizedBox(height: 76),
                 _roomID(session),
-                // const SizedBox(height: 20),
-                // _starkTonMenu(),
                 const SizedBox(height: 32),
                 _players(),
                 const SizedBox(height: 20),
                 _playesrDetailsList(session),
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFF00ECFF), width: 2),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Text(
+                      'Time ${formattedSessionTime}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
                 const Spacer(),
                 _bottom(session),
                 const SizedBox(height: 62),
@@ -87,6 +142,8 @@ class _FourPlayerWaitingRoomScreenState
   }
 
   Widget _bottom(LudoSessionData session) {
+    final isSessionExpired = _sessionTimeLeft <= 0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 28),
       child: AngledBorderButton(
@@ -94,14 +151,33 @@ class _FourPlayerWaitingRoomScreenState
         onTap: _isRoomFull(session)
             ? () async => await widget.game.updatePlayState(PlayState.playing)
             : null,
-        child: Text(
-          _isRoomFull(session)
-              ? _countdownTimer == null
-                  ? 'Start Game'
-                  : 'Starting in $_countdown'
-              : 'Waiting for players',
-          style: const TextStyle(
-              color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
+        child: IconButton(
+          onPressed: () {},
+          disabledColor: Colors.grey,
+          icon: Stack(
+            alignment: AlignmentDirectional.center,
+            children: [
+              Center(
+                child: SvgPicture.asset("assets/svg/ludo_elevated_button.svg"),
+              ),
+              Center(
+                child: Text(
+                  isSessionExpired 
+                      ? 'Session Expired'
+                      : _isRoomFull(session)
+                          ? _countdownTimer == null
+                              ? 'Start Game'
+                              : 'Starting in $_countdown'
+                          : 'Waiting for players',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

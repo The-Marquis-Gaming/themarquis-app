@@ -1,4 +1,3 @@
-import 'dart:async' as dart_async;
 import 'dart:async';
 import 'dart:io';
 
@@ -41,8 +40,11 @@ class LudoGameController extends MarquisGameController {
   LudoSessionData? _sessionData;
   int pendingMoves = 0;
   bool isErrorMessage = false;
-  dart_async.Timer? _messageTimer;
+  Timer? _messageTimer;
   Completer<void>? ludoSessionLoadingCompleter;
+  Timer? _moveTimer;
+  int _moveTimeLeft = 60; 
+  TextComponent? _timerText;
 
   set sessionData(LudoSessionData value) => _sessionData = value;
 
@@ -84,8 +86,9 @@ class LudoGameController extends MarquisGameController {
 
   Future<void> playMove(int index) async {
     try {
-      diceContainer?.currentDice.state = DiceState.playingMove;
-      await ref.read(ludoSessionProvider.notifier).playMove(index.toString());
+        diceContainer!.currentDice.state = DiceState.playingMove;
+        await ref.read(ludoSessionProvider.notifier).playMove(index.toString());
+        _moveTimer?.reset();
     } catch (e) {
       diceContainer!.currentDice.state = DiceState.rolledDice;
       await showGameMessage(message: e.toString(), backgroundColor: Colors.red);
@@ -207,11 +210,13 @@ class LudoGameController extends MarquisGameController {
             int diceValue = _sessionData!.currentDiceValue!;
             await prepareNextPlayerDice(prevPlayer, diceValue);
           }
+          
           if (_currentPlayer == _userIndex) {
             diceContainer?.currentDice.state = DiceState.active;
           } else {
             diceContainer?.currentDice.state = DiceState.inactive;
           }
+          startMoveTimer();
           final movePinsCompleter = Completer<void>();
           for (final player in _sessionData!.sessionUserStatus) {
             final pinLocations = player.playerTokensPosition;
@@ -307,6 +312,7 @@ class LudoGameController extends MarquisGameController {
     await add(destination!);
 
     await createAndSetCurrentPlayerDice();
+    startMoveTimer();
 
     turnText = TextComponent(
       text: '',
@@ -526,11 +532,12 @@ class LudoGameController extends MarquisGameController {
   @override
   Color backgroundColor() => const Color(0xff0f1118);
 
-  @override
-  void onRemove() {
-    _messageTimer?.cancel();
-    super.onRemove();
-  }
+@override
+void onRemove() {
+  _moveTimer?.stop();
+  _messageTimer?.reset();
+  super.onRemove();
+}
 
   Future<void> createAndSetCurrentPlayerDice() async {
     final newDice = Dice(
@@ -541,6 +548,7 @@ class LudoGameController extends MarquisGameController {
     );
     if (_currentPlayer == _userIndex) {
       newDice.state = DiceState.active;
+      startMoveTimer();
     } else {
       newDice.state = DiceState.inactive;
     }
@@ -594,7 +602,7 @@ class LudoGameController extends MarquisGameController {
     });
 
     final messageContainer = CustomRectangleComponent(
-      position: Vector2(size.x / 2, size.y - 170),
+      position: Vector2(size.x / 2, size.y - 140),
       size: Vector2(500, 50),
       anchor: Anchor.center,
       color: backgroundColor,
@@ -634,18 +642,96 @@ class LudoGameController extends MarquisGameController {
       });
     }
   }
+
+  void updateTimerDisplay() {
+    if (_timerText != null) {
+      final minutes = (_moveTimeLeft ~/ 60).toString().padLeft(2, '0');
+      final seconds = (_moveTimeLeft % 60).toString().padLeft(2, '0');
+      _timerText!.text = 'Time $minutes:$seconds';
+    }
+  }
+
+  void startMoveTimer() {
+    _moveTimer = Timer(
+      60,  // 1 minute
+      onTick: () {
+        if (_moveTimeLeft > 0) {
+          _moveTimeLeft--;
+          updateTimerDisplay();
+        } else {
+          if (currentPlayer == userIndex) {
+            if (playerCanMove) {
+              // Get all relevant pin information
+              List<PlayerPin> pinsOnBoard = board!.getPlayerPinsOnBoard(userIndex);
+              List<PlayerPin?> pinsAtHome = playerHomes[userIndex].pinsAtHome;
+              int diceValue = diceContainer!.currentDice.value;
+              
+              // Case 1 & 2: All pins at home or some pins in destination with pins at home
+              if (pinsAtHome.isNotEmpty && diceValue >= 6) {
+                // Auto play first pin from home
+                playMove(pinsAtHome[0]!.homeIndex, );
+                return;
+              }
+              
+              // Case 3: Pins on board not movable with pins at home
+              if (pinsOnBoard.isNotEmpty && pinsAtHome.isNotEmpty && diceValue >= 6) {
+                bool anyPinMovable = false;
+                for (var pin in pinsOnBoard) {
+                  if (pin.canMove) {
+                    anyPinMovable = true;
+                    break;
+                  }
+                }
+                
+                if (!anyPinMovable) {
+                  // No movable pins on board, play from home
+                  playMove(pinsAtHome[0]!.homeIndex, );
+                  return;
+                }
+              }
+              
+              // Default case: Play first movable pin on board
+              if (pinsOnBoard.isNotEmpty) {
+                playMove(pinsOnBoard[0].homeIndex, );
+              }
+            } else {
+              rollDice();
+            }
+          }
+        }
+      },
+      repeat: true,
+      autoStart: true,
+    );
+    
+    updateTimerDisplay();
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (_moveTimer != null) {
+      _moveTimer!.update(dt);
+      _moveTimeLeft = (60 - _moveTimer!.current).floor();
+      updateTimerDisplay();
+    }
+  }
 }
 
 // Custom Rectangle Component with rounded corners
 class CustomRectangleComponent extends PositionComponent {
   final Color color;
   final double borderRadius;
+  final Color borderColor;
+  final double borderWidth;
 
   CustomRectangleComponent({
     required Vector2 position,
     required Vector2 size,
     required this.color,
     required this.borderRadius,
+    this.borderColor = Colors.transparent,
+    this.borderWidth = 0,
     Anchor anchor = Anchor.topLeft,
     List<Component>? children,
   }) : super(
@@ -653,12 +739,28 @@ class CustomRectangleComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
-    final rrect =
-        RRect.fromRectAndRadius(size.toRect(), Radius.circular(borderRadius));
+    final rrect = RRect.fromRectAndRadius(
+      size.toRect(),
+      Radius.circular(borderRadius),
+    );
+    
+    // Draw border if borderWidth > 0
+    if (borderWidth > 0) {
+      canvas.drawRRect(
+        rrect,
+        Paint()
+          ..color = borderColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = borderWidth,
+      );
+    }
+    
+    // Draw background
     canvas.drawRRect(
       rrect,
       Paint()..color = color,
     );
+    
     super.render(canvas);
   }
 }
