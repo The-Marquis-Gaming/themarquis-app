@@ -8,6 +8,7 @@ import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/screens/game_over_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/waiting_room/four_player_waiting_room_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/waiting_room/two_player_waiting_room_screen.dart';
+import 'package:marquis_v2/games/ludo/screens/waiting_room/two_player_waiting_room_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/welcome_screen.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/router/route_path.dart';
