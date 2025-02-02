@@ -213,7 +213,8 @@ class LudoSession extends _$LudoSession {
       creator: "",
       currentDiceValue: _currentDiceValue ?? -1,
       playMoveFailed: _playMoveFailed,
-      requiredPlayers: decodedResponse['session_user_status'].length.toString(),
+      requiredPlayers: decodedResponse['required_players'] ??
+          decodedResponse['session_user_status'].length,
     );
     await _hiveBox!.put(_id, ludoSession);
     state = ludoSession;
@@ -277,7 +278,8 @@ class LudoSession extends _$LudoSession {
       creator: "",
       currentDiceValue: -1,
       playMoveFailed: false,
-      requiredPlayers: decodedResponse['session_user_status'].length.toString(),
+      requiredPlayers: decodedResponse['required_players'] ??
+          decodedResponse['session_user_status'].length,
     );
     return ludoSession;
   }
@@ -339,8 +341,8 @@ class LudoSession extends _$LudoSession {
             creator: "",
             currentDiceValue: -1,
             playMoveFailed: false,
-            requiredPlayers:
-                sessionData['session_user_status'].length.toString(),
+            requiredPlayers: sessionData['required_players'] ??
+                sessionData['session_user_status'].length,
           ),
         )
         .toList();

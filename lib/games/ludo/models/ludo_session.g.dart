@@ -30,7 +30,7 @@ class LudoSessionDataImplAdapter extends TypeAdapter<_$LudoSessionDataImpl> {
       currentDiceValue: fields[12] as int?,
       playMoveFailed: fields[13] as bool?,
       message: fields[14] as String?,
-      requiredPlayers: fields[15] as String,
+      requiredPlayers: fields[15] as int,
     );
   }
 
@@ -163,7 +163,7 @@ _$LudoSessionDataImpl _$$LudoSessionDataImplFromJson(
       currentDiceValue: (json['currentDiceValue'] as num?)?.toInt(),
       playMoveFailed: json['playMoveFailed'] as bool?,
       message: json['message'] as String?,
-      requiredPlayers: json['requiredPlayers'] as String? ?? "4",
+      requiredPlayers: (json['requiredPlayers'] as num?)?.toInt() ?? 4,
     );
 
 Map<String, dynamic> _$$LudoSessionDataImplToJson(

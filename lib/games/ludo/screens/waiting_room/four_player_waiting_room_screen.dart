@@ -667,7 +667,7 @@ class _FourPlayerWaitingRoomScreenState
         ),
         alignment: Alignment.center,
         child: const Text(
-          'Players',
+          '4 Players',
           style: TextStyle(
               fontSize: 12, fontWeight: FontWeight.w400, color: Colors.white),
         ),
@@ -768,7 +768,7 @@ class _FourPlayerWaitingRoomScreenState
       return true;
     }
 
-    final requiredPlayers = int.tryParse(session.requiredPlayers) ?? 4;
+    final requiredPlayers = session.requiredPlayers;
     final activePlayers =
         session.sessionUserStatus.where((e) => e.status == "ACTIVE").length;
 

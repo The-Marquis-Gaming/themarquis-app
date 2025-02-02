@@ -117,7 +117,7 @@ class _TwoPlayerWaitingRoomScreenState
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           playerAvatarCard(
             index: 0,
@@ -656,7 +656,7 @@ class _TwoPlayerWaitingRoomScreenState
         ),
         alignment: Alignment.center,
         child: const Text(
-          'Players',
+          '2 Players',
           style: TextStyle(
               fontSize: 12, fontWeight: FontWeight.w400, color: Colors.white),
         ),

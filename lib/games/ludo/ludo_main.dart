@@ -100,7 +100,7 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
         PlayState.welcome.name: (context, game) =>
             LudoWelcomeScreen(game: game),
         PlayState.waiting.name: (context, game) =>
-            ref.read(ludoSessionProvider)!.requiredPlayers == '2'
+            ref.read(ludoSessionProvider)!.requiredPlayers == 2
                 ? TwoPlayerWaitingRoomScreen(game: game)
                 : FourPlayerWaitingRoomScreen(game: game),
         PlayState.finished.name: (context, game) => MatchResultsScreen(

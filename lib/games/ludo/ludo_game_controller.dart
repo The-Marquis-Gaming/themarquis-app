@@ -45,7 +45,7 @@ class LudoGameController extends MarquisGameController {
   Completer<void>? ludoSessionLoadingCompleter;
 
   set sessionData(LudoSessionData value) => _sessionData = value;
-  String? get requiredPlayers => _sessionData?.requiredPlayers;
+  int get requiredPlayers => _sessionData?.requiredPlayers ?? 4;
 
   LudoGameController()
       : super(
@@ -597,6 +597,13 @@ class LudoGameController extends MarquisGameController {
       remove(container);
     });
 
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+      if (!Flame.images.containsKey('dice_icon.png')) {
+        await Flame.images.loadAll([
+          'dice_icon.png',
+        ]);
+      }
+    }
     final messageContainer = CustomRectangleComponent(
       position: Vector2(size.x / 2, size.y - 170),
       size: Vector2(500, 50),
