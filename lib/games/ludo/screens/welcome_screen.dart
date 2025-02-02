@@ -9,13 +9,11 @@ import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/screens/create_game_screen.dart';
-import 'package:marquis_v2/games/ludo/widgets/pin_color_option.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/app_state.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:marquis_v2/widgets/balance_appbar.dart';
 import 'package:marquis_v2/widgets/error_dialog.dart';
-import 'package:marquis_v2/widgets/ui_widgets.dart';
 
 class LudoWelcomeScreen extends ConsumerStatefulWidget {
   const LudoWelcomeScreen({super.key, required this.game});
@@ -50,6 +48,11 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     final user = ref.watch(userProvider);
     if (user == null) {
+      Future.microtask(() {
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      });
       return const Center(child: Text("Not Logged In"));
     }
     return Stack(
@@ -141,7 +144,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                                               .where(
                                                   (e) => e.status == "ACTIVE")
                                               .length ==
-                                          4) {
+                                          session.requiredPlayers) {
                                         await widget.game
                                             .updatePlayState(PlayState.playing);
                                       } else {
@@ -796,7 +799,7 @@ class _OpenSessionRoomCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text("$noOfPlayers/4 Players",
+                Text("$noOfPlayers/${sessionData.requiredPlayers} Players",
                     style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -813,7 +816,9 @@ class _OpenSessionRoomCard extends StatelessWidget {
                   children: [
                     for (int i = 0; i < noOfPlayers; i++)
                       _PlayerAvatarCard(index: i, size: 37, color: colors[i]),
-                    for (int i = 0; i < 4 - noOfPlayers; i++)
+                    for (int i = 0;
+                        i < sessionData.requiredPlayers - noOfPlayers;
+                        i++)
                       const _PlayerEmptyCard(size: 37),
                   ],
                 ),
@@ -1110,7 +1115,6 @@ class _FindGameChooseColorDialog extends ConsumerStatefulWidget {
 
 class _FindGameChooseColorDialogState
     extends ConsumerState<_FindGameChooseColorDialog> {
-  String _selectedColor = "";
   bool isLoading = false;
   // BigInt? _tokenBalance;
   // final BigInt _sliderValue = BigInt.from(0);
@@ -1131,26 +1135,12 @@ class _FindGameChooseColorDialogState
               ? const Color(0xFF7531F4)
               : const Color(0xFF404040);
 
-  void _selectColor(String color) {
-    setState(() {
-      _selectedColor = color;
-    });
-  }
-
   Future<void> joinGame() async {
     try {
       setState(() {
         isLoading = true;
       });
-      if (_selectedColor == "") {
-        showErrorDialog("Please select a color", context);
-        return;
-      }
-      final color =
-          _selectedColor.split("/").last.split(".").first.split("_").first;
-      await ref
-          .read(ludoSessionProvider.notifier)
-          .joinSession(widget.roomId, color);
+      await ref.read(ludoSessionProvider.notifier).joinSession(widget.roomId);
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
@@ -1244,105 +1234,106 @@ class _FindGameChooseColorDialogState
                         ),
                       ),
                       const SizedBox(width: 5),
-                      Text("$noOfPlayers/4 Players",
+                      Text(
+                          "$noOfPlayers/${widget.selectedSession.requiredPlayers} Players",
                           style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF979797))),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (int i = 0; i < noOfPlayers; i++)
-                        _PlayerAvatarCard(index: i, size: 55, color: colors[i]),
-                      if (!widget.selectedSession.notAvailableColors
-                          .contains('green')) ...[
-                        SizedBox.square(
-                          dimension: 55,
-                          child: PinColorOption(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Color(0xFF005C30),
-                                Color(0x730C3823),
-                                Color(0xFF005C30)
-                              ],
-                            ),
-                            svgPath: 'assets/svg/chess-and-bg/green_chess.svg',
-                            selectedPinColor: _selectedColor,
-                            onTap: _selectColor,
-                          ),
-                        ),
-                        horizontalSpace(8),
-                      ],
-                      if (!widget.selectedSession.notAvailableColors
-                          .contains('blue')) ...[
-                        SizedBox.square(
-                          dimension: 55,
-                          child: PinColorOption(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Color(0xC700CEDB),
-                                Color(0x73145559),
-                                Color(0x9E00CEDB)
-                              ],
-                            ),
-                            svgPath: 'assets/svg/chess-and-bg/blue_chess.svg',
-                            selectedPinColor: _selectedColor,
-                            onTap: _selectColor,
-                          ),
-                        ),
-                        horizontalSpace(8),
-                      ],
-                      if (!widget.selectedSession.notAvailableColors
-                          .contains('red')) ...[
-                        SizedBox.square(
-                          dimension: 55,
-                          child: PinColorOption(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Color(0xC7DB0000),
-                                Color(0x73591414),
-                                Color(0x9EDB0000)
-                              ],
-                            ),
-                            svgPath: 'assets/svg/chess-and-bg/red_chess.svg',
-                            selectedPinColor: _selectedColor,
-                            onTap: _selectColor,
-                          ),
-                        ),
-                        horizontalSpace(8),
-                      ],
-                      if (!widget.selectedSession.notAvailableColors
-                          .contains('yellow')) ...[
-                        SizedBox.square(
-                          dimension: 55,
-                          child: PinColorOption(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Color(0xC7DBD200),
-                                Color(0x73595214),
-                                Color(0x9EDBD200)
-                              ],
-                            ),
-                            svgPath: 'assets/svg/chess-and-bg/yellow_chess.svg',
-                            selectedPinColor: _selectedColor,
-                            onTap: _selectColor,
-                          ),
-                        ),
-                        horizontalSpace(8),
-                      ],
-                    ],
-                  )
+                  // const SizedBox(height: 8),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     for (int i = 0; i < noOfPlayers; i++)
+                  //       _PlayerAvatarCard(index: i, size: 55, color: colors[i]),
+                  //     if (!widget.selectedSession.notAvailableColors
+                  //         .contains('green')) ...[
+                  //       SizedBox.square(
+                  //         dimension: 55,
+                  //         child: PinColorOption(
+                  //           gradient: const LinearGradient(
+                  //             begin: Alignment.topCenter,
+                  //             end: Alignment.bottomCenter,
+                  //             colors: [
+                  //               Color(0xFF005C30),
+                  //               Color(0x730C3823),
+                  //               Color(0xFF005C30)
+                  //             ],
+                  //           ),
+                  //           svgPath: 'assets/svg/chess-and-bg/green_chess.svg',
+                  //           selectedPinColor: _selectedColor,
+                  //           onTap: _selectColor,
+                  //         ),
+                  //       ),
+                  //       horizontalSpace(8),
+                  //     ],
+                  //     if (!widget.selectedSession.notAvailableColors
+                  //         .contains('blue')) ...[
+                  //       SizedBox.square(
+                  //         dimension: 55,
+                  //         child: PinColorOption(
+                  //           gradient: const LinearGradient(
+                  //             begin: Alignment.topCenter,
+                  //             end: Alignment.bottomCenter,
+                  //             colors: [
+                  //               Color(0xC700CEDB),
+                  //               Color(0x73145559),
+                  //               Color(0x9E00CEDB)
+                  //             ],
+                  //           ),
+                  //           svgPath: 'assets/svg/chess-and-bg/blue_chess.svg',
+                  //           selectedPinColor: _selectedColor,
+                  //           onTap: _selectColor,
+                  //         ),
+                  //       ),
+                  //       horizontalSpace(8),
+                  //     ],
+                  //     if (!widget.selectedSession.notAvailableColors
+                  //         .contains('red')) ...[
+                  //       SizedBox.square(
+                  //         dimension: 55,
+                  //         child: PinColorOption(
+                  //           gradient: const LinearGradient(
+                  //             begin: Alignment.topCenter,
+                  //             end: Alignment.bottomCenter,
+                  //             colors: [
+                  //               Color(0xC7DB0000),
+                  //               Color(0x73591414),
+                  //               Color(0x9EDB0000)
+                  //             ],
+                  //           ),
+                  //           svgPath: 'assets/svg/chess-and-bg/red_chess.svg',
+                  //           selectedPinColor: _selectedColor,
+                  //           onTap: _selectColor,
+                  //         ),
+                  //       ),
+                  //       horizontalSpace(8),
+                  //     ],
+                  //     if (!widget.selectedSession.notAvailableColors
+                  //         .contains('yellow')) ...[
+                  //       SizedBox.square(
+                  //         dimension: 55,
+                  //         child: PinColorOption(
+                  //           gradient: const LinearGradient(
+                  //             begin: Alignment.topCenter,
+                  //             end: Alignment.bottomCenter,
+                  //             colors: [
+                  //               Color(0xC7DBD200),
+                  //               Color(0x73595214),
+                  //               Color(0x9EDBD200)
+                  //             ],
+                  //           ),
+                  //           svgPath: 'assets/svg/chess-and-bg/yellow_chess.svg',
+                  //           selectedPinColor: _selectedColor,
+                  //           onTap: _selectColor,
+                  //         ),
+                  //       ),
+                  //       horizontalSpace(8),
+                  //     ],
+                  //   ],
+                  // )
                 ],
               ),
             ),
@@ -1364,7 +1355,10 @@ class _FindGameChooseColorDialogState
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: noOfPlayers == 4 ? null : joinGame,
+                      onPressed:
+                          noOfPlayers == widget.selectedSession.requiredPlayers
+                              ? null
+                              : joinGame,
                       style: OutlinedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),

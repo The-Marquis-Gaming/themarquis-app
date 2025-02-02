@@ -56,11 +56,43 @@ class LudoSession extends _$LudoSession {
           ref.read(appStateProvider).isSandbox ? wsUrlDebug! : wsUrl!));
       _channel?.stream.listen(
         (data) async {
-          if (kDebugMode) print("WS: $data");
+          if (kDebugMode) print("WebSocket Event Received: $data");
           final decodedResponse = jsonDecode(data) as Map;
+
+          // Log the event type
+          if (kDebugMode) print("Event Type: ${decodedResponse['event']}");
+
           switch (decodedResponse['event']) {
-            case 'play_move':
+            case 'session_created':
+              if (kDebugMode) print("Session Created Event");
+              final dataStr = decodedResponse['data'] as String;
+              final data = jsonDecode(dataStr) as Map;
+              if (data["session_id"] != _id) return;
+              await getLudoSession();
+              break;
+
             case 'player_joined':
+              if (kDebugMode) print("Player Joined Event");
+              final dataStr = decodedResponse['data'] as String;
+              final data = jsonDecode(dataStr) as Map;
+              if (data["session_id"] != _id) return;
+              await getLudoSession();
+              break;
+
+            case 'session_full':
+              if (kDebugMode) print("Session Full Event");
+              final dataStr = decodedResponse['data'] as String;
+              final data = jsonDecode(dataStr) as Map;
+              if (data["session_id"] != _id) return;
+              await getLudoSession();
+              // Update session status to indicate it's ready to start
+              state = state?.copyWith(
+                status: "FULL",
+                message: "Session is full and ready to start!",
+              );
+              break;
+
+            case 'play_move':
             case 'play_move_failed':
             case 'session_finished':
               final dataStr = decodedResponse['data'] as String;
@@ -74,27 +106,29 @@ class LudoSession extends _$LudoSession {
               } else {
                 _playMoveFailed = false;
               }
-              if (kDebugMode) print('Data $data');
               await getLudoSession();
               break;
+
             case 'player_exited':
               final dataStr = decodedResponse['data'] as String;
               final data = jsonDecode(dataStr) as Map;
               if (data["session_id"] != _id) return;
               state = state?.copyWith(
                 message:
-                    "EXITED: Player ${data['player_id']} has left the session, session ${data['session_id']} has finished.",
+                    "EXITED: Player ${data['player_id']} has left the session.",
               );
+              await getLudoSession();
               break;
           }
         },
         onDone: () {
+          if (kDebugMode) print("WebSocket connection closed. Reconnecting...");
           Future.delayed(const Duration(seconds: 1), () {
             connectWebSocket();
           });
         },
         onError: (error) {
-          if (kDebugMode) print('WS Error $error');
+          if (kDebugMode) print('WebSocket Error: $error');
           Future.delayed(const Duration(seconds: 1), () {
             connectWebSocket();
           });
@@ -102,7 +136,7 @@ class LudoSession extends _$LudoSession {
         cancelOnError: false,
       );
     } catch (e) {
-      if (kDebugMode) print('WS Connection Error $e');
+      if (kDebugMode) print('WebSocket Connection Error: $e');
       Future.delayed(const Duration(seconds: 1), () {
         connectWebSocket();
       });
@@ -114,8 +148,12 @@ class LudoSession extends _$LudoSession {
       _id = ref.read(appStateProvider).selectedGameSessionId;
       if (_id == null) return;
     }
+
+    if (kDebugMode) print("Fetching session data for ID: $_id");
+
     final url = Uri.parse(
         '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/session/$_id');
+
     final response = await _httpClient!.get(
       url,
       headers: {
@@ -123,55 +161,72 @@ class LudoSession extends _$LudoSession {
         'Authorization': ref.read(appStateProvider).bearerToken,
       },
     );
+
+    if (kDebugMode) print("Session Response Status: ${response.statusCode}");
+    if (kDebugMode)
+      log("Session Response Body: ${utf8.decode(response.bodyBytes)}");
+
     if (response.statusCode != 201 && response.statusCode != 200) {
       throw HttpException(
           'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+    final List<LudoSessionUserStatus> sessionUserStatus =
+        decodedResponse['session_user_status'].map<LudoSessionUserStatus>(
+      (e) {
+        final List<String> playerTokensPosition =
+            (e['player_tokens_position'] as List<dynamic>)
+                .map((e) => e.toString())
+                .toList();
+        final List<bool> playerWinningTokens =
+            (e['player_winning_tokens'] as List<dynamic>)
+                .map((e) => e as bool)
+                .toList();
+        final List<bool> playerTokensCircled =
+            (e['player_tokens_circled'] as List<dynamic>)
+                .map((e) => e as bool)
+                .toList();
+        return LudoSessionUserStatus(
+          playerId: e['player_id'],
+          playerTokensPosition: playerTokensPosition,
+          playerWinningTokens: playerWinningTokens,
+          playerTokensCircled: playerTokensCircled,
+          userId: e['user_id'],
+          email: e['email'],
+          role: e['role'],
+          status: e['status'],
+          points: e['points'],
+        );
+      },
+    ).toList();
+    if (decodedResponse['required_players'] == 2) {
+      sessionUserStatus[2] = sessionUserStatus[1].copyWith(playerId: 2);
+      sessionUserStatus[1] =
+          sessionUserStatus[1].copyWith(status: 'DUMMY', userId: -1);
+      if (sessionUserStatus.length < 4) {
+        sessionUserStatus.add(sessionUserStatus[2]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1));
+      } else {
+        sessionUserStatus[3] = sessionUserStatus[3]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1);
+      }
+    }
     final ludoSession = LudoSessionData(
       id: _id!,
       status: decodedResponse['status'],
       nextPlayer: decodedResponse['next_player'],
       nonce: decodedResponse['nonce'],
-      color: decodedResponse['color'] ?? "0",
       playAmount: decodedResponse['play_amount'],
       playToken: decodedResponse['play_token'],
-      sessionUserStatus: [
-        ...decodedResponse['session_user_status'].map(
-          (e) {
-            final List<String> playerTokensPosition =
-                (e['player_tokens_position'] as List<dynamic>)
-                    .map((e) => e.toString())
-                    .toList();
-            final List<bool> playerWinningTokens =
-                (e['player_winning_tokens'] as List<dynamic>)
-                    .map((e) => e as bool)
-                    .toList();
-            final List<bool> playerTokensCircled =
-                (e['player_tokens_circled'] as List<dynamic>)
-                    .map((e) => e as bool)
-                    .toList();
-            return LudoSessionUserStatus(
-              playerId: e['player_id'],
-              playerTokensPosition: playerTokensPosition,
-              playerWinningTokens: playerWinningTokens,
-              playerTokensCircled: playerTokensCircled,
-              userId: e['user_id'],
-              email: e['email'],
-              role: e['role'],
-              status: e['status'],
-              points: e['points'],
-              color: e['color'],
-            );
-          },
-        ),
-      ],
+      sessionUserStatus: sessionUserStatus,
       nextPlayerId: decodedResponse['next_player_id'],
       createdAt: DateTime.fromMillisecondsSinceEpoch(
           decodedResponse['created_at'] * 1000),
       creator: "",
       currentDiceValue: _currentDiceValue ?? -1,
       playMoveFailed: _playMoveFailed,
+      requiredPlayers: decodedResponse['required_players'] ??
+          decodedResponse['session_user_status'].length,
     );
     await _hiveBox!.put(_id, ludoSession);
     state = ludoSession;
@@ -193,50 +248,62 @@ class LudoSession extends _$LudoSession {
           'Request error with status code ${response.statusCode}.\nResponse: ${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+    final List<LudoSessionUserStatus> sessionUserStatus =
+        decodedResponse['session_user_status'].map<LudoSessionUserStatus>(
+      (e) {
+        final List<String> playerTokensPosition =
+            (e['player_tokens_position'] as List<dynamic>)
+                .map((e) => e.toString())
+                .toList();
+        final List<bool> playerWinningTokens =
+            (e['player_winning_tokens'] as List<dynamic>)
+                .map((e) => e as bool)
+                .toList();
+        final List<bool> playerTokensCircled =
+            (e['player_tokens_circled'] as List<dynamic>)
+                .map((e) => e as bool)
+                .toList();
+        return LudoSessionUserStatus(
+          playerId: e['player_id'],
+          playerTokensPosition: playerTokensPosition,
+          playerWinningTokens: playerWinningTokens,
+          playerTokensCircled: playerTokensCircled,
+          userId: e['user_id'],
+          email: e['email'],
+          role: e['role'],
+          status: e['status'],
+          points: e['points'],
+        );
+      },
+    ).toList();
+    if (decodedResponse['required_players'] == 2) {
+      sessionUserStatus[2] = sessionUserStatus[1].copyWith(playerId: 2);
+      sessionUserStatus[1] =
+          sessionUserStatus[1].copyWith(status: 'DUMMY', userId: -1);
+      if (sessionUserStatus.length < 4) {
+        sessionUserStatus.add(sessionUserStatus[2]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1));
+      } else {
+        sessionUserStatus[3] = sessionUserStatus[3]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1);
+      }
+    }
     final ludoSession = LudoSessionData(
       id: id,
       status: decodedResponse['status'],
       nextPlayer: decodedResponse['next_player'],
       nonce: decodedResponse['nonce'],
-      color: decodedResponse['color'] ?? "0",
       playAmount: decodedResponse['play_amount'],
       playToken: decodedResponse['play_token'],
-      sessionUserStatus: [
-        ...decodedResponse['session_user_status'].map(
-          (e) {
-            final List<String> playerTokensPosition =
-                (e['player_tokens_position'] as List<dynamic>)
-                    .map((e) => e.toString())
-                    .toList();
-            final List<bool> playerWinningTokens =
-                (e['player_winning_tokens'] as List<dynamic>)
-                    .map((e) => e as bool)
-                    .toList();
-            final List<bool> playerTokensCircled =
-                (e['player_tokens_circled'] as List<dynamic>)
-                    .map((e) => e as bool)
-                    .toList();
-            return LudoSessionUserStatus(
-              playerId: e['player_id'],
-              playerTokensPosition: playerTokensPosition,
-              playerWinningTokens: playerWinningTokens,
-              playerTokensCircled: playerTokensCircled,
-              userId: e['user_id'],
-              email: e['email'],
-              role: e['role'],
-              status: e['status'],
-              points: e['points'],
-              color: e['color'],
-            );
-          },
-        ),
-      ],
+      sessionUserStatus: sessionUserStatus,
       nextPlayerId: decodedResponse['next_player_id'],
       createdAt: DateTime.fromMillisecondsSinceEpoch(
           decodedResponse['created_at'] * 1000),
       creator: "",
       currentDiceValue: -1,
       playMoveFailed: false,
+      requiredPlayers: decodedResponse['required_players'] ??
+          decodedResponse['session_user_status'].length,
     );
     return ludoSession;
   }
@@ -261,7 +328,6 @@ class LudoSession extends _$LudoSession {
             status: sessionData['status'],
             nextPlayer: sessionData['next_player'],
             nonce: sessionData['nonce'],
-            color: sessionData['color'] ?? "0",
             playAmount: sessionData['play_amount'],
             playToken: sessionData['play_token'],
             sessionUserStatus: [
@@ -289,7 +355,6 @@ class LudoSession extends _$LudoSession {
                     role: e['role'],
                     status: e['status'],
                     points: e['points'],
-                    color: e['color'],
                   );
                 },
               ),
@@ -300,6 +365,8 @@ class LudoSession extends _$LudoSession {
             creator: "",
             currentDiceValue: -1,
             playMoveFailed: false,
+            requiredPlayers: sessionData['required_players'] ??
+                sessionData['session_user_status'].length,
           ),
         )
         .toList();
@@ -365,19 +432,19 @@ class LudoSession extends _$LudoSession {
   }
 
   Future<void> createSession(
-      String amount, String color, String tokenAddress) async {
+      String amount, int requiredPlayers, String tokenAddress) async {
     final url = Uri.parse(
         '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/create');
     log(jsonEncode({
       'amount': amount,
-      'user_creator_color': color,
+      'required_players': requiredPlayers,
       'token_address': tokenAddress,
     }));
     final response = await _httpClient!.post(
       url,
       body: jsonEncode({
         'amount': amount,
-        'user_creator_color': color,
+        'required_players': requiredPlayers.toString(),
         'token_address': tokenAddress,
       }),
       headers: {
@@ -396,15 +463,12 @@ class LudoSession extends _$LudoSession {
     await ref.read(userProvider.notifier).getUser();
   }
 
-  Future<void> joinSession(String sessionId, String color) async {
+  Future<void> joinSession(String sessionId) async {
     final url = Uri.parse(
         '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/session/join');
     final response = await _httpClient!.post(
       url,
-      body: jsonEncode({
-        'session_id': sessionId,
-        'user_color': color,
-      }),
+      body: jsonEncode({'session_id': sessionId}),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': ref.read(appStateProvider).bearerToken,

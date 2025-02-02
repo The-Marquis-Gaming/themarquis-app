@@ -18,6 +18,7 @@ class PlayerHome extends PositionComponent
   late List<Vector2> _homePinLocations;
   late List<Vector2> _avatarPositions;
   late Dice _playerDice;
+  bool isDummy;
   Dice? get playerDice => _playerDice;
 
   bool get isHomeFull =>
@@ -37,13 +38,17 @@ class PlayerHome extends PositionComponent
   List<PlayerPin?> get pinsAtHome =>
       _homePins.where((pin) => pin != null).toList();
 
-  PlayerHome(this.playerIndex, this.userStatus, Vector2 position)
+  PlayerHome(this.playerIndex, this.userStatus, Vector2 position, this.isDummy)
       : super(position: position);
 
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
     size = Vector2(game.unitSize * 2.5, game.unitSize * 2.5);
+
+    if (isDummy) {
+      return;
+    }
 
     _homePinLocations = [
       Vector2(game.unitSize * 1, game.unitSize * 1),
@@ -237,43 +242,45 @@ class PlayerHome extends PositionComponent
                       ? 15
                       : 0));
 
-    //player avatar bg
-    final avatarBgRRect = RRect.fromLTRBR(
-      _avatarPositions[playerIndex][0],
-      _avatarPositions[playerIndex][1],
-      _avatarPositions[playerIndex][0] + game.unitSize * 2.75,
-      _avatarPositions[playerIndex][1] + game.unitSize * 2.75,
-      const Radius.circular(24.0),
-    );
+    if (!isDummy) {
+      //player avatar bg
+      final avatarBgRRect = RRect.fromLTRBR(
+        _avatarPositions[playerIndex][0],
+        _avatarPositions[playerIndex][1],
+        _avatarPositions[playerIndex][0] + game.unitSize * 2.75,
+        _avatarPositions[playerIndex][1] + game.unitSize * 2.75,
+        const Radius.circular(24.0),
+      );
 
-    // Draw border
-    canvas.drawRRect(
-      avatarBgRRect,
-      Paint()
-        ..color = game.listOfColors[playerIndex]
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
+      // Draw border
+      canvas.drawRRect(
+        avatarBgRRect,
+        Paint()
+          ..color = game.listOfColors[playerIndex]
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
+      );
 
-    // Draw glow effect
-    canvas.drawRRect(
-      avatarBgRRect,
-      Paint()
-        ..color = game.listOfColors[playerIndex]
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = playerIndex == game.currentPlayer
-            ? 8
-            : playerIndex == game.userIndex
-                ? 4
-                : 0
-        ..maskFilter = MaskFilter.blur(
-            BlurStyle.outer,
-            playerIndex == game.currentPlayer
-                ? 30
-                : playerIndex == game.userIndex
-                    ? 15
-                    : 0),
-    );
+      // Draw glow effect
+      canvas.drawRRect(
+        avatarBgRRect,
+        Paint()
+          ..color = game.listOfColors[playerIndex]
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = playerIndex == game.currentPlayer
+              ? 8
+              : playerIndex == game.userIndex
+                  ? 4
+                  : 0
+          ..maskFilter = MaskFilter.blur(
+              BlurStyle.outer,
+              playerIndex == game.currentPlayer
+                  ? 30
+                  : playerIndex == game.userIndex
+                      ? 15
+                      : 0),
+      );
+    }
   }
 
   PlayerPin? removePin(int homePinIndex) {
@@ -304,5 +311,10 @@ class PlayerHome extends PositionComponent
 
   Future<void> setDiceValue(int diceValue) async {
     _playerDice.setValue(diceValue);
+  }
+
+  void setDummy() {
+    isDummy = true;
+    update(0);
   }
 }

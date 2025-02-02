@@ -28,13 +28,19 @@ void main() {
     mockClient = MockClient();
     container = ProviderContainer(
       overrides: [
-        appStateProvider.overrideWith(() => AppState(hiveBox: mockBox, httpClient: mockClient)),
-        userProvider.overrideWith(() => User(hiveBox: userMockBox, httpClient: mockClient)),
+        appStateProvider.overrideWith(
+            () => AppState(hiveBox: mockBox, httpClient: mockClient)),
+        userProvider.overrideWith(
+            () => User(hiveBox: userMockBox, httpClient: mockClient)),
       ],
     );
-    baseUrl = environment['build'] == 'DEBUG' ? environment['apiUrlDebug'] : environment['apiUrl'];
-    when(mockBox.get('appState', defaultValue: anyNamed('defaultValue'))).thenReturn(AppStateData(navigatorIndex: 0));
-    when(userMockBox.get('user', defaultValue: anyNamed('defaultValue'))).thenReturn(null);
+    baseUrl = environment['build'] == 'DEBUG'
+        ? environment['apiUrlDebug']
+        : environment['apiUrl'];
+    when(mockBox.get('appState', defaultValue: anyNamed('defaultValue')))
+        .thenReturn(AppStateData(navigatorIndex: 0));
+    when(userMockBox.get('user', defaultValue: anyNamed('defaultValue')))
+        .thenReturn(null);
   });
 
   group('User Provider Tests', () {
@@ -59,8 +65,11 @@ void main() {
         'session_id': 'session123',
       };
 
-      when(mockClient.get(Uri.parse("$baseUrl/user/info"), headers: anyNamed('headers'))).thenAnswer((_) async => Response(jsonEncode(response), 200));
-      when(userMockBox.put('user', any)).thenAnswer((_) async => Future.value());
+      when(mockClient.get(Uri.parse("$baseUrl/user/info"),
+              headers: anyNamed('headers')))
+          .thenAnswer((_) async => Response(jsonEncode(response), 200));
+      when(userMockBox.put('user', any))
+          .thenAnswer((_) async => Future.value());
 
       await container.read(userProvider.notifier).getUser();
 
@@ -91,8 +100,11 @@ void main() {
       };
 
       when(userMockBox.delete('user')).thenAnswer((_) async => Future.value());
-      when(mockClient.get(Uri.parse("$baseUrl/user/info"), headers: anyNamed('headers'))).thenAnswer((_) async => Response(jsonEncode(response), 200));
-      when(userMockBox.put('user', any)).thenAnswer((_) async => Future.value());
+      when(mockClient.get(Uri.parse("$baseUrl/user/info"),
+              headers: anyNamed('headers')))
+          .thenAnswer((_) async => Response(jsonEncode(response), 200));
+      when(userMockBox.put('user', any))
+          .thenAnswer((_) async => Future.value());
 
       // Fetching user data is required to test deleting it
       await container.read(userProvider.notifier).getUser();
@@ -112,10 +124,12 @@ void main() {
         {'address': '0x456', 'name': 'Token2'},
       ];
 
-      when(mockClient.get(Uri.parse("$baseUrl/game/supported-tokens"), headers: anyNamed('headers')))
+      when(mockClient.get(Uri.parse("$baseUrl/game/supported-tokens"),
+              headers: anyNamed('headers')))
           .thenAnswer((_) async => Response(jsonEncode(response), 200));
 
-      final tokens = await container.read(userProvider.notifier).getSupportedTokens();
+      final tokens =
+          await container.read(userProvider.notifier).getSupportedTokens();
 
       expect(tokens.length, equals(2));
       expect(tokens[0]['tokenAddress'], equals('0x123'));
@@ -123,13 +137,13 @@ void main() {
     });
 
     test('getTokenBalance fetches 0 when state is null', () async {
-      final balance = await container.read(userProvider.notifier).getTokenBalance('0x123');
+      final balance =
+          await container.read(userProvider.notifier).getTokenBalance('0x123');
 
       expect(balance, equals(BigInt.from(0)));
     });
 
     test('getTokenBalance fetches token amount in wallet', () async {
-      final balanceResponse = {'balance': '1000'};
       final time = DateTime.now();
       final userResponse = {
         'user': {
@@ -150,18 +164,19 @@ void main() {
         'session_id': 'session123',
       };
 
-      when(mockClient.get(Uri.parse("$baseUrl/user/info"), headers: anyNamed('headers'))).thenAnswer((_) async => Response(jsonEncode(userResponse), 200));
-      when(userMockBox.put('user', any)).thenAnswer((_) async => Future.value());
-      when(mockClient.get(Uri.parse('$baseUrl/game/token/balance/0x123/0x123'), headers: anyNamed('headers'))).thenAnswer(
-        (_) async => Response(jsonEncode(balanceResponse), 200),
-      );
+      when(mockClient.get(Uri.parse("$baseUrl/user/info"),
+              headers: anyNamed('headers')))
+          .thenAnswer((_) async => Response(jsonEncode(userResponse), 200));
+      when(userMockBox.put('user', any))
+          .thenAnswer((_) async => Future.value());
 
       //Providing dummy user to test getTokenBalance
       await container.read(userProvider.notifier).getUser();
 
-      final balance = await container.read(userProvider.notifier).getTokenBalance('0x123');
+      final balance = await container.read(userProvider.notifier).getTokenBalance(
+          '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d');
 
-      expect(balance, equals(BigInt.from(1000)));
+      expect(balance, equals(BigInt.from(100)));
     });
   });
 }

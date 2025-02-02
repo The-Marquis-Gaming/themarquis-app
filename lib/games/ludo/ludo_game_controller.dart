@@ -36,7 +36,6 @@ class LudoGameController extends MarquisGameController {
   int _currentPlayer = 0;
   int _userIndex = -1;
   bool playerCanMove = false;
-  final int totalPlayers = 4;
   int? winnerIndex;
   LudoSessionData? _sessionData;
   int pendingMoves = 0;
@@ -178,7 +177,10 @@ class LudoGameController extends MarquisGameController {
   Future<void> _handleLudoSessionUpdate(LudoSessionData? next) async {
     ludoSessionLoadingCompleter = Completer<void>();
     _sessionData = next;
+
     if (_sessionData != null) {
+      // Remove the immediate play state update for FULL status
+      // Let the timer handle the transition instead
       if (_sessionData!.message != null) {
         await showGameMessage(
           message: _sessionData!.message!,
@@ -214,6 +216,7 @@ class LudoGameController extends MarquisGameController {
           }
           final movePinsCompleter = Completer<void>();
           for (final player in _sessionData!.sessionUserStatus) {
+            if (player.status == 'DUMMY') continue;
             final pinLocations = player.playerTokensPosition;
             final currentPinLocations = playerPinLocations[player.playerId];
             final playerHome = playerHomes[player.playerId];
@@ -298,8 +301,8 @@ class LudoGameController extends MarquisGameController {
           center.y + unitSize * 2.25), // Bottom-left corner (Player 4)
     ];
     for (int i = 0; i < positions.length; i++) {
-      playerHomes
-          .add(PlayerHome(i, _sessionData!.sessionUserStatus[i], positions[i]));
+      playerHomes.add(PlayerHome(i, _sessionData!.sessionUserStatus[i],
+          positions[i], _sessionData!.sessionUserStatus[i].status == 'DUMMY'));
       await add(playerHomes.last);
     }
 
@@ -341,6 +344,10 @@ class LudoGameController extends MarquisGameController {
     for (var player in _sessionData!.sessionUserStatus) {
       final pinLocations = player.playerTokensPosition;
       final playerHome = playerHomes[player.playerId];
+      if (player.status == 'DUMMY') {
+        playerHome.setDummy();
+        continue;
+      }
       for (int i = 0; i < pinLocations.length; i++) {
         var pinLocation = int.parse(pinLocations[i]) +
             (player.playerTokensCircled?[i] ?? false ? 52 : 0);
@@ -593,6 +600,13 @@ class LudoGameController extends MarquisGameController {
       remove(container);
     });
 
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+      if (!Flame.images.containsKey('dice_icon.png')) {
+        await Flame.images.loadAll([
+          'dice_icon.png',
+        ]);
+      }
+    }
     final messageContainer = CustomRectangleComponent(
       position: Vector2(size.x / 2, size.y - 170),
       size: Vector2(500, 50),

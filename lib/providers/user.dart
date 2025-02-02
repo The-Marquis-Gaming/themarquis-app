@@ -8,11 +8,14 @@ import 'package:marquis_v2/env.dart';
 import 'package:marquis_v2/models/user.dart';
 import 'package:marquis_v2/providers/app_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:starknet/starknet.dart';
+import 'package:starknet_provider/starknet_provider.dart';
 
 part "user.g.dart";
 
 final baseUrl = environment['apiUrl'];
 final baseUrlDebug = environment['apiUrlDebug'];
+final rpcUrl = environment['rpcUrl'];
 
 @Riverpod(keepAlive: true)
 class User extends _$User {
@@ -135,20 +138,35 @@ class User extends _$User {
 
   Future<BigInt> getTokenBalance(String tokenAddress) async {
     if (state == null) return BigInt.from(0);
-    final url = Uri.parse(
-        '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/token/balance/$tokenAddress/${state!.accountAddress}');
-    final response = await _httpClient!.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': ref.read(appStateProvider).bearerToken
-      },
-    );
-    if (response.statusCode != 201 && response.statusCode != 200) {
-      throw HttpException(
-          'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
+    final rpc =
+        Uri.parse(rpcUrl ?? "https://starknet-sepolia.public.blastapi.io");
+
+    final provider = JsonRpcProvider(nodeUri: rpc);
+
+    final accountAddress = Felt.fromHexString(state!.accountAddress);
+
+    final ethContractAddress = Felt.fromHexString(tokenAddress);
+
+    try {
+      final response = await provider.call(
+        request: FunctionCall(
+          contractAddress: ethContractAddress,
+          entryPointSelector: getSelectorByName('balanceOf'),
+          calldata: [accountAddress],
+        ),
+        blockId: const BlockId.blockTag("latest"),
+      );
+
+      return response.when(
+        error: (error) {
+          throw Exception("Error fetching balance: $error");
+        },
+        result: (result) {
+          return Uint256.fromFeltList(result).toBigInt();
+        },
+      );
+    } catch (e) {
+      throw Exception("Failed to fetch token balance: $e");
     }
-    final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-    return BigInt.parse(decodedResponse['balance']);
   }
 }

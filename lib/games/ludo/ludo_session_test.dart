@@ -52,7 +52,7 @@ class LudoSessionTest extends LudoSession {
   @override
   Future<void> createSession(
     String amount,
-    String color,
+    int requiredPlayers,
     String tokenAddress,
   ) async {
     state = LudoSessionData(
@@ -60,7 +60,6 @@ class LudoSessionTest extends LudoSession {
       status: "status",
       nextPlayer: "nextPlayer",
       nonce: "nonce",
-      color: color,
       playAmount: amount,
       playToken: tokenAddress,
       sessionUserStatus: [
@@ -74,7 +73,6 @@ class LudoSessionTest extends LudoSession {
           status: "ACTIVE",
           points: 0,
           playerTokensCircled: [false, false, false, false],
-          color: "red",
         ),
         LudoSessionUserStatus(
           playerId: 1,
@@ -86,7 +84,6 @@ class LudoSessionTest extends LudoSession {
           status: "ACTIVE",
           points: 0,
           playerTokensCircled: [false, false, false, false],
-          color: "blue",
         ),
         LudoSessionUserStatus(
           playerId: 2,
@@ -98,7 +95,6 @@ class LudoSessionTest extends LudoSession {
           status: "ACTIVE",
           points: 0,
           playerTokensCircled: [false, false, false, false],
-          color: "green",
         ),
         LudoSessionUserStatus(
           playerId: 3,
@@ -110,7 +106,6 @@ class LudoSessionTest extends LudoSession {
           status: "ACTIVE",
           points: 0,
           playerTokensCircled: [false, false, false, false],
-          color: "yellow",
         )
       ],
       nextPlayerId: 1,
@@ -118,11 +113,12 @@ class LudoSessionTest extends LudoSession {
       createdAt: DateTime.now(),
       currentDiceValue: 0,
       playMoveFailed: false,
+      requiredPlayers: requiredPlayers,
     );
   }
 
   @override
-  Future<void> joinSession(String sessionId, String color) async {
+  Future<void> joinSession(String sessionId) async {
     return;
   }
 
