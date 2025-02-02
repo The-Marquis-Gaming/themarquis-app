@@ -171,6 +171,46 @@ class LudoSession extends _$LudoSession {
           'Request error with status code ${response.statusCode}.\nResponse:${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+    final List<LudoSessionUserStatus> sessionUserStatus =
+        decodedResponse['session_user_status'].map<LudoSessionUserStatus>(
+      (e) {
+        final List<String> playerTokensPosition =
+            (e['player_tokens_position'] as List<dynamic>)
+                .map((e) => e.toString())
+                .toList();
+        final List<bool> playerWinningTokens =
+            (e['player_winning_tokens'] as List<dynamic>)
+                .map((e) => e as bool)
+                .toList();
+        final List<bool> playerTokensCircled =
+            (e['player_tokens_circled'] as List<dynamic>)
+                .map((e) => e as bool)
+                .toList();
+        return LudoSessionUserStatus(
+          playerId: e['player_id'],
+          playerTokensPosition: playerTokensPosition,
+          playerWinningTokens: playerWinningTokens,
+          playerTokensCircled: playerTokensCircled,
+          userId: e['user_id'],
+          email: e['email'],
+          role: e['role'],
+          status: e['status'],
+          points: e['points'],
+        );
+      },
+    ).toList();
+    if (decodedResponse['required_players'] == 2) {
+      sessionUserStatus[2] = sessionUserStatus[1].copyWith(playerId: 2);
+      sessionUserStatus[1] =
+          sessionUserStatus[1].copyWith(status: 'DUMMY', userId: -1);
+      if (sessionUserStatus.length < 4) {
+        sessionUserStatus.add(sessionUserStatus[2]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1));
+      } else {
+        sessionUserStatus[3] = sessionUserStatus[3]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1);
+      }
+    }
     final ludoSession = LudoSessionData(
       id: _id!,
       status: decodedResponse['status'],
@@ -178,42 +218,15 @@ class LudoSession extends _$LudoSession {
       nonce: decodedResponse['nonce'],
       playAmount: decodedResponse['play_amount'],
       playToken: decodedResponse['play_token'],
-      sessionUserStatus: [
-        ...decodedResponse['session_user_status'].map(
-          (e) {
-            final List<String> playerTokensPosition =
-                (e['player_tokens_position'] as List<dynamic>)
-                    .map((e) => e.toString())
-                    .toList();
-            final List<bool> playerWinningTokens =
-                (e['player_winning_tokens'] as List<dynamic>)
-                    .map((e) => e as bool)
-                    .toList();
-            final List<bool> playerTokensCircled =
-                (e['player_tokens_circled'] as List<dynamic>)
-                    .map((e) => e as bool)
-                    .toList();
-            return LudoSessionUserStatus(
-              playerId: e['player_id'],
-              playerTokensPosition: playerTokensPosition,
-              playerWinningTokens: playerWinningTokens,
-              playerTokensCircled: playerTokensCircled,
-              userId: e['user_id'],
-              email: e['email'],
-              role: e['role'],
-              status: e['status'],
-              points: e['points'],
-            );
-          },
-        ),
-      ],
+      sessionUserStatus: sessionUserStatus,
       nextPlayerId: decodedResponse['next_player_id'],
       createdAt: DateTime.fromMillisecondsSinceEpoch(
           decodedResponse['created_at'] * 1000),
       creator: "",
       currentDiceValue: _currentDiceValue ?? -1,
       playMoveFailed: _playMoveFailed,
-      requiredPlayers: decodedResponse['session_user_status'].length.toString(),
+      requiredPlayers: decodedResponse['required_players'] ??
+          decodedResponse['session_user_status'].length,
     );
     await _hiveBox!.put(_id, ludoSession);
     state = ludoSession;
@@ -235,6 +248,46 @@ class LudoSession extends _$LudoSession {
           'Request error with status code ${response.statusCode}.\nResponse: ${utf8.decode(response.bodyBytes)}');
     }
     final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+    final List<LudoSessionUserStatus> sessionUserStatus =
+        decodedResponse['session_user_status'].map<LudoSessionUserStatus>(
+      (e) {
+        final List<String> playerTokensPosition =
+            (e['player_tokens_position'] as List<dynamic>)
+                .map((e) => e.toString())
+                .toList();
+        final List<bool> playerWinningTokens =
+            (e['player_winning_tokens'] as List<dynamic>)
+                .map((e) => e as bool)
+                .toList();
+        final List<bool> playerTokensCircled =
+            (e['player_tokens_circled'] as List<dynamic>)
+                .map((e) => e as bool)
+                .toList();
+        return LudoSessionUserStatus(
+          playerId: e['player_id'],
+          playerTokensPosition: playerTokensPosition,
+          playerWinningTokens: playerWinningTokens,
+          playerTokensCircled: playerTokensCircled,
+          userId: e['user_id'],
+          email: e['email'],
+          role: e['role'],
+          status: e['status'],
+          points: e['points'],
+        );
+      },
+    ).toList();
+    if (decodedResponse['required_players'] == 2) {
+      sessionUserStatus[2] = sessionUserStatus[1].copyWith(playerId: 2);
+      sessionUserStatus[1] =
+          sessionUserStatus[1].copyWith(status: 'DUMMY', userId: -1);
+      if (sessionUserStatus.length < 4) {
+        sessionUserStatus.add(sessionUserStatus[2]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1));
+      } else {
+        sessionUserStatus[3] = sessionUserStatus[3]
+            .copyWith(status: 'DUMMY', playerId: 3, userId: -1);
+      }
+    }
     final ludoSession = LudoSessionData(
       id: id,
       status: decodedResponse['status'],
@@ -242,42 +295,15 @@ class LudoSession extends _$LudoSession {
       nonce: decodedResponse['nonce'],
       playAmount: decodedResponse['play_amount'],
       playToken: decodedResponse['play_token'],
-      sessionUserStatus: [
-        ...decodedResponse['session_user_status'].map(
-          (e) {
-            final List<String> playerTokensPosition =
-                (e['player_tokens_position'] as List<dynamic>)
-                    .map((e) => e.toString())
-                    .toList();
-            final List<bool> playerWinningTokens =
-                (e['player_winning_tokens'] as List<dynamic>)
-                    .map((e) => e as bool)
-                    .toList();
-            final List<bool> playerTokensCircled =
-                (e['player_tokens_circled'] as List<dynamic>)
-                    .map((e) => e as bool)
-                    .toList();
-            return LudoSessionUserStatus(
-              playerId: e['player_id'],
-              playerTokensPosition: playerTokensPosition,
-              playerWinningTokens: playerWinningTokens,
-              playerTokensCircled: playerTokensCircled,
-              userId: e['user_id'],
-              email: e['email'],
-              role: e['role'],
-              status: e['status'],
-              points: e['points'],
-            );
-          },
-        ),
-      ],
+      sessionUserStatus: sessionUserStatus,
       nextPlayerId: decodedResponse['next_player_id'],
       createdAt: DateTime.fromMillisecondsSinceEpoch(
           decodedResponse['created_at'] * 1000),
       creator: "",
       currentDiceValue: -1,
       playMoveFailed: false,
-      requiredPlayers: decodedResponse['required_players'] ?? "4",
+      requiredPlayers: decodedResponse['required_players'] ??
+          decodedResponse['session_user_status'].length,
     );
     return ludoSession;
   }
@@ -339,7 +365,8 @@ class LudoSession extends _$LudoSession {
             creator: "",
             currentDiceValue: -1,
             playMoveFailed: false,
-            requiredPlayers: sessionData['required_players'] ?? "4",
+            requiredPlayers: sessionData['required_players'] ??
+                sessionData['session_user_status'].length,
           ),
         )
         .toList();

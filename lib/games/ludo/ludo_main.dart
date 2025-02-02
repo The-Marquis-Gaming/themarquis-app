@@ -8,6 +8,7 @@ import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/screens/game_over_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/waiting_room/four_player_waiting_room_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/waiting_room/two_player_waiting_room_screen.dart';
+import 'package:marquis_v2/games/ludo/screens/waiting_room/two_player_waiting_room_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/welcome_screen.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/router/route_path.dart';
@@ -98,9 +99,10 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
       overlayBuilderMap: {
         PlayState.welcome.name: (context, game) =>
             LudoWelcomeScreen(game: game),
-        PlayState.waiting.name: (context, game) => game.requiredPlayers == '2'
-            ? TwoPlayerWaitingRoomScreen(game: game)
-            : FourPlayerWaitingRoomScreen(game: game),
+        PlayState.waiting.name: (context, game) =>
+            ref.read(ludoSessionProvider)!.requiredPlayers == 2
+                ? TwoPlayerWaitingRoomScreen(game: game)
+                : FourPlayerWaitingRoomScreen(game: game),
         PlayState.finished.name: (context, game) => MatchResultsScreen(
             game: game, session: ref.read(ludoSessionProvider)!),
       },

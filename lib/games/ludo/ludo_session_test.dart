@@ -113,7 +113,7 @@ class LudoSessionTest extends LudoSession {
       createdAt: DateTime.now(),
       currentDiceValue: 0,
       playMoveFailed: false,
-      requiredPlayers: requiredPlayers.toString(),
+      requiredPlayers: requiredPlayers,
     );
   }
 

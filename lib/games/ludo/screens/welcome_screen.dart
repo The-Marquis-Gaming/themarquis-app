@@ -9,13 +9,11 @@ import 'package:marquis_v2/games/ludo/ludo_game_controller.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/screens/create_game_screen.dart';
-import 'package:marquis_v2/games/ludo/widgets/pin_color_option.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/app_state.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:marquis_v2/widgets/balance_appbar.dart';
 import 'package:marquis_v2/widgets/error_dialog.dart';
-import 'package:marquis_v2/widgets/ui_widgets.dart';
 
 class LudoWelcomeScreen extends ConsumerStatefulWidget {
   const LudoWelcomeScreen({super.key, required this.game});
@@ -146,7 +144,7 @@ class _LudoWelcomeScreenState extends ConsumerState<LudoWelcomeScreen> {
                                               .where(
                                                   (e) => e.status == "ACTIVE")
                                               .length ==
-                                          4) {
+                                          session.requiredPlayers) {
                                         await widget.game
                                             .updatePlayState(PlayState.playing);
                                       } else {
@@ -801,7 +799,7 @@ class _OpenSessionRoomCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text("$noOfPlayers/4 Players",
+                Text("$noOfPlayers/${sessionData.requiredPlayers} Players",
                     style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -818,7 +816,9 @@ class _OpenSessionRoomCard extends StatelessWidget {
                   children: [
                     for (int i = 0; i < noOfPlayers; i++)
                       _PlayerAvatarCard(index: i, size: 37, color: colors[i]),
-                    for (int i = 0; i < 4 - noOfPlayers; i++)
+                    for (int i = 0;
+                        i < sessionData.requiredPlayers - noOfPlayers;
+                        i++)
                       const _PlayerEmptyCard(size: 37),
                   ],
                 ),
@@ -1234,7 +1234,8 @@ class _FindGameChooseColorDialogState
                         ),
                       ),
                       const SizedBox(width: 5),
-                      Text("$noOfPlayers/4 Players",
+                      Text(
+                          "$noOfPlayers/${widget.selectedSession.requiredPlayers} Players",
                           style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1354,7 +1355,10 @@ class _FindGameChooseColorDialogState
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: noOfPlayers == 4 ? null : joinGame,
+                      onPressed:
+                          noOfPlayers == widget.selectedSession.requiredPlayers
+                              ? null
+                              : joinGame,
                       style: OutlinedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),

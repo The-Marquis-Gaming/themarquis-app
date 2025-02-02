@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -50,7 +49,7 @@ class _FourPlayerWaitingRoomScreenState
         _startCountdown();
       }
     });
-    
+
     // Listen for changes
     ref.listenManual(ludoSessionProvider, (previous, next) {
       if (next != null && _isRoomFull(next) && !_isCountdownStarted) {
@@ -68,18 +67,19 @@ class _FourPlayerWaitingRoomScreenState
 
   void _startCountdown() {
     if (_countdownTimer?.isActive ?? false) return;
-    
+
     setState(() {
       _countdown = 15;
     });
-    
+
     // Add initial delay before starting countdown
     Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
-      
-      _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+
+      _countdownTimer =
+          Timer.periodic(const Duration(seconds: 1), (timer) async {
         if (!mounted) return;
-        
+
         setState(() {
           if (_countdown > 0) {
             _countdown--;
@@ -95,6 +95,13 @@ class _FourPlayerWaitingRoomScreenState
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(ludoSessionProvider);
+    if (session == null) {
+      Future.microtask(() {
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
+      });
+    }
     return Scaffold(
       backgroundColor: Colors.black,
       body: session == null
@@ -144,7 +151,7 @@ class _FourPlayerWaitingRoomScreenState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(4, (i) {
-          if (i < session.sessionUserStatus.length && 
+          if (i < session.sessionUserStatus.length &&
               session.sessionUserStatus[i].status == "ACTIVE") {
             return playerAvatarCard(
               session,
@@ -660,7 +667,7 @@ class _FourPlayerWaitingRoomScreenState
         ),
         alignment: Alignment.center,
         child: const Text(
-          'Players',
+          '4 Players',
           style: TextStyle(
               fontSize: 12, fontWeight: FontWeight.w400, color: Colors.white),
         ),
@@ -755,22 +762,23 @@ class _FourPlayerWaitingRoomScreenState
 
   bool _isRoomFull(LudoSessionData? session) {
     if (session == null) return false;
-    
+
     if (session.status == "FULL") {
       if (kDebugMode) print("Session is FULL");
       return true;
     }
-    
-    final requiredPlayers = int.tryParse(session.requiredPlayers ?? "4") ?? 4;
-    final activePlayers = session.sessionUserStatus.where((e) => e.status == "ACTIVE").length;
-    
+
+    final requiredPlayers = session.requiredPlayers;
+    final activePlayers =
+        session.sessionUserStatus.where((e) => e.status == "ACTIVE").length;
+
     if (kDebugMode) {
       print("Required Players: $requiredPlayers");
       print("Active Players: $activePlayers");
       print("Session Status: ${session.status}");
       print("Is Room Full: ${activePlayers >= requiredPlayers}");
     }
-    
+
     return activePlayers >= requiredPlayers;
   }
 }

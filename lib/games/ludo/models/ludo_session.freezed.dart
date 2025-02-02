@@ -48,7 +48,7 @@ mixin _$LudoSessionData {
   @HiveField(14)
   String? get message => throw _privateConstructorUsedError;
   @HiveField(15)
-  String get requiredPlayers => throw _privateConstructorUsedError;
+  int get requiredPlayers => throw _privateConstructorUsedError;
 
   /// Serializes this LudoSessionData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -80,7 +80,7 @@ abstract class $LudoSessionDataCopyWith<$Res> {
       @HiveField(12) int? currentDiceValue,
       @HiveField(13) bool? playMoveFailed,
       @HiveField(14) String? message,
-      @HiveField(15) String requiredPlayers});
+      @HiveField(15) int requiredPlayers});
 }
 
 /// @nodoc
@@ -169,7 +169,7 @@ class _$LudoSessionDataCopyWithImpl<$Res, $Val extends LudoSessionData>
       requiredPlayers: null == requiredPlayers
           ? _value.requiredPlayers
           : requiredPlayers // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
     ) as $Val);
   }
 }
@@ -196,7 +196,7 @@ abstract class _$$LudoSessionDataImplCopyWith<$Res>
       @HiveField(12) int? currentDiceValue,
       @HiveField(13) bool? playMoveFailed,
       @HiveField(14) String? message,
-      @HiveField(15) String requiredPlayers});
+      @HiveField(15) int requiredPlayers});
 }
 
 /// @nodoc
@@ -283,7 +283,7 @@ class __$$LudoSessionDataImplCopyWithImpl<$Res>
       requiredPlayers: null == requiredPlayers
           ? _value.requiredPlayers
           : requiredPlayers // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
     ));
   }
 }
@@ -307,7 +307,7 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
       @HiveField(12) this.currentDiceValue,
       @HiveField(13) this.playMoveFailed,
       @HiveField(14) this.message,
-      @HiveField(15) this.requiredPlayers = "4"})
+      @HiveField(15) this.requiredPlayers = 4})
       : _sessionUserStatus = sessionUserStatus,
         super._();
 
@@ -363,7 +363,7 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
   @override
   @JsonKey()
   @HiveField(15)
-  final String requiredPlayers;
+  final int requiredPlayers;
 
   @override
   String toString() {
@@ -452,7 +452,7 @@ abstract class _LudoSessionData extends LudoSessionData {
       @HiveField(12) final int? currentDiceValue,
       @HiveField(13) final bool? playMoveFailed,
       @HiveField(14) final String? message,
-      @HiveField(15) final String requiredPlayers}) = _$LudoSessionDataImpl;
+      @HiveField(15) final int requiredPlayers}) = _$LudoSessionDataImpl;
   _LudoSessionData._() : super._();
 
   factory _LudoSessionData.fromJson(Map<String, dynamic> json) =
@@ -499,7 +499,7 @@ abstract class _LudoSessionData extends LudoSessionData {
   String? get message;
   @override
   @HiveField(15)
-  String get requiredPlayers;
+  int get requiredPlayers;
 
   /// Create a copy of LudoSessionData
   /// with the given fields replaced by the non-null parameter values.

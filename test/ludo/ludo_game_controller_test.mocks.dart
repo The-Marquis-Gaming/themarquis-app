@@ -467,13 +467,10 @@ class MockLudoSessionData extends _i1.Mock implements _i2.LudoSessionData {
       ) as DateTime);
 
   @override
-  String get requiredPlayers => (super.noSuchMethod(
+  int get requiredPlayers => (super.noSuchMethod(
         Invocation.getter(#requiredPlayers),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#requiredPlayers),
-        ),
-      ) as String);
+        returnValue: 0,
+      ) as int);
 
   @override
   _i2.$LudoSessionDataCopyWith<_i2.LudoSessionData> get copyWith =>
