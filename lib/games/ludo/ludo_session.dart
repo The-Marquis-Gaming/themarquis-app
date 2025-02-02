@@ -277,7 +277,7 @@ class LudoSession extends _$LudoSession {
       creator: "",
       currentDiceValue: -1,
       playMoveFailed: false,
-      requiredPlayers: decodedResponse['required_players'] ?? "4",
+      requiredPlayers: decodedResponse['session_user_status'].length.toString(),
     );
     return ludoSession;
   }
@@ -339,7 +339,8 @@ class LudoSession extends _$LudoSession {
             creator: "",
             currentDiceValue: -1,
             playMoveFailed: false,
-            requiredPlayers: sessionData['required_players'] ?? "4",
+            requiredPlayers:
+                sessionData['session_user_status'].length.toString(),
           ),
         )
         .toList();
