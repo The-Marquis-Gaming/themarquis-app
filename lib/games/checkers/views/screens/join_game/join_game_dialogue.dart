@@ -23,45 +23,13 @@ class CheckersJoinGameDialog extends ConsumerStatefulWidget {
 class CheckersJoinGameDialogState
     extends ConsumerState<CheckersJoinGameDialog> {
   bool isLoading = false;
-  List<CheckersSessionData>? availableSessions;
   bool _isJoining = false;
   final TextEditingController _sessionIdController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchAvailableSessions();
-  }
 
   @override
   void dispose() {
     _sessionIdController.dispose();
     super.dispose();
-  }
-
-  Future<void> _fetchAvailableSessions() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final sessions = await ref
-          .read(checkersSessionProvider.notifier)
-          .getAvailableSessions();
-      setState(() {
-        availableSessions = sessions;
-      });
-    } catch (e) {
-      if (mounted) {
-        showErrorDialog(e.toString(), context);
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
   }
 
   Future<void> _joinGame(CheckersSessionData session) async {
@@ -104,47 +72,67 @@ class CheckersJoinGameDialogState
         clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            SizedBox(
-          width: MediaQuery.of(context).size.width * 0.80,
-          child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Available Games',
-                  style: TextStyle(
-                    fontFamily: "Montserrat",
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (isLoading)
-                  const CircularProgressIndicator()
-                else if (availableSessions?.isEmpty ?? true)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'No games available',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  )
-                else
-                  SizedBox(
-                    height: 300,
-                    child: ListView.builder(
-                      itemCount: availableSessions!.length,
-                      itemBuilder: (context, index) {
-                        final session = availableSessions![index];
-                        return _buildRoomItem(session);
-                      },
-                    ),
-                    ),
-                  ],
-                ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: FutureBuilder(
+                future: ref
+                    .read(checkersSessionProvider.notifier)
+                    .getAvailableSessions(),
+                builder: (context,
+                    AsyncSnapshot<List<CheckersSessionData>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Color(0xFFF3B46E)),
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error loading sessions: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+
+                  final sessions = snapshot.data ?? [];
+                  if (sessions.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No available games found',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Available Games',
+                        style: TextStyle(
+                          fontFamily: "Montserrat",
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: sessions.length,
+                          itemBuilder: (context, index) {
+                            final session = sessions[index];
+                            return _buildGameItem(session);
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
             if (_isJoining)
@@ -155,15 +143,15 @@ class CheckersJoinGameDialogState
                     valueColor:
                         AlwaysStoppedAnimation<Color>(Color(0xFFF3B46E)),
                   ),
-            ),
-          ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRoomItem(CheckersSessionData session) {
+  Widget _buildGameItem(CheckersSessionData session) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(12),

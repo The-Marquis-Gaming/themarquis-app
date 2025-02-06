@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/checkers_session.dart';
 import '../../../providers/starknet.dart';
 import 'package:graphql/client.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 part 'checkers_provider.g.dart';
 
@@ -25,19 +26,38 @@ class CheckersSession extends _$CheckersSession {
 
   // Initialize GraphQL client
   void _initGraphQLClient() {
-    final httpLink = HttpLink('http://localhost:8080/graphql');
+    const httpEndpoint = 'http://localhost:8080/graphql';
+    const wsEndpoint = 'ws://localhost:8080/graphql';
+
+    if (kDebugMode) {
+      log("Initializing Checkers GraphQL client with endpoints:");
+      log("HTTP: $httpEndpoint");
+      log("WS: $wsEndpoint");
+    }
+
+    final httpLink = HttpLink(httpEndpoint);
     final wsLink = WebSocketLink(
-      'ws://localhost:8080/graphql',
+      wsEndpoint,
       config: SocketClientConfig(
         autoReconnect: true,
         inactivityTimeout: const Duration(seconds: 30),
-        initialPayload: () => {
-          'headers': {
-            'content-type': 'application/json',
-          },
+        initialPayload: () {
+          if (kDebugMode) {
+            log("Initializing WebSocket connection");
+          }
+          return {
+            'headers': {
+              'content-type': 'application/json',
+            },
+          };
         },
       ),
     );
+
+    if (kDebugMode) {
+      wsLink.connectOrReconnect(); // Force immediate connection attempt
+      log("Attempting WebSocket connection...");
+    }
 
     final link = Link.split(
       (request) => request.isSubscription,
@@ -56,6 +76,10 @@ class CheckersSession extends _$CheckersSession {
         ),
       ),
     );
+
+    if (kDebugMode) {
+      log("GraphQL client initialized");
+    }
   }
 
   @override
@@ -238,11 +262,17 @@ class CheckersSession extends _$CheckersSession {
 
   // Subscribe to session updates
   Future<void> subscribeToSession(String sessionId) async {
+    if (kDebugMode) {
+      log("Setting up subscription for session: $sessionId");
+    }
+
     final subscriptionDocument = gql('''
       subscription OnSessionUpdate(\$sessionId: ID!) {
         entityUpdated(id: \$sessionId) {
+          id
           keys
           models {
+            __typename
             ... on checkers_marq_Session {
               session_id
               player_1
@@ -263,7 +293,6 @@ class CheckersSession extends _$CheckersSession {
             ... on checkers_marq_Player {
               player
               remaining_pieces
-              session_id
             }
           }
         }
@@ -271,31 +300,69 @@ class CheckersSession extends _$CheckersSession {
     ''');
 
     try {
+      if (kDebugMode) {
+        log("Cancelling any existing subscription");
+      }
       _subscription?.cancel();
 
       if (_graphQLClient == null) {
+        if (kDebugMode) {
+          log("GraphQL client was null, initializing...");
+        }
         _initGraphQLClient();
       }
 
-      _subscription = _graphQLClient
-          ?.subscribe(
+      // Convert session ID to hex format if needed
+      final formattedSessionId = sessionId.startsWith('0x')
+          ? sessionId
+          : '0x${BigInt.parse(sessionId).toRadixString(16)}';
+
+      if (kDebugMode) {
+        log("Subscribing with formatted session ID: $formattedSessionId");
+        log("Subscription document: ${subscriptionDocument.toString()}");
+        log("Full subscription options: {'sessionId': $formattedSessionId}");
+      }
+
+      final stream = _graphQLClient?.subscribe(
         SubscriptionOptions(
           document: subscriptionDocument,
-          variables: {'sessionId': sessionId},
+          variables: {'sessionId': formattedSessionId},
           fetchPolicy: FetchPolicy.noCache,
         ),
-      )
-          .listen(
+      );
+
+      if (stream == null) {
+        if (kDebugMode) {
+          log("Error: GraphQL subscription stream is null");
+        }
+        return;
+      }
+
+      if (kDebugMode) {
+        log("Successfully created subscription stream");
+      }
+
+      _subscription = stream.listen(
         (result) {
+          if (kDebugMode) {
+            log("Received subscription event");
+            log("Has exception: ${result.hasException}");
+            log("Has data: ${result.data != null}");
+          }
+
           if (result.hasException) {
             final errors = result.exception?.graphqlErrors ?? [];
             if (errors.isNotEmpty) {
               if (kDebugMode) {
                 log('GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
+                log('Full error details: ${result.exception.toString()}');
               }
             } else {
               if (kDebugMode) {
                 log('Subscription Error: ${result.exception.toString()}');
+                if (result.exception?.linkException != null) {
+                  log('Link Exception: ${result.exception?.linkException.toString()}');
+                }
               }
             }
             return;
@@ -305,12 +372,30 @@ class CheckersSession extends _$CheckersSession {
             if (kDebugMode) {
               log('Received subscription data: ${result.data}');
             }
-            _updateStateFromGraphQL(result.data!);
+
+            // Extract data from the nested structure
+            final entityData = result.data!['entityUpdated'];
+            if (entityData != null && entityData['models'] != null) {
+              if (kDebugMode) {
+                log('Processing entity data: $entityData');
+              }
+              final models = entityData['models'];
+              if (models is List) {
+                if (kDebugMode) {
+                  log('Processing models: $models');
+                }
+                _updateStateFromGraphQL({'entityUpdated': entityData});
+              }
+            }
           }
         },
         onError: (error) {
           if (kDebugMode) {
             log('Subscription Error: $error');
+            log('Error type: ${error.runtimeType}');
+            if (error is Error) {
+              log('Stack trace: ${error.stackTrace}');
+            }
           }
           // Try to reconnect after error
           Future.delayed(Duration(seconds: 5), () {
@@ -322,20 +407,24 @@ class CheckersSession extends _$CheckersSession {
         },
         onDone: () {
           if (kDebugMode) {
-            log('Subscription completed');
+            log('Subscription completed or disconnected');
           }
         },
         cancelOnError: false,
       );
+
+      if (kDebugMode) {
+        log("Successfully set up subscription listener");
+      }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('Error setting up subscription: $e');
-        print('Stack trace: $stackTrace');
+        log('Error setting up subscription: $e');
+        log('Stack trace: $stackTrace');
       }
       // Try to reconnect after error
       Future.delayed(Duration(seconds: 5), () {
         if (kDebugMode) {
-          print('Attempting to reconnect subscription after error...');
+          log('Attempting to reconnect subscription after error...');
         }
         subscribeToSession(sessionId);
       });
@@ -345,6 +434,10 @@ class CheckersSession extends _$CheckersSession {
   // Update state from GraphQL data
   void _updateStateFromGraphQL(Map<String, dynamic> data) {
     try {
+      if (kDebugMode) {
+        log('Updating state from GraphQL data: $data');
+      }
+
       final entityData = data['entityUpdated'];
       if (entityData == null) return;
 
@@ -355,27 +448,47 @@ class CheckersSession extends _$CheckersSession {
 
       // Sort the models into their respective types
       for (var model in models) {
-        if (model['session_id'] != null && model['turn'] != null) {
-          sessionData = model;
-        } else if (model['row'] != null) {
-          piecesData.add(model);
-        } else if (model['remaining_pieces'] != null) {
-          playersData.add(model);
+        final type = model['__typename'];
+        if (kDebugMode) {
+          log('Processing model of type: $type');
+        }
+
+        switch (type) {
+          case 'checkers_marq_Session':
+            sessionData = model;
+            break;
+          case 'checkers_marq_Piece':
+            piecesData.add(model);
+            break;
+          case 'checkers_marq_Player':
+            playersData.add(model);
+            break;
         }
       }
 
-      if (sessionData == null) return;
+      if (sessionData == null) {
+        if (kDebugMode) {
+          log('No session data found in update');
+        }
+        return;
+      }
+
+      if (kDebugMode) {
+        log('Session data: $sessionData');
+        log('Pieces data: $piecesData');
+        log('Players data: $playersData');
+      }
 
       // Convert pieces data to CheckersPiece objects
-      final pieces = piecesData.map<CheckersPiece>((node) {
+      final pieces = piecesData.map<CheckersPiece>((piece) {
         return CheckersPiece(
-          sessionId: int.parse(sessionData!['session_id']),
-          row: node['row'],
-          col: node['col'],
-          player: node['player'],
-          position: _parsePosition(node['position']),
-          isKing: node['is_king'] ?? false,
-          isAlive: node['is_alive'] ?? true,
+          sessionId: int.parse(piece['session_id']),
+          row: piece['row'],
+          col: piece['col'],
+          player: piece['player'],
+          position: _parsePosition(piece['position']),
+          isKing: piece['is_king'] ?? false,
+          isAlive: piece['is_alive'] ?? true,
         );
       }).toList();
 
@@ -395,18 +508,29 @@ class CheckersSession extends _$CheckersSession {
         message: state?.message,
       );
 
-      // Update state - the board will be notified through state change
+      if (kDebugMode) {
+        log('Updating state with new data:');
+        log('Status: ${newState.status}');
+        log('Next player: ${newState.nextPlayer}');
+        log('Pieces count: ${newState.pieces.length}');
+        log('Orange score: ${newState.orangeScore}');
+        log('Black score: ${newState.blackScore}');
+      }
+
+      // Update state
       state = newState;
-    } catch (e) {
-      // Log error but don't crash
-      debugPrint('Error updating state from GraphQL: $e');
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        log('Error updating state from GraphQL: $e');
+        log('Stack trace: $stackTrace');
+      }
     }
   }
 
   // Build user status from GraphQL data
   List<CheckersSessionUserStatus> _buildUserStatus(List<dynamic> playersData) {
     return playersData.map<CheckersSessionUserStatus>((player) {
-      final playerNode = player['node'];
+      final playerNode = player['node'] as Map<String, dynamic>;
       return CheckersSessionUserStatus(
         playerId: playerNode['player'],
         userId: playerNode['player'],
@@ -618,15 +742,22 @@ class CheckersSession extends _$CheckersSession {
 
   Future<List<CheckersSessionData>> getAvailableSessions() async {
     try {
+      if (_graphQLClient == null) {
+        if (kDebugMode) {
+          log("GraphQL client not initialized, initializing now...");
+        }
+        _initGraphQLClient();
+      }
+
+      if (kDebugMode) {
+        log("Fetching available sessions...");
+      }
+
       final result = await _graphQLClient?.query(
         QueryOptions(
           document: gql('''
             query GetAvailableSessions {
-              checkersMarqSessionModels(
-                first: 10,
-                order: {direction: DESC, field: STATE},
-                where: {stateEQ: 0}  # 0 = WAITING state
-              ) {
+              checkersMarqSessionModels {
                 edges {
                   node {
                     session_id
@@ -647,32 +778,57 @@ class CheckersSession extends _$CheckersSession {
               }
             }
           '''),
+          fetchPolicy: FetchPolicy.networkOnly,
         ),
       );
+
+      if (kDebugMode) {
+        log("Raw query result: ${result?.data}");
+      }
 
       // Check for GraphQL errors
       if (result?.hasException ?? false) {
         final errors = result?.exception?.graphqlErrors ?? [];
         if (errors.isNotEmpty) {
+          if (kDebugMode) {
+            log('GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
+          }
           throw Exception(
               'GraphQL Errors: ${errors.map((e) => e.message).join(', ')}');
         } else if (result?.exception != null) {
+          if (kDebugMode) {
+            log('Network Error: ${result?.exception.toString()}');
+          }
           throw Exception('Network Error: ${result?.exception.toString()}');
         }
       }
 
       // Check for null data
       if (result?.data == null) {
+        if (kDebugMode) {
+          log('No data received from server');
+        }
         throw Exception('No data received from server');
       }
 
       final sessions = <CheckersSessionData>[];
       final sessionEdges =
           result!.data!['checkersMarqSessionModels']['edges'] as List;
-      final playersData = result.data!['checkersMarqPlayerModels']['edges'];
+      final playersData =
+          result.data!['checkersMarqPlayerModels']['edges'] as List;
+
+      if (kDebugMode) {
+        log("Found ${sessionEdges.length} sessions");
+        log("Session edges: $sessionEdges");
+        log("Players data: $playersData");
+      }
 
       for (final edge in sessionEdges) {
         final sessionData = edge['node'];
+        if (kDebugMode) {
+          log("Processing session: $sessionData");
+        }
+
         sessions.add(CheckersSessionData(
           id: sessionData['session_id'].toString(),
           status: _parseGameState(sessionData['state']),
@@ -689,9 +845,19 @@ class CheckersSession extends _$CheckersSession {
         ));
       }
 
+      if (kDebugMode) {
+        log("Returning ${sessions.length} sessions");
+        for (final session in sessions) {
+          log("Session ${session.id}: status=${session.status}, nextPlayer=${session.nextPlayer}");
+        }
+      }
+
       return sessions;
-    } catch (e) {
-      if (kDebugMode) print('Error querying available sessions: $e');
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        log('Error querying available sessions: $e');
+        log('Stack trace: $stackTrace');
+      }
       throw Exception('Failed to query available sessions: $e');
     }
   }
