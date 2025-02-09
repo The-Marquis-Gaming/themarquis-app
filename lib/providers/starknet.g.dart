@@ -1,25 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'ludo_session.dart';
+part of 'starknet.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ludoSessionHash() => r'4d7b729ecc6938b86a999a94b32d922aee34d731';
+String _$starknetHash() => r'a82ee3dce92ac474ac0161f93ae0caefe8f12fb3';
 
-/// See also [LudoSession].
-@ProviderFor(LudoSession)
-final ludoSessionProvider =
-    NotifierProvider<LudoSession, LudoSessionData?>.internal(
-  LudoSession.new,
-  name: r'ludoSessionProvider',
+/// See also [Starknet].
+@ProviderFor(Starknet)
+final starknetProvider =
+    NotifierProvider<Starknet, StarknetProviderData>.internal(
+  Starknet.new,
+  name: r'starknetProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$ludoSessionHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$starknetHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$LudoSession = Notifier<LudoSessionData?>;
+typedef _$Starknet = Notifier<StarknetProviderData>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marquis_v2/providers/app_state.dart';
 import 'package:marquis_v2/router/router_delegate.dart';
@@ -45,7 +46,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final snackbarService = SnackbarService();
     return Scaffold(
       body: UpgradeAlert(
-        dialogStyle: Platform.isAndroid
+        dialogStyle: kIsWeb || Platform.isAndroid
             ? UpgradeDialogStyle.material
             : UpgradeDialogStyle.cupertino,
         child: Stack(

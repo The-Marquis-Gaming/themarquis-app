@@ -4,10 +4,13 @@ import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:marquis_v2/games/checkers/providers/checkers_provider.dart';
+import 'package:marquis_v2/providers/starknet.dart';
 
-import '../core/game/checkers_game_controller.dart';
+import '../checkers_game_controller.dart';
 
-class UserStatsComponent extends PositionComponent with HasGameReference<CheckersGameController> {
+class UserStatsComponent extends PositionComponent
+    with HasGameReference<CheckersGameController> {
   late TextComponent player1Name;
   late TextComponent player2Name;
   late SpriteComponent player1Avatar;
@@ -25,12 +28,10 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
 
       // Calculate scaling based on screen size
       final isTablet = game.width / game.height > 0.7;
-      final scale = isTablet ? 1.2 : 1.0; // Increase size by 20% for tablets
+      final scale = isTablet ? 1.2 : 1.0;
 
       // Adjust component sizes and positions for larger screens
       final baseSize = Vector2(80, 60) * scale;
-      // final spacing = isTablet ? 24.0 : 20.0;
-      // final fontSize = isTablet ? 18.0 : 14.0;
 
       // Create sprites from loaded images
       final topAvatarSprite = Sprite(topAvatar);
@@ -39,10 +40,61 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
       final whitePieceComponentSprite = Sprite(whitePieceSprite);
       final queenComponentSprite = Sprite(queenSprite);
 
+      // Get initial session data
+      final session = game.ref.read(checkersSessionProvider);
+      final playerAddress = game.ref
+          .read(starknetProvider)
+          .signerAccount
+          ?.accountAddress
+          .toHexString();
+
+      String topPlayerName = '...';
+      String bottomPlayerName = '...';
+      String topLostPieces = '0';
+      String topWinPieces = '0';
+      String topQueens = '0';
+      String bottomLostPieces = '0';
+      String bottomWinPieces = '0';
+      String bottomQueens = '0';
+
+      if (session != null) {
+        final currentPlayerStatus = session.sessionUserStatus.firstWhere(
+          (status) => status.userId == playerAddress,
+          orElse: () => session.sessionUserStatus.first,
+        );
+
+        final opponentStatus = session.sessionUserStatus.firstWhere(
+          (status) => status.userId != playerAddress,
+          orElse: () => session.sessionUserStatus.last,
+        );
+
+        // Set player names
+        if (currentPlayerStatus.position == "up") {
+          topPlayerName = _truncateEmail(currentPlayerStatus.email);
+          bottomPlayerName = _truncateEmail(opponentStatus.email);
+        } else {
+          topPlayerName = _truncateEmail(opponentStatus.email);
+          bottomPlayerName = _truncateEmail(currentPlayerStatus.email);
+        }
+
+        // Set initial stats
+        if (currentPlayerStatus.position == "up") {
+          topLostPieces = (12 - session.orangeScore).toString();
+          topWinPieces = session.orangeScore.toString();
+          bottomLostPieces = (12 - session.blackScore).toString();
+          bottomWinPieces = session.blackScore.toString();
+        } else {
+          topLostPieces = (12 - session.blackScore).toString();
+          topWinPieces = session.blackScore.toString();
+          bottomLostPieces = (12 - session.orangeScore).toString();
+          bottomWinPieces = session.orangeScore.toString();
+        }
+      }
+
       // Top player stats sections with reduced spacing
       await _createStatsContainer(
         text: "LOST PIECES",
-        value: "10",
+        value: topLostPieces,
         position: Vector2(20, 100),
         icon: blackPieceComponentSprite,
         containerSize: baseSize,
@@ -50,7 +102,7 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
 
       await _createStatsContainer(
         text: "WIN PIECES",
-        value: "9",
+        value: topWinPieces,
         position: Vector2(120, 100),
         icon: blackPieceComponentSprite,
         containerSize: baseSize,
@@ -58,7 +110,7 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
 
       await _createStatsContainer(
         text: "QUEENS",
-        value: "2",
+        value: topQueens,
         position: Vector2(235, 100),
         icon: queenComponentSprite,
         containerSize: baseSize,
@@ -66,7 +118,7 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
 
       // Top player name and avatar
       player1Name = TextComponent(
-        text: 'VYCHU...',
+        text: topPlayerName,
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -86,7 +138,7 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
 
       // Bottom player name and avatar (starting from left)
       player2Name = TextComponent(
-        text: 'SOOBIN...',
+        text: bottomPlayerName,
         textRenderer: TextPaint(
           style: const TextStyle(
             color: Colors.white,
@@ -107,7 +159,7 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
       // Bottom player stats sections with reduced spacing (following avatar)
       await _createStatsContainer(
         text: "LOST PIECES",
-        value: "2",
+        value: bottomLostPieces,
         position: Vector2(105, game.height - 187),
         icon: whitePieceComponentSprite,
         containerSize: baseSize,
@@ -115,7 +167,7 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
 
       await _createStatsContainer(
         text: "WIN PIECES",
-        value: "1",
+        value: bottomWinPieces,
         position: Vector2(220, game.height - 187),
         icon: whitePieceComponentSprite,
         containerSize: baseSize,
@@ -123,8 +175,9 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
 
       await _createStatsContainer(
         text: "QUEENS",
-        value: "0",
-        position: Vector2(isTablet ? game.width - 145 : game.width - 100, game.height - 187),
+        value: bottomQueens,
+        position: Vector2(
+            isTablet ? game.width - 145 : game.width - 100, game.height - 187),
         icon: queenComponentSprite,
         containerSize: baseSize,
       );
@@ -132,6 +185,11 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
       if (kDebugMode) print('Error loading assets: $e');
       rethrow;
     }
+  }
+
+  String _truncateEmail(String email) {
+    if (email.length <= 7) return email;
+    return '${email.substring(0, 6)}...';
   }
 
   Future<void> _createStatsContainer({
@@ -192,20 +250,52 @@ class UserStatsComponent extends PositionComponent with HasGameReference<Checker
   }) {
     if (playerIndex == 0) {
       // Update top player stats
-      if (lostPieces != null) _updateStatValue("LOST PIECES", lostPieces.toString(), false);
-      if (winPieces != null) _updateStatValue("WIN PIECES", winPieces.toString(), false);
+      if (lostPieces != null)
+        _updateStatValue("LOST PIECES", lostPieces.toString(), false);
+      if (winPieces != null)
+        _updateStatValue("WIN PIECES", winPieces.toString(), false);
       if (queens != null) _updateStatValue("QUEENS", queens.toString(), false);
     } else {
       // Update bottom player stats
-      if (lostPieces != null) _updateStatValue("LOST PIECES", lostPieces.toString(), true);
-      if (winPieces != null) _updateStatValue("WIN PIECES", winPieces.toString(), true);
+      if (lostPieces != null)
+        _updateStatValue("LOST PIECES", lostPieces.toString(), true);
+      if (winPieces != null)
+        _updateStatValue("WIN PIECES", winPieces.toString(), true);
       if (queens != null) _updateStatValue("QUEENS", queens.toString(), true);
     }
   }
 
   void _updateStatValue(String statName, String newValue, bool isBottom) {
-    // Implementation to update the specific stat text component
-    // You'll need to store references to these text components when creating them
+    // Find all text components
+    final components = children.whereType<TextComponent>();
+
+    // Find the value component for this stat
+    final valueComponent = components.firstWhere(
+      (component) {
+        final isMatchingPosition = isBottom
+            ? component.position.y > game.height / 2 // Bottom half
+            : component.position.y < game.height / 2; // Top half
+
+        // Check if this is a value component (not a label)
+        final isValueComponent =
+            component.position.y > (isBottom ? game.height - 187 : 100);
+
+        // Match the horizontal position based on stat name
+        final horizontalMatch = statName == "LOST PIECES"
+            ? component.position.x < 150
+            : statName == "WIN PIECES"
+                ? component.position.x > 150 && component.position.x < 300
+                : component.position.x > 300;
+
+        return isMatchingPosition && isValueComponent && horizontalMatch;
+      },
+      orElse: () => TextComponent(text: '0'),
+    );
+
+    // Update the value
+    if (valueComponent.text != newValue) {
+      valueComponent.text = newValue;
+    }
   }
 
   void updateRandomStats() {

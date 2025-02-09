@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:marquis_v2/games/checkers/core/game/checkers_game_controller.dart';
+import 'package:marquis_v2/games/checkers/checkers_game_controller.dart';
+import 'package:marquis_v2/games/checkers/providers/checkers_provider.dart';
 import 'package:marquis_v2/games/checkers/views/widgets/checkers_radio.dart';
 import 'package:marquis_v2/games/ludo/widgets/chevron_border.dart';
 import 'package:marquis_v2/games/ludo/widgets/divider_shape.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/providers/user.dart';
+import 'package:marquis_v2/widgets/error_dialog.dart';
 
 import '../../../../ludo/widgets/vertical_stepper.dart';
 
@@ -31,6 +33,7 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
   double? _selectedTokenAmount;
   final bool _isLoading = false;
   bool _shouldRetrieveBalance = false;
+  bool _isCreatingGame = false;
 
   @override
   Widget build(BuildContext context) {
@@ -168,33 +171,7 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
                       const SizedBox(width: 8),
                     ],
                     Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                          minimumSize: Size(double.infinity, 43),
-                          disabledBackgroundColor: const Color(0xFF32363A),
-                          backgroundColor: const Color(0xFFF3B46E),
-                          disabledForegroundColor: const Color(0xFF939393),
-                          foregroundColor: const Color(0xFF000000),
-                          textStyle: TextStyle(
-                            fontFamily: "Montserrat",
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        onPressed: _isNextEnabled ? _switchToNextTab : null,
-                        child: _isLoading
-                            ? const CircularProgressIndicator()
-                            : Text(
-                                (_activeTab == 1 &&
-                                            _gameMode == GameMode.free) ||
-                                        (_activeTab == 2 &&
-                                            _gameMode == GameMode.token)
-                                    ? 'Create Game'
-                                    : 'Next',
-                              ),
-                      ),
+                      child: _buildNextButton(),
                     ),
                   ],
                 ),
@@ -656,12 +633,12 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
 
   void _switchToNextTab() async {
     if (_activeTab == _numberOfTabs - 1) {
-      Navigator.of(context).pop();
-      await widget._gameController.updatePlayState(PlayState.waiting);
+      await _createGame();
+    } else {
+      setState(() {
+        _activeTab++;
+      });
     }
-    setState(() {
-      _activeTab++;
-    });
   }
 
   void _switchToPreviousTab() {
@@ -670,12 +647,78 @@ class _CheckersCreateGameState extends ConsumerState<CheckersCreateGame> {
 
   bool get _isNextEnabled {
     if (_activeTab == 0) return _gameMode != null;
-    if (_activeTab == 1 && _gameMode == GameMode.token)
+    if (_activeTab == 1 && _gameMode == GameMode.token) {
       return _selectedTokenAddress != null && _selectedTokenAmount != null;
-    if ((_activeTab == 1 && _gameMode == GameMode.free) || _activeTab == 2)
+    }
+    if ((_activeTab == 1 && _gameMode == GameMode.free) || _activeTab == 2) {
       return _selectedCharacterIndex != null;
+    }
     return false;
   }
 
   int get _numberOfTabs => _gameMode == GameMode.token ? 3 : 2;
+
+  Widget _buildNextButton() {
+    final isLastStep = _activeTab == _numberOfTabs - 1;
+
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        minimumSize: const Size(double.infinity, 43),
+        backgroundColor: const Color(0xFFF3B46E),
+        foregroundColor: Colors.black,
+        disabledBackgroundColor: const Color(0xFF32363A),
+        disabledForegroundColor: const Color(0xFF939393),
+        textStyle: const TextStyle(
+          fontFamily: "Montserrat",
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onPressed: _isNextEnabled && !_isCreatingGame ? _switchToNextTab : null,
+      child: _isCreatingGame
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.black,
+              ),
+            )
+          : Text(isLastStep ? 'Create Game' : 'Next'),
+    );
+  }
+
+  Future<void> _createGame() async {
+    if (_isCreatingGame) return;
+
+    setState(() {
+      _isCreatingGame = true;
+    });
+
+    try {
+      await ref.read(checkersSessionProvider.notifier).createLobby();
+
+      // Wait for session data to be available
+      final session = ref.read(checkersSessionProvider);
+      if (session == null) {
+        throw Exception('Failed to create game: Session data not available');
+      }
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        await widget._gameController.updatePlayState(PlayState.waiting);
+      }
+    } catch (e) {
+      if (mounted) {
+        showErrorDialog(e.toString(), context);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCreatingGame = false;
+        });
+      }
+    }
+  }
 }

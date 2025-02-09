@@ -3,10 +3,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/models/app_state.dart';
 import 'package:marquis_v2/models/user.dart';
 import 'package:marquis_v2/providers/app_state.dart';
+import 'package:marquis_v2/providers/starknet.dart';
 import 'package:marquis_v2/providers/user.dart';
 import 'package:marquis_v2/router/route_information_parser.dart';
 import 'package:marquis_v2/router/router_delegate.dart';
@@ -20,8 +22,14 @@ void main() async {
   Hive.registerAdapter(UserDataImplAdapter());
   Hive.registerAdapter(LudoSessionDataImplAdapter());
   Hive.registerAdapter(LudoSessionUserStatusImplAdapter());
-  await Future.wait(
-      [_loadAppStateBox(), _loadUserBox(), _loadLudoSessionBox()]);
+  Hive.registerAdapter(CheckersSessionDataImplAdapter());
+  Hive.registerAdapter(CheckersSessionUserStatusImplAdapter());
+  await Future.wait([
+    _loadAppStateBox(),
+    _loadUserBox(),
+    _loadLudoSessionBox(),
+    _loadCheckersSessionBox()
+  ]);
   runApp(const ProviderScope(child: MyApp()));
   // Magic.instance = Magic("pk_live_D38AAC9114F908B0");
 }
@@ -53,6 +61,15 @@ Future<void> _loadLudoSessionBox() async {
   }
 }
 
+Future<void> _loadCheckersSessionBox() async {
+  try {
+    await Hive.openBox<CheckersSessionData>("checkersSession");
+  } catch (e) {
+    await Hive.deleteBoxFromDisk("checkersSession");
+    await Hive.openBox<CheckersSessionData>("checkersSession");
+  }
+}
+
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
@@ -61,6 +78,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appState = ref.watch(appStateProvider);
     ref.watch(userProvider);
+    ref.watch(starknetProvider);
     return MaterialApp.router(
       debugShowCheckedModeBanner: appState.isSandbox,
       title: 'The Marquis',
@@ -76,7 +94,7 @@ class MyApp extends ConsumerWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       routeInformationParser: AppRouteInformationParser(),
-      routerDelegate: ref.read(routerDelegateProvider),
+      routerDelegate: ref.watch(routerDelegateProvider),
     );
   }
 }

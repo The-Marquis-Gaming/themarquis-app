@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:marquis_v2/games/checkers/providers/checkers_provider.dart';
+import 'package:marquis_v2/widgets/error_dialog.dart';
 
 class RoomFoundDialogue extends ConsumerStatefulWidget {
-  const RoomFoundDialogue({super.key});
+  final String sessionId;
+  const RoomFoundDialogue({required this.sessionId, super.key});
 
   @override
   ConsumerState<RoomFoundDialogue> createState() => RoomFoundDialogueState();
@@ -17,6 +21,24 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
   void initState() {
     super.initState();
     _roomIdController.text;
+  }
+
+  Future<void> _joinGame() async {
+    setState(() => isLoading = true);
+    try {
+      await ref
+          .read(checkersSessionProvider.notifier)
+          .joinLobby(int.parse(widget.sessionId));
+      if (mounted) {
+        Navigator.pop(context);
+        // Navigate to game screen or waiting room
+      }
+    } catch (e) {
+      if (mounted) showErrorDialog(e.toString(), context);
+      // Show error message
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
   }
 
   @override
@@ -112,9 +134,7 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
         const SizedBox(width: 8),
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: isLoading ? null : _joinGame,
             style: OutlinedButton.styleFrom(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
@@ -122,7 +142,14 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
               backgroundColor: const Color(0xFFF3B46E),
             ),
             child: isLoading
-                ? const CircularProgressIndicator()
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.black,
+                    ),
+                  )
                 : Text(
                     'Join',
                     style: TextStyle(
@@ -139,6 +166,7 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
   }
 
   Widget _roomFoundDetails(BuildContext context) {
+    final session = ref.watch(checkersSessionProvider);
     return Theme(
       data: Theme.of(context).copyWith(
         textTheme: TextTheme(
@@ -162,7 +190,7 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'ROOM 0028',
+                'ROOM ${session?.id ?? ""}',
                 style: TextStyle(
                   fontFamily: "Orbitron",
                   color: Colors.white,
@@ -171,7 +199,7 @@ class RoomFoundDialogueState extends ConsumerState<RoomFoundDialogue> {
                 ),
               ),
               Text(
-                '1/2 Players',
+                '${session?.sessionUserStatus.length ?? 1}/2 Players',
                 style: TextStyle(
                   fontFamily: "Orbitron",
                   color: const Color(0xFF979797),

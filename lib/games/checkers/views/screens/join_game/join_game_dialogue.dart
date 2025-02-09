@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:marquis_v2/games/checkers/checkers_game_controller.dart';
+import 'package:marquis_v2/games/checkers/models/checkers_session.dart';
+import 'package:marquis_v2/games/checkers/providers/checkers_provider.dart';
+import 'package:marquis_v2/models/enums.dart';
+import 'package:marquis_v2/widgets/error_dialog.dart';
 
 class CheckersJoinGameDialog extends ConsumerStatefulWidget {
-  const CheckersJoinGameDialog({super.key});
+  const CheckersJoinGameDialog({
+    super.key,
+    required this.gameController,
+  });
+
+  final CheckersGameController gameController;
 
   @override
   ConsumerState<CheckersJoinGameDialog> createState() =>
@@ -12,6 +22,41 @@ class CheckersJoinGameDialog extends ConsumerStatefulWidget {
 
 class CheckersJoinGameDialogState
     extends ConsumerState<CheckersJoinGameDialog> {
+  bool isLoading = false;
+  bool _isJoining = false;
+  final TextEditingController _sessionIdController = TextEditingController();
+
+  @override
+  void dispose() {
+    _sessionIdController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _joinGame(CheckersSessionData session) async {
+    setState(() {
+      _isJoining = true;
+    });
+    try {
+      await ref
+          .read(checkersSessionProvider.notifier)
+          .joinLobby(int.parse(session.id));
+      if (mounted) {
+        Navigator.of(context).pop();
+        await widget.gameController.updatePlayState(PlayState.playing);
+      }
+    } catch (e) {
+      if (mounted) {
+        showErrorDialog(e.toString(), context);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isJoining = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -25,197 +70,127 @@ class CheckersJoinGameDialogState
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: const Color(0xFF21262B),
         clipBehavior: Clip.antiAlias,
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.80,
-          height: MediaQuery.of(context).size.height * 0.70,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _topBar(context),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        _joinGameDetails(context),
-                        SizedBox(height: 10),
-                        _joinGameDetails(context),
-                        SizedBox(height: 10),
-                        _joinGameDetails(context),
-                        SizedBox(height: 10),
-                        _joinGameDetails(context),
-                        SizedBox(height: 10),
-                        _joinGameDetails(context),
-                      ],
-                    ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: FutureBuilder(
+                future: ref
+                    .read(checkersSessionProvider.notifier)
+                    .getAvailableSessions(),
+                builder: (context,
+                    AsyncSnapshot<List<CheckersSessionData>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Color(0xFFF3B46E)),
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error loading sessions: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+
+                  final sessions = snapshot.data ?? [];
+                  if (sessions.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No available games found',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Available Games',
+                        style: TextStyle(
+                          fontFamily: "Montserrat",
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: sessions.length,
+                          itemBuilder: (context, index) {
+                            final session = sessions[index];
+                            return _buildGameItem(session);
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            if (_isJoining)
+              Container(
+                color: Colors.black54,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFFF3B46E)),
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _topBar(BuildContext context) {
-    return Column(
-      children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: IconButton(
-            visualDensity: VisualDensity.compact,
-            padding: const EdgeInsets.all(0),
-            onPressed: Navigator.of(context).pop,
-            icon: const Icon(
-              Icons.cancel_outlined,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-        ),
-        Text(
-          'Join Game',
-          style: TextStyle(
-            fontFamily: "Montserrat",
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _joinGameDetails(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        textTheme: TextTheme(
-            bodyMedium: TextStyle(
-          fontFamily: "Orbitron",
-        )),
+  Widget _buildGameItem(CheckersSessionData session) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xFFF3B46E)),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Container(
-        height: 95,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          color: const Color(0x94181B25),
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: Color(0xFF2E2E2E),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-          ),
-          child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _roomDetials(context),
-                  _joinMenu(),
-                ],
+              Text(
+                'Room ${session.id}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Text(
+                '1/2 Players',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
-        ),
+          ElevatedButton(
+            onPressed: () => _joinGame(session),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF3B46E),
+              foregroundColor: Colors.black,
+            ),
+            child: const Text('Join'),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _joinMenu() {
-    return Column(
-      children: [
-        Text(
-          '1/2 Players',
-          style: TextStyle(
-            fontFamily: "Orbitron",
-            color: const Color(0xFF979797),
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        SizedBox(height: 15),
-        GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Container(
-            height: 33,
-            width: 94,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3B46E),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Center(
-              child: Text(
-                'Join',
-                style: TextStyle(
-                  fontFamily: "Orbitron",
-                  color: Colors.black,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _roomDetials(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'ROOM 0030',
-          style: TextStyle(
-            fontFamily: "Orbitron",
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: 8),
-        Row(
-          children: [
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2),
-                color: const Color(0xFFF3B46E),
-              ),
-              child: Center(
-                child: Image.asset('assets/images/male.png'),
-              ),
-            ),
-            SizedBox(width: 8),
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(2),
-                border: Border.all(
-                  color: const Color(0xFF5D5D5D),
-                ),
-              ),
-              child: Center(
-                child: SvgPicture.asset('assets/svg/userCheckers.svg'),
-              ),
-            )
-          ],
-        ),
-      ],
     );
   }
 }

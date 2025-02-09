@@ -16,11 +16,14 @@ import 'package:marquis_v2/screens/profile_screen.dart';
 import 'package:marquis_v2/screens/splash_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final routerDelegateProvider = Provider<AppRouterDelegate>((ref) => AppRouterDelegate(ref));
+final routerDelegateProvider =
+    Provider<AppRouterDelegate>((ref) => AppRouterDelegate(ref));
 
-final innerRouterDelegateProvider = Provider<InnerRouterDelegate>((ref) => InnerRouterDelegate(ref));
+final innerRouterDelegateProvider =
+    Provider<InnerRouterDelegate>((ref) => InnerRouterDelegate(ref));
 
-class AppRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
+class AppRouterDelegate extends RouterDelegate<AppRoutePath>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
   @override
   final GlobalKey<NavigatorState> navigatorKey;
   bool? _showPageNotFound;
@@ -138,11 +141,15 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifier
     }
 
     if (configuration is LudoGameAppPath) {
-      ref.read(appStateProvider.notifier).selectGameSessionId("ludo", configuration.id);
+      ref
+          .read(appStateProvider.notifier)
+          .selectGameSessionId("ludo", configuration.id);
     }
 
     if (configuration is CheckersGameAppPath) {
-      ref.read(appStateProvider.notifier).selectGameSessionId("checkers", configuration.id);
+      ref
+          .read(appStateProvider.notifier)
+          .selectGameSessionId("checkers", configuration.id);
     }
 
     // if (configuration is AchievementsPath) {
@@ -159,11 +166,12 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifier
   }
 }
 
-class InnerRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
+class InnerRouterDelegate extends RouterDelegate<AppRoutePath>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  final ProviderRef ref;
+  final Ref ref;
   late AppStateData _appState;
 
   InnerRouterDelegate(this.ref) {
