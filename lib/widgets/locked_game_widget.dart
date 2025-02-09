@@ -47,11 +47,13 @@ class LockedGameWidgetState extends ConsumerState<LockedGameWidget> {
                 children: [
                   Text(
                     widget.title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     widget.subTitle,
-                    style: const TextStyle(fontSize: 10, color: Color(0xff868686)),
+                    style:
+                        const TextStyle(fontSize: 10, color: Color(0xff868686)),
                   ),
                 ],
               ),
@@ -60,16 +62,17 @@ class LockedGameWidgetState extends ConsumerState<LockedGameWidget> {
           widget.showIconButton
               ? IconButton(
                   onPressed: () {
-                    if (!ref.read(appStateProvider).isAuth) {
-                      showDialog(context: context,useRootNavigator: false, builder: (ctx) => const AuthDialog());
-                      return;
-                    }
+                    // if (!ref.read(appStateProvider).isAuth) {
+                    //   showDialog(context: context,useRootNavigator: false, builder: (ctx) => const AuthDialog());
+                    //   return;
+                    // }
                     ref.read(appStateProvider.notifier).selectGame("checkers");
                   },
                   icon: const Icon(Icons.arrow_forward, size: 32),
                   style: IconButton.styleFrom(
                     backgroundColor: Colors.white.withAlpha(100),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                   ),
                 )
               : SizedBox(),

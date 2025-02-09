@@ -355,10 +355,15 @@ class CheckersBoard extends RectangleComponent
     // Move the piece
     pieces[toRow][toCol] = piece;
     pieces[fromRow][fromCol] = null;
-    piece.position = Vector2(
+
+    // Calculate the new position with the square size
+    final newPosition = Vector2(
       toCol * (size.x / boardSize) + (size.x / boardSize) / 2,
       toRow * (size.y / boardSize) + (size.y / boardSize) / 2,
     );
+
+    // Start the animation
+    piece.moveTo(newPosition);
 
     // Check for king promotion
     if ((piece.isBlack && toRow == boardSize - 1) ||
@@ -540,7 +545,8 @@ class CheckersBoard extends RectangleComponent
 
     try {
       await game.makeMove(fromRow, fromCol, toRow, toCol);
-      // The board will be updated through the websocket event
+      // Update the board immediately after the move is confirmed
+      movePiece(fromRow, fromCol, toRow, toCol);
     } catch (e) {
       if (kDebugMode) print("Error moving piece: $e");
     }

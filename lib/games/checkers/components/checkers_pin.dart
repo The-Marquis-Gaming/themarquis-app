@@ -11,6 +11,8 @@ class CheckersPin extends PositionComponent {
   bool isKing = false;
   late PictureInfo checkerSprite;
   late PictureInfo kingSprite;
+  Vector2? _targetPosition;
+  double _moveSpeed = 500.0; // pixels per second
 
   CheckersPin({
     required this.isBlack,
@@ -39,6 +41,36 @@ class CheckersPin extends PositionComponent {
     } catch (e) {
       debugPrint('Error loading sprite: $e');
     }
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    if (_targetPosition != null) {
+      final Vector2 direction = _targetPosition! - position;
+      final double distance = direction.length;
+
+      if (distance < 1.0) {
+        // We've reached the target
+        position = _targetPosition!;
+        _targetPosition = null;
+      } else {
+        // Move towards target
+        direction.normalize();
+        final double moveAmount = _moveSpeed * dt;
+        if (moveAmount >= distance) {
+          position = _targetPosition!;
+          _targetPosition = null;
+        } else {
+          position += direction * moveAmount;
+        }
+      }
+    }
+  }
+
+  void moveTo(Vector2 newPosition) {
+    _targetPosition = newPosition;
   }
 
   @override
