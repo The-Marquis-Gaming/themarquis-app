@@ -4,9 +4,11 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:marquis_v2/env.dart';
+import 'package:marquis_v2/games/ludo/models/ai_suggestion.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/providers/app_state.dart';
 import 'package:marquis_v2/providers/user.dart';
@@ -555,5 +557,48 @@ class LudoSession extends _$LudoSession {
     //   country: country,
     //   fieldOfCareer: fieldOfCareer,
     // );
+  }
+
+  Future<void> requestAISuggestion() async {
+    if (state == null) return;
+
+    try {
+      final url = Uri.parse(
+          '${ref.read(appStateProvider).isSandbox ? baseUrlDebug : baseUrl}/game/session/${state!.id}/ai-suggestion');
+      final response = await _httpClient!.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode != 200) {
+        throw HttpException('Failed to get AI suggestion');
+      }
+
+      final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes));
+      state =
+          state!.copyWith(aiSuggestion: AISuggestion.fromJson(decodedResponse));
+    } catch (e) {
+      debugPrint('Error getting AI suggestion: $e');
+      // For now, use mock data for testing
+      state = state!.copyWith(
+        aiSuggestion: AISuggestion.fromJson({
+          "analysis":
+              "Player 1 (yellow) is next. Red has one token in the home area, while green has one. Yellow and blue have all tokens on the board. Yellow's tokens are relatively spread out, with one near the starting area. The game is still quite open.",
+          "recommendation": {
+            "player_id": state!.nextPlayerId,
+            "token_id": 0,
+            "steps": 4
+          },
+          "rationale":
+              "Assuming a dice roll of 4, moving yellow token 0 (position 15) forward 4 spaces to position 19 is recommended. This advances a token towards the home stretch while keeping it relatively safe from capture. Other yellow tokens are already fairly advanced, and focusing on bringing this token closer to the finish is a sound strategy in the mid-game."
+        }),
+      );
+    }
+  }
+
+  void clearAISuggestion() {
+    if (state != null) {
+      state = state!.copyWith(aiSuggestion: null);
+    }
   }
 }

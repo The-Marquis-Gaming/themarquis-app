@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hive/hive.dart';
+import 'package:marquis_v2/games/ludo/models/ai_suggestion.dart';
 
 part 'ludo_session.g.dart';
 part 'ludo_session.freezed.dart';
@@ -40,6 +41,7 @@ class LudoSessionData extends HiveObject with _$LudoSessionData {
     @HiveField(13) bool? playMoveFailed,
     @HiveField(14) String? message,
     @HiveField(15) @Default(4) int requiredPlayers,
+    @HiveField(16) AISuggestion? aiSuggestion,
   }) = _LudoSessionData;
 
   List<Color> get getListOfColors =>

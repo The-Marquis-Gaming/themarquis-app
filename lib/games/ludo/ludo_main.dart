@@ -8,10 +8,10 @@ import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/screens/game_over_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/waiting_room/four_player_waiting_room_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/waiting_room/two_player_waiting_room_screen.dart';
-import 'package:marquis_v2/games/ludo/screens/waiting_room/two_player_waiting_room_screen.dart';
 import 'package:marquis_v2/games/ludo/screens/welcome_screen.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/router/route_path.dart';
+import 'package:marquis_v2/widgets/riverpod_game_widget.dart';
 
 class LudoGameAppPath extends AppRoutePath {
   final String? id;
@@ -37,6 +37,8 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
 
   @override
   Widget build(BuildContext context) {
+    final session = ref.watch(ludoSessionProvider);
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -51,21 +53,92 @@ class _LudoGameAppState extends ConsumerState<LudoGameApp> {
             valueListenable: _game.playStateNotifier,
             builder: (context, playState, child) {
               if (playState == PlayState.playing) {
-                return Column(
+                return Stack(
                   children: [
-                    GameTopBar(game: _game),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                        child: FittedBox(
-                          fit: BoxFit.contain,
-                          child: SizedBox(
-                              width: kLudoGameWidth,
-                              height: kLudoGameHeight,
-                              child: _buildRiverpodGameWidget()),
+                    Column(
+                      children: [
+                        GameTopBar(game: _game),
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(left: 8.0, right: 8.0),
+                            child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: SizedBox(
+                                  width: kLudoGameWidth,
+                                  height: kLudoGameHeight,
+                                  child: _buildRiverpodGameWidget()),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (session != null)
+                      Positioned(
+                        right: 16,
+                        bottom: 16,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            if (session.aiSuggestion != null) ...[
+                              Card(
+                                margin: const EdgeInsets.all(8),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Analysis',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
+                                      ),
+                                      Text(session.aiSuggestion!.analysis),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Recommendation',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
+                                      ),
+                                      Text(session.aiSuggestion!.rationale),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Card(
+                                margin: const EdgeInsets.all(8),
+                                child: SwitchListTile(
+                                  title: const Text('Show Board Suggestions'),
+                                  value: _game.showBoardSuggestions,
+                                  onChanged: (value) {
+                                    _game.showBoardSuggestions = value;
+                                  },
+                                ),
+                              ),
+                            ],
+                            FloatingActionButton(
+                              onPressed: () {
+                                if (session.aiSuggestion == null) {
+                                  ref
+                                      .read(ludoSessionProvider.notifier)
+                                      .requestAISuggestion();
+                                } else {
+                                  ref
+                                      .read(ludoSessionProvider.notifier)
+                                      .clearAISuggestion();
+                                }
+                              },
+                              child: Icon(session.aiSuggestion != null
+                                  ? Icons.close
+                                  : Icons.lightbulb_outline),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
                   ],
                 );
               }
