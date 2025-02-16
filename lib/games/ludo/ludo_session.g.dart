@@ -6,7 +6,7 @@ part of 'ludo_session.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ludoSessionHash() => r'93097f06bc5047f1e230438df1ef1c9abb67cf4e';
+String _$ludoSessionHash() => r'2aa200b18758fb488e63a7efd777a8c712b55307';
 
 /// See also [LudoSession].
 @ProviderFor(LudoSession)

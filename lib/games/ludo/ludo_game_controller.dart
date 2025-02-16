@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:marquis_v2/games/ludo/components/board.dart';
+import 'package:marquis_v2/games/ludo/components/board_suggestion.dart';
 import 'package:marquis_v2/games/ludo/components/destination.dart';
 import 'package:marquis_v2/games/ludo/components/dice.dart';
 import 'package:marquis_v2/games/ludo/components/dice_container.dart';
@@ -15,6 +16,7 @@ import 'package:marquis_v2/games/ludo/components/player_home.dart';
 import 'package:marquis_v2/games/ludo/components/player_pin.dart';
 import 'package:marquis_v2/games/ludo/config.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
+import 'package:marquis_v2/games/ludo/models/ai_suggestion.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/models/marquis_game.dart';
@@ -42,6 +44,20 @@ class LudoGameController extends MarquisGameController {
   bool isErrorMessage = false;
   dart_async.Timer? _messageTimer;
   Completer<void>? ludoSessionLoadingCompleter;
+  bool _showBoardSuggestions = false;
+  BoardSuggestion? _boardSuggestion;
+
+  bool get showBoardSuggestions => _showBoardSuggestions;
+  set showBoardSuggestions(bool value) {
+    _showBoardSuggestions = value;
+    if (_boardSuggestion != null) {
+      if (value) {
+        _boardSuggestion!.show();
+      } else {
+        _boardSuggestion!.hide();
+      }
+    }
+  }
 
   set sessionData(LudoSessionData value) => _sessionData = value;
 
@@ -170,6 +186,15 @@ class LudoGameController extends MarquisGameController {
           await ludoSessionLoadingCompleter!.future;
         }
         _handleLudoSessionUpdate(next);
+
+        // Update board suggestion when AI suggestion changes
+        if (prev?.aiSuggestion != next?.aiSuggestion) {
+          if (next?.aiSuggestion != null && _currentPlayer == _userIndex) {
+            _updateBoardSuggestion(next!.aiSuggestion!);
+          } else {
+            _removeBoardSuggestion();
+          }
+        }
       });
     });
   }
@@ -646,6 +671,36 @@ class LudoGameController extends MarquisGameController {
       await Future.delayed(Duration(seconds: durationSeconds), () {
         if (contains(messageContainer)) remove(messageContainer);
       });
+    }
+  }
+
+  void _updateBoardSuggestion(AISuggestion suggestion) {
+    _removeBoardSuggestion();
+
+    if (suggestion.recommendation.playerId != _userIndex) return;
+
+    final tokenId = suggestion.recommendation.tokenId;
+    final playerPin = board
+        ?.getPlayerPinsOnBoard(_userIndex)
+        .firstWhere((pin) => pin.homeIndex == tokenId);
+
+    if (playerPin != null) {
+      _boardSuggestion = BoardSuggestion(
+        suggestion: suggestion,
+        position: playerPin.position,
+        size: Vector2.all(unitSize * 1.2),
+      );
+      add(_boardSuggestion!);
+      if (_showBoardSuggestions) {
+        _boardSuggestion!.show();
+      }
+    }
+  }
+
+  void _removeBoardSuggestion() {
+    if (_boardSuggestion != null) {
+      remove(_boardSuggestion!);
+      _boardSuggestion = null;
     }
   }
 }

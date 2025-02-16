@@ -49,6 +49,8 @@ mixin _$LudoSessionData {
   String? get message => throw _privateConstructorUsedError;
   @HiveField(15)
   int get requiredPlayers => throw _privateConstructorUsedError;
+  @HiveField(16)
+  AISuggestion? get aiSuggestion => throw _privateConstructorUsedError;
 
   /// Serializes this LudoSessionData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -80,7 +82,10 @@ abstract class $LudoSessionDataCopyWith<$Res> {
       @HiveField(12) int? currentDiceValue,
       @HiveField(13) bool? playMoveFailed,
       @HiveField(14) String? message,
-      @HiveField(15) int requiredPlayers});
+      @HiveField(15) int requiredPlayers,
+      @HiveField(16) AISuggestion? aiSuggestion});
+
+  $AISuggestionCopyWith<$Res>? get aiSuggestion;
 }
 
 /// @nodoc
@@ -112,6 +117,7 @@ class _$LudoSessionDataCopyWithImpl<$Res, $Val extends LudoSessionData>
     Object? playMoveFailed = freezed,
     Object? message = freezed,
     Object? requiredPlayers = null,
+    Object? aiSuggestion = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -170,7 +176,25 @@ class _$LudoSessionDataCopyWithImpl<$Res, $Val extends LudoSessionData>
           ? _value.requiredPlayers
           : requiredPlayers // ignore: cast_nullable_to_non_nullable
               as int,
+      aiSuggestion: freezed == aiSuggestion
+          ? _value.aiSuggestion
+          : aiSuggestion // ignore: cast_nullable_to_non_nullable
+              as AISuggestion?,
     ) as $Val);
+  }
+
+  /// Create a copy of LudoSessionData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $AISuggestionCopyWith<$Res>? get aiSuggestion {
+    if (_value.aiSuggestion == null) {
+      return null;
+    }
+
+    return $AISuggestionCopyWith<$Res>(_value.aiSuggestion!, (value) {
+      return _then(_value.copyWith(aiSuggestion: value) as $Val);
+    });
   }
 }
 
@@ -196,7 +220,11 @@ abstract class _$$LudoSessionDataImplCopyWith<$Res>
       @HiveField(12) int? currentDiceValue,
       @HiveField(13) bool? playMoveFailed,
       @HiveField(14) String? message,
-      @HiveField(15) int requiredPlayers});
+      @HiveField(15) int requiredPlayers,
+      @HiveField(16) AISuggestion? aiSuggestion});
+
+  @override
+  $AISuggestionCopyWith<$Res>? get aiSuggestion;
 }
 
 /// @nodoc
@@ -226,6 +254,7 @@ class __$$LudoSessionDataImplCopyWithImpl<$Res>
     Object? playMoveFailed = freezed,
     Object? message = freezed,
     Object? requiredPlayers = null,
+    Object? aiSuggestion = freezed,
   }) {
     return _then(_$LudoSessionDataImpl(
       id: null == id
@@ -284,6 +313,10 @@ class __$$LudoSessionDataImplCopyWithImpl<$Res>
           ? _value.requiredPlayers
           : requiredPlayers // ignore: cast_nullable_to_non_nullable
               as int,
+      aiSuggestion: freezed == aiSuggestion
+          ? _value.aiSuggestion
+          : aiSuggestion // ignore: cast_nullable_to_non_nullable
+              as AISuggestion?,
     ));
   }
 }
@@ -307,7 +340,8 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
       @HiveField(12) this.currentDiceValue,
       @HiveField(13) this.playMoveFailed,
       @HiveField(14) this.message,
-      @HiveField(15) this.requiredPlayers = 4})
+      @HiveField(15) this.requiredPlayers = 4,
+      @HiveField(16) this.aiSuggestion})
       : _sessionUserStatus = sessionUserStatus,
         super._();
 
@@ -364,10 +398,13 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
   @JsonKey()
   @HiveField(15)
   final int requiredPlayers;
+  @override
+  @HiveField(16)
+  final AISuggestion? aiSuggestion;
 
   @override
   String toString() {
-    return 'LudoSessionData(id: $id, status: $status, nextPlayer: $nextPlayer, nonce: $nonce, playAmount: $playAmount, playToken: $playToken, sessionUserStatus: $sessionUserStatus, nextPlayerId: $nextPlayerId, creator: $creator, createdAt: $createdAt, currentDiceValue: $currentDiceValue, playMoveFailed: $playMoveFailed, message: $message, requiredPlayers: $requiredPlayers)';
+    return 'LudoSessionData(id: $id, status: $status, nextPlayer: $nextPlayer, nonce: $nonce, playAmount: $playAmount, playToken: $playToken, sessionUserStatus: $sessionUserStatus, nextPlayerId: $nextPlayerId, creator: $creator, createdAt: $createdAt, currentDiceValue: $currentDiceValue, playMoveFailed: $playMoveFailed, message: $message, requiredPlayers: $requiredPlayers, aiSuggestion: $aiSuggestion)';
   }
 
   @override
@@ -397,7 +434,9 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
                 other.playMoveFailed == playMoveFailed) &&
             (identical(other.message, message) || other.message == message) &&
             (identical(other.requiredPlayers, requiredPlayers) ||
-                other.requiredPlayers == requiredPlayers));
+                other.requiredPlayers == requiredPlayers) &&
+            (identical(other.aiSuggestion, aiSuggestion) ||
+                other.aiSuggestion == aiSuggestion));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -417,7 +456,8 @@ class _$LudoSessionDataImpl extends _LudoSessionData {
       currentDiceValue,
       playMoveFailed,
       message,
-      requiredPlayers);
+      requiredPlayers,
+      aiSuggestion);
 
   /// Create a copy of LudoSessionData
   /// with the given fields replaced by the non-null parameter values.
@@ -452,7 +492,8 @@ abstract class _LudoSessionData extends LudoSessionData {
       @HiveField(12) final int? currentDiceValue,
       @HiveField(13) final bool? playMoveFailed,
       @HiveField(14) final String? message,
-      @HiveField(15) final int requiredPlayers}) = _$LudoSessionDataImpl;
+      @HiveField(15) final int requiredPlayers,
+      @HiveField(16) final AISuggestion? aiSuggestion}) = _$LudoSessionDataImpl;
   _LudoSessionData._() : super._();
 
   factory _LudoSessionData.fromJson(Map<String, dynamic> json) =
@@ -500,6 +541,9 @@ abstract class _LudoSessionData extends LudoSessionData {
   @override
   @HiveField(15)
   int get requiredPlayers;
+  @override
+  @HiveField(16)
+  AISuggestion? get aiSuggestion;
 
   /// Create a copy of LudoSessionData
   /// with the given fields replaced by the non-null parameter values.

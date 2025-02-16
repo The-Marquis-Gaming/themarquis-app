@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:marquis_v2/games/checkers/checkers_main.dart';
 import 'package:marquis_v2/games/ludo/ludo_main.dart';
 import 'package:marquis_v2/models/app_state.dart';
 import 'package:marquis_v2/providers/app_state.dart';
@@ -16,11 +15,14 @@ import 'package:marquis_v2/screens/profile_screen.dart';
 import 'package:marquis_v2/screens/splash_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final routerDelegateProvider = Provider<AppRouterDelegate>((ref) => AppRouterDelegate(ref));
+final routerDelegateProvider =
+    Provider<AppRouterDelegate>((ref) => AppRouterDelegate(ref));
 
-final innerRouterDelegateProvider = Provider<InnerRouterDelegate>((ref) => InnerRouterDelegate(ref));
+final innerRouterDelegateProvider =
+    Provider<InnerRouterDelegate>((ref) => InnerRouterDelegate(ref));
 
-class AppRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
+class AppRouterDelegate extends RouterDelegate<AppRoutePath>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
   @override
   final GlobalKey<NavigatorState> navigatorKey;
   bool? _showPageNotFound;
@@ -51,9 +53,6 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifier
     if (_appState.selectedGame != null) {
       if (_appState.selectedGame == 'ludo') {
         return LudoGameAppPath(_appState.selectedGameSessionId);
-      }
-      if (_appState.selectedGame == 'checkers') {
-        return CheckersGameAppPath(_appState.selectedGameSessionId);
       }
       return GamePath(_appState.selectedGame!);
     }
@@ -138,11 +137,9 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifier
     }
 
     if (configuration is LudoGameAppPath) {
-      ref.read(appStateProvider.notifier).selectGameSessionId("ludo", configuration.id);
-    }
-
-    if (configuration is CheckersGameAppPath) {
-      ref.read(appStateProvider.notifier).selectGameSessionId("checkers", configuration.id);
+      ref
+          .read(appStateProvider.notifier)
+          .selectGameSessionId("ludo", configuration.id);
     }
 
     // if (configuration is AchievementsPath) {
@@ -159,7 +156,8 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifier
   }
 }
 
-class InnerRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
+class InnerRouterDelegate extends RouterDelegate<AppRoutePath>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -211,10 +209,6 @@ class InnerRouterDelegate extends RouterDelegate<AppRoutePath> with ChangeNotifi
             "ludo" => FadeAnimationPage(
                 key: ValueKey('LudoGame${_appState.selectedGame}Page'),
                 child: const LudoGameApp(),
-              ),
-            "checkers" => FadeAnimationPage(
-                key: ValueKey('CheckersGame${_appState.selectedGame}Page'),
-                child: const CheckersGameApp(),
               ),
             _ => FadeAnimationPage(
                 key: ValueKey('Game${_appState.selectedGame}Page'),

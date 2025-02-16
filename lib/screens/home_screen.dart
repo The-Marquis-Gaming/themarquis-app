@@ -119,48 +119,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.0),
-                            border: Border.all(color: const Color(0xff181B25))),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            verticalSpace(8.0),
-                            const LockedGameWidget(
-                              // showIconButton: true,
-                              title: 'Checkers',
-                              subTitle: 'Board Game',
-                              image: 'assets/images/checkers.png',
-                            ),
-                            const LockedGameWidget(
-                              title: 'Yahtzee',
-                              subTitle: 'Dice Game',
-                              image: 'assets/images/yahtzee.png',
-                            ),
-                            const LockedGameWidget(
-                              title: '6 nimmt',
-                              subTitle: 'Card Game',
-                              image: 'assets/images/6nimmt.png',
-                            )
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        right: 0,
-                        top: 100,
-                        child: SvgPicture.asset(
-                          'assets/svg/locked_badge.svg',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ],
