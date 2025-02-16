@@ -18,7 +18,6 @@ import 'package:marquis_v2/games/ludo/config.dart';
 import 'package:marquis_v2/games/ludo/ludo_session.dart';
 import 'package:marquis_v2/games/ludo/models/ai_suggestion.dart';
 import 'package:marquis_v2/games/ludo/models/ludo_session.dart';
-import 'package:marquis_v2/games/ludo/providers/ai_suggestion_provider.dart';
 import 'package:marquis_v2/models/enums.dart';
 import 'package:marquis_v2/models/marquis_game.dart';
 import 'package:marquis_v2/providers/user.dart';
